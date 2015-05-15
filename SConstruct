@@ -15,10 +15,16 @@ vars.Add(PathVariable('bindir', 'Binary installation directory',
 vars.Add(PathVariable('pythondir', 'Python module installation directory',
                       '${libdir}/python%d.%d/site-packages' \
                       % sys.version_info[0:2], PathVariable.PathAccept))
+vars.Add(PathVariable('html_coverage',
+                      'Directory to output HTML coverage reports into '
+                      '(requires the Python coverage module).',
+                      None, PathVariable.PathIsDirCreate))
+
 env = Environment(variables=vars)
 
 Help(vars.GenerateHelpText(env))
 
 Export('env')
 SConscript('bin/SConscript')
+SConscript('test/SConscript')
 SConscript('lib/allosmod/SConscript')

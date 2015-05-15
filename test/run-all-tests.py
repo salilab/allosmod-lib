@@ -39,8 +39,9 @@ class RunAllTests(unittest.TestProgram):
         if coverage:
             # Start coverage testing now before we import any modules
             cwd = os.path.dirname(sys.argv[0])
-            self.topdir = os.path.abspath(os.path.join(cwd, '..', 'lib'))
-            self.mods = glob.glob("%s/allosmod/*.py" % self.topdir)
+            self.topdir = os.path.abspath(os.path.join(cwd, '..'))
+            self.mods = glob.glob("%s/lib/allosmod/*.py" % self.topdir) \
+                        + ["%s/bin/allosmod" % self.topdir]
 
             self.cov = coverage.coverage(branch=True, include=self.mods)
             self.cov.start()

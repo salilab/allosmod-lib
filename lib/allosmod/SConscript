@@ -1,0 +1,5 @@
+Import('env')
+import os
+
+i = env.Install(os.path.join(env['pythondir'], 'allosmod'), Glob('*.py'))
+env.Alias('install', i)

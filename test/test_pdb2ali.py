@@ -2,10 +2,10 @@ import unittest
 import subprocess
 import os
 
-def check_output(args, stderr=None, *other):
+def check_output(args, stderr=None, retcode=0, *other):
     p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=stderr, *other)
     stdout, stderr = p.communicate()
-    if p.returncode != 0:
+    if p.returncode != retcode:
         raise OSError("Process %s exited with code %d"
                       % (" ".join(args), p.returncode))
     return stdout

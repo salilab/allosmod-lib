@@ -33,12 +33,36 @@ END
 """
 
 class Tests(unittest.TestCase):
+    def test_bad(self):
+        """Test wrong arguments to pdb2ali"""
+        for args in ([], ['foo', 'bar']):
+            out = check_output(['allosmod', 'pdb2ali'] + args,
+                               stderr=subprocess.STDOUT, retcode=2)
+
+    def test_wrap(self):
+        """Make sure that long sequences from pdb2ali are wrapped"""
+        with open('test.pdb', 'w') as fh:
+            for i in range(100):
+                fh.write("ATOM      1  N   CYS A   %-4d    1.453   "
+                         "0.000   0.000  0.00  0.00           C\n" % (i+1))
+            fh.write(test_pdb)
+        out = check_output(['allosmod', 'pdb2ali', 'test.pdb'])
+        self.assertEqual(out,
+""">P1;test.pdb
+structureX:test.pdb:   1 :A:+112:B:::-1.00:-1.00
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCMYh./CMY-frh.*
+""")
+        os.unlink('test.pdb')
+
     def test_simple(self):
         """Simple test of pdb2ali"""
         with open('test.pdb', 'w') as fh:
             fh.write(test_pdb)
-        out = check_output(['allosmod', 'pdb2ali', 'test.pdb'])
-        self.assertEqual(out, """>P1;test.pdb
+        for out in (check_output(['allosmod', 'pdb2ali', 'test.pdb']),
+                    check_output(['python', '-m', 'allosmod.pdb2ali',
+                                  'test.pdb'])):
+            self.assertEqual(out, """>P1;test.pdb
 structureX:test.pdb:   1 :A:+12:B:::-1.00:-1.00
 CMYh./CMY-frh.*
 """)

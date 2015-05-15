@@ -1,16 +1,70 @@
 Import('env')
+import os
+import sys
+import glob
+import shutil
+# Only use coverage if it's new enough
+try:
+    import coverage
+    if not hasattr(coverage.coverage, 'combine'):
+        coverage = None
+except ImportError:
+    coverage = None
 
 e = env.Clone()
-e['ENV']['PYTHONPATH'] = 'lib'
+e['ENV']['PYTHONPATH'] = 'coverage:lib'
 e['ENV']['PATH'] = 'bin:' + e['ENV']['PATH']
+
+def setup_coverage():
+    covdir = 'coverage'
+    if os.path.exists(covdir):
+        shutil.rmtree(covdir)
+    if coverage is None:
+        return
+    os.mkdir(covdir)
+    fname = os.path.join(covdir, 'sitecustomize.py')
+    with open(fname, 'w') as fh:
+        fh.write("""
+import coverage
+import atexit
+import os
+
+_cov = coverage.coverage(branch=True, data_suffix=True, auto_data=True,
+                         data_file='%s')
+_cov.start()
+
+def _coverage_cleanup(c):
+    c.stop()
+atexit.register(_coverage_cleanup, _cov)
+""" % os.path.abspath(os.path.join(covdir, '.coverage')))
+
+def report_coverage(html_coverage):
+    covdir = 'coverage'
+    if coverage is None:
+        return
+    topdir = os.path.abspath('.')
+    mods = glob.glob("%s/lib/allosmod/*.py" % topdir) \
+                     + ["%s/bin/allosmod" % topdir]
+
+    cov = coverage.coverage(branch=True,
+                            data_file=os.path.join(covdir, '.coverage'))
+    cov.combine()
+    cov.save()
+    print >> sys.stderr, "\nPython coverage report\n"
+
+    cov.file_locator.relative_dir = topdir + '/'
+    cov.report(mods, file=sys.stderr)
+    if html_coverage:
+        cov.html_report(mods, directory=html_coverage)
+    shutil.rmtree(covdir)
 
 # Custom builder to run unit tests:
 def builder_unit_test(target, source, env):
     opts = ""
-    if env.get('html_coverage', None):
-        opts = '--html_coverage=%s ' % env['html_coverage']
+    setup_coverage()
     app = "python %s %s-v > /dev/null" % (source[0], opts)
     if e.Execute(app) == 0:
+        report_coverage(env.get('html_coverage', None))
         file(str(target[0]), 'w').write('PASSED\n')
     else:
         print "unit tests FAILED"

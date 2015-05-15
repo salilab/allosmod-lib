@@ -1,3 +1,4 @@
 config.py
 *.pyc
 .sconsign.dblite
+test/test.passed

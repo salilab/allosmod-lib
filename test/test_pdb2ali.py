@@ -11,6 +11,7 @@ def check_output(args, stderr=None, *other):
     return stdout
 
 test_pdb = """EXPDTA    THEORETICAL MODEL, MODELLER SVN 2015/05/15 09:37:25
+ATOM      1  N   CYS A   1       1.453   0.000   0.000  0.00  0.00           C
 ATOM      2  CA  CYS A   1       1.453   0.000   0.000  0.00  0.00           C
 ATOM      8  CA  MET A   2       3.735   3.100   0.000  1.00  0.00           C
 ATOM     16  CA  TYR A   3       7.437   4.095   0.000  1.00  0.00           C
@@ -34,7 +35,10 @@ class Tests(unittest.TestCase):
         with open('test.pdb', 'w') as fh:
             fh.write(test_pdb)
         out = check_output(['allosmod', 'pdb2ali', 'test.pdb'])
-        self.assertEqual(out, 'foo')
+        self.assertEqual(out, """>P1;test.pdb
+structureX:test.pdb:   1 :A:+10:B:::-1.00:-1.00
+CMYh./CMYh.*
+""")
         os.unlink('test.pdb')
 
 if __name__ == '__main__':

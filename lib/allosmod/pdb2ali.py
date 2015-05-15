@@ -1,6 +1,62 @@
 """Convert a PDB file to a Modeller alignment file."""
 
+from __future__ import print_function
 import optparse
+import collections
+
+rescodes = {'HEM': 'h', 'PPI': 'f', 'RIB': 'r', 'ALA': 'A', 'ARG': 'R',
+            'ASN': 'N', 'ASP': 'D', 'CYS': 'C', 'GLU': 'E', 'GLN': 'Q',
+            'GLY': 'G', 'HIS': 'H', 'HID': 'H', 'HIE': 'H', 'HIP': 'H',
+            'HSD': 'H', 'HSE': 'H', 'HSP': 'H', 'ILE': 'I', 'LEU': 'L',
+            'LYS': 'K', 'MET': 'M', 'MSE': 'M', 'PHE': 'F', 'PRO': 'P',
+            'SER': 'S', 'THR': 'T', 'TRP': 'W', 'TYR': 'Y', 'VAL': 'V',
+            'ADE': 'a', 'CYT': 'c', 'GUA': 'g', 'THY': 's', 'URA': 'u',
+            'A': 'a', 'C': 'c', 'G': 'g', 'T': 's', 'U': 'u',
+            'DA': 'e', 'DC': 'j', 'DG': 'l', 'DT': 't', 'DU': 'v', 'PPP': '-'}
+
+Residue = collections.namedtuple('Residue', ['resnam', 'chain', 'resnum'])
+
+def get_residues(pdb_file):
+    last = None
+    with open(pdb_file) as fh:
+        for line in fh:
+            if line.startswith('ATOM') or line.startswith('HETATM'):
+                resnam = line[17:20]
+                chain = line[21]
+                resnum = line[22:27]
+                if (resnam, chain, resnum) != last:
+                    last = (resnam, chain, resnum)
+                    if resnam != 'HOH':
+                        yield Residue(rescodes.get(resnam.strip(), '.'),
+                                      chain, resnum)
+
+class SequencePrinter(object):
+    def __init__(self):
+        self.num_printed = 0
+    def __call__(self, c):
+        print(c, end='')
+        self.num_printed += 1
+        if self.num_printed % 75 == 0:
+            print()
+
+def pdb2ali(pdb_file):
+    # TODO: rewrite PDB file if empty chain IDs
+    residues = list(get_residues(pdb_file))
+    print(">P1;" + pdb_file)
+    nres = len([r for r in residues if r.resnam != '-'])
+    print("structureX:%s:%s:%s:+%d:%s:::-1.00:-1.00" %
+          (pdb_file, residues[0].resnum, residues[0].chain, nres,
+           residues[-1].chain))
+    last_chain = None
+    p = SequencePrinter()
+    for r in residues:
+        if r.chain != last_chain:
+            if last_chain is not None:
+                p('/')
+            last_chain = r.chain
+        p(r.resnam)
+    p('*')
+    print()
 
 def parse_args():
     usage = """%prog <PDB file>
@@ -22,6 +78,7 @@ with these chains given the '@' ID.
 
 def main():
     pdb_file = parse_args()
+    pdb2ali(pdb_file)
 
 if __name__ == '__main__':
     main()

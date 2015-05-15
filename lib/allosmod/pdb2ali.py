@@ -39,9 +39,27 @@ class SequencePrinter(object):
         if self.num_printed % 75 == 0:
             print()
 
+def any_empty_chain_ids(residues):
+    for r in residues:
+        if r.chain == ' ':
+            return True
+
+def rewrite_chain_ids(pdb_file):
+    """Replace any empty chain IDs with '@'"""
+    with open(pdb_file) as fh:
+        lines = fh.readlines()
+    with open(pdb_file, 'w') as fh:
+        for line in lines:
+            if (line.startswith('ATOM') or line.startswith('HETATM')) \
+               and line[21] == ' ':
+                line = line[:21] + '@' + line[22:]
+            fh.write(line)
+
 def pdb2ali(pdb_file):
-    # TODO: rewrite PDB file if empty chain IDs
     residues = list(get_residues(pdb_file))
+    if any_empty_chain_ids(residues):
+        rewrite_chain_ids(pdb_file)
+        residues = list(get_residues(pdb_file))
     print(">P1;" + pdb_file)
     nres = len([r for r in residues if r.resnam != '-'])
     print("structureX:%s:%s:%s:+%d:%s:::-1.00:-1.00" %

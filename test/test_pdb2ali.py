@@ -41,5 +41,20 @@ CMYh./CMYh.*
 """)
         os.unlink('test.pdb')
 
+    def test_rewrite_chain(self):
+        """Make sure that pdb2ali rewrites empty chain IDs"""
+        with open('test.pdb', 'w') as fh:
+            fh.write(test_pdb.replace(' A ', '   '))
+        out = check_output(['allosmod', 'pdb2ali', 'test.pdb'])
+        self.assertEqual(out, """>P1;test.pdb
+structureX:test.pdb:   1 :@:+10:B:::-1.00:-1.00
+CMYh./CMYh.*
+""")
+        with open('test.pdb') as fh:
+            lines = fh.readlines()
+        # Empty chain should have been reassigned as '@'
+        self.assertEqual(lines[1][21], '@')
+        os.unlink('test.pdb')
+
 if __name__ == '__main__':
     unittest.main()

@@ -12,11 +12,11 @@ except ImportError:
     coverage = None
 
 e = env.Clone()
-e['ENV']['PYTHONPATH'] = 'coverage:lib'
+covdir = '.coverage'
+e['ENV']['PYTHONPATH'] = '%s:lib' % covdir
 e['ENV']['PATH'] = 'bin:' + e['ENV']['PATH']
 
 def setup_coverage():
-    covdir = 'coverage'
     if os.path.exists(covdir):
         shutil.rmtree(covdir)
     if coverage is None:
@@ -39,7 +39,6 @@ atexit.register(_coverage_cleanup, _cov)
 """ % os.path.abspath(os.path.join(covdir, '.coverage')))
 
 def report_coverage(html_coverage):
-    covdir = 'coverage'
     if coverage is None:
         return
     topdir = os.path.abspath('.')

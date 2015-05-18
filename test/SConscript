@@ -14,7 +14,12 @@ except ImportError:
 e = env.Clone()
 covdir = '.coverage'
 e['ENV']['PYTHONPATH'] = '%s:lib' % covdir
-e['ENV']['PATH'] = 'bin:' + e['ENV']['PATH']
+# Inherit setup from environment (so we can do "module load modeller")
+if 'PYTHONPATH' in os.environ:
+    e['ENV']['PYTHONPATH'] += ':%s' % os.environ['PYTHONPATH']
+if 'LD_LIBRARY_PATH' in os.environ:
+    e['ENV']['LD_LIBRARY_PATH'] = os.environ['LD_LIBRARY_PATH']
+e['ENV']['PATH'] = 'bin:%s:%s' % (e['ENV']['PATH'], os.environ['PATH'])
 
 def setup_coverage():
     if os.path.exists(covdir):
@@ -43,6 +48,7 @@ def report_coverage(html_coverage):
         return
     topdir = os.path.abspath('.')
     mods = glob.glob("%s/lib/allosmod/*.py" % topdir) \
+           + glob.glob("%s/lib/allosmod/*/*.py" % topdir) \
                      + ["%s/bin/allosmod" % topdir]
 
     cov = coverage.coverage(branch=True,

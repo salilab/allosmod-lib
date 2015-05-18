@@ -47,9 +47,14 @@ class Tests(unittest.TestCase):
         """Simple test of pdb_fix_res"""
         with open('test.pdb', 'w') as fh:
             fh.write(test_pdb)
+        def check_inplace():
+            check_output(['allosmod', 'pdb_fix_res', '--in-place', 'test.pdb'])
+            with open('test.pdb') as fh:
+                return fh.read()
         for out in (check_output(['allosmod', 'pdb_fix_res', 'test.pdb']),
                     check_output(['python', '-m', 'allosmod.pdb_fix_res',
-                                  'test.pdb'])):
+                                  'test.pdb']),
+                    check_inplace()):
             lines = out.split('\n')
             del lines[-1]
             for n, line in enumerate(lines):

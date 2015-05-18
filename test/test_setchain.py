@@ -20,9 +20,15 @@ class Tests(unittest.TestCase):
         """Simple test of setchain"""
         with open('test.pdb', 'w') as fh:
             fh.write(test_pdb)
+        def check_inplace():
+            check_output(['allosmod', 'setchain', '--in-place', 'test.pdb',
+                          'X'])
+            with open('test.pdb') as fh:
+                return fh.read()
         for out in (check_output(['allosmod', 'setchain', 'test.pdb', 'X']),
                     check_output(['python', '-m', 'allosmod.setchain',
-                                  'test.pdb', 'XYZ'])):
+                                  'test.pdb', 'XYZ']),
+                    check_inplace()):
             lines = out.split('\n')
             self.assertEqual(lines[2][17:25], 'CYS X   ')
         os.unlink('test.pdb')

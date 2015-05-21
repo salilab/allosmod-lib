@@ -42,7 +42,7 @@ def find_het(aln_file, seqs):
             elif in_seq:
                 if '.' in line:
                     het[in_seq] = True
-                elif '*' in line:
+                if '*' in line:
                     in_seq = False
     return het
 

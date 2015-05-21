@@ -1,6 +1,7 @@
 import unittest
 import subprocess
 import os
+import shutil
 import modeller
 from test_pdb2ali import check_output
 from test_modeller import mock_method
@@ -52,7 +53,7 @@ AFVV*
         from allosmod.get_pm_initialstruct import find_het
         with open('test.aln', 'w') as fh:
             fh.write("C; Sample alignment\n")
-            fh.write(get_seq('1fdx', '1fdx.pdb', 'AFVV'))
+            fh.write(get_seq('1fdx', '1fdx.pdb', 'AF\nVV'))
             fh.write(get_seq('5fd1', '5df1.pdb', 'AF.VV'))
             fh.write(get_seq('foo', 'foo.pdb', 'AF.VV'))
         self.assertEqual(find_het('test.aln', ['1fdx', 'foo']),
@@ -85,12 +86,10 @@ AFVV*
         test_aln(orig_aln)
         os.unlink('test.aln')
 
-    def test_simple(self):
-        """Simple complete run of get_pm_initialstruct"""
-        from allosmod.get_pm_initialstruct import get_pm_initialstruct
+    def setup_inputs(self, seq='AW'):
         with open('test.aln', 'w') as fh:
             fh.write(get_seq('1fdx', '1fdx', 'AY'))
-            fh.write(get_seq('foo', 'foo', 'AW'))
+            fh.write(get_seq('foo', 'foo', seq))
         with open('templates', 'w') as fh:
             fh.write("1fdx\n")
         with open('1fdx', 'w') as fh:
@@ -98,15 +97,43 @@ AFVV*
 ATOM      2  CA  ALA     1      27.449  14.935   5.140  1.00 29.87           C
 ATOM      7  CA  TYR     2      26.593  16.867   8.258  1.00120.51           C
 """)
+
+    def test_simple(self):
+        """Simple complete run of get_pm_initialstruct"""
+        from allosmod.get_pm_initialstruct import get_pm_initialstruct
+        self.setup_inputs()
+        if os.path.exists('pred_1fdx'):
+            shutil.rmtree('pred_1fdx')
+
         check_output(['allosmod', 'get_pm_initialstruct', '--target', 'foo',
                       '--keep-alignment', 'test.aln', 'templates',
                       '.', '1', 'slow'])
         e = modeller.environ()
         m = modeller.model(e, file='pred_1fdx/foo.B99990001.pdb')
         self.assertEqual([x.code for x in m.residues], ['A', 'W'])
+        self.assertEqual(m.chains[0].name, 'A')
         for f in ('1fdx', 'foo.B99990001.pdb', 'foo.ini', 'foo.sch',
                   'test.aln', 'foo.D00000001', 'foo.rsr',
                   'foo.V99990001'):
+            os.unlink(os.path.join('pred_1fdx', f))
+        os.rmdir('pred_1fdx')
+        os.unlink('test.aln')
+        os.unlink('templates')
+        os.unlink('1fdx')
+
+    def test_opts(self):
+        """Complete run of get_pm_initialstruct using different options"""
+        from allosmod.get_pm_initialstruct import get_pm_initialstruct
+        self.setup_inputs(seq='A/W')
+
+        if os.path.exists('pred_1fdx'):
+            shutil.rmtree('pred_1fdx')
+        os.mkdir('pred_1fdx')
+        check_output(['allosmod', 'get_pm_initialstruct', '--target', 'foo',
+                      '--restraints-only', 'test.aln', 'templates',
+                      '.', '1', 'fast'])
+        for f in ('1fdx', 'family.mat', 'foo.ini', 'test.aln', 'test.aln.ali',
+                  'foo.rsr'):
             os.unlink(os.path.join('pred_1fdx', f))
         os.rmdir('pred_1fdx')
         os.unlink('test.aln')

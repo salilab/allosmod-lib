@@ -9,11 +9,7 @@ import modeller.automodel
 import modeller.scripts
 import random
 import fileinput
-
-def read_templates(template_file):
-    """Read list of templates (one per line) from the given file"""
-    with open(template_file) as fh:
-        return [line.rstrip('\r\n') for line in fh]
+import allosmod.util
 
 def get_target(e, target, aln_file):
     """Get the target sequence (either the provided value, or the first entry
@@ -137,8 +133,8 @@ Makes an initial comparative model from a sequence.
 
 def main():
     aln_file, template_file, pdb_dir, nmodel, refine_level, opts = parse_args()
-    get_pm_initialstruct(aln_file, read_templates(template_file), pdb_dir,
-                         nmodel, refine_level, opts)
+    get_pm_initialstruct(aln_file, allosmod.util.read_templates(template_file),
+                         pdb_dir, nmodel, refine_level, opts)
 
 if __name__ == '__main__':
     main()

@@ -22,15 +22,6 @@ class Tests(unittest.TestCase):
                                 'allosmod.get_pm_initialstruct'] + args,
                                stderr=subprocess.STDOUT, retcode=2)
 
-    def test_read_templates(self):
-        """Test read_templates function"""
-        import allosmod.get_pm_initialstruct
-        with open('lst', 'w') as fh:
-            fh.write('test1\ntest2\n')
-        self.assertEqual(allosmod.get_pm_initialstruct.read_templates('lst'),
-                         ['test1', 'test2'])
-        os.unlink('lst')
-
     def test_get_target(self):
         """Test get_target function"""
         from allosmod.get_pm_initialstruct import get_target

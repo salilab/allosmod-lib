@@ -1,6 +1,8 @@
 Import('env')
 import os
 
-i = env.Install(os.path.join(env['pythondir'], 'allosmod'), Glob('*.py'))
-env.AddPostAction(i, 'python -m py_compile ${TARGET}')
-env.Alias('install', i)
+for dir in ('.', 'util', 'modeller'):
+    i = env.Install(os.path.join(env['pythondir'], 'allosmod', dir),
+                    Glob('%s/*.py' % dir))
+    env.AddPostAction(i, 'python -m py_compile ${TARGET}')
+    env.Alias('install', i)

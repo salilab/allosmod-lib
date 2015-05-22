@@ -6,12 +6,14 @@ from io import BytesIO
 import os
 
 @contextlib.contextmanager
-def mock_method(cls, method_name):
+def mock_method(cls, method_name, replacement=None):
     def mock(*args, **keys):
         mock.args = args
         mock.keys = keys
+    if replacement is None:
+        replacement = mock
     old_method = getattr(cls, method_name)
-    setattr(cls, method_name, mock)
+    setattr(cls, method_name, replacement)
     yield mock
     setattr(cls, method_name, old_method)
 

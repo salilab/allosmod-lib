@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 import optparse
+import sys
 import collections
 
 rescodes = {'HEM': 'h', 'PPI': 'f', 'RIB': 'r', 'ALA': 'A', 'ARG': 'R',
@@ -31,13 +32,14 @@ def get_residues(pdb_file):
                                       chain, resnum)
 
 class SequencePrinter(object):
-    def __init__(self):
+    def __init__(self, fh):
+        self.fh = fh
         self.num_printed = 0
     def __call__(self, c):
-        print(c, end='')
+        print(c, end='', file=self.fh)
         self.num_printed += 1
         if self.num_printed % 75 == 0:
-            print()
+            print(file=self.fh)
 
 def any_empty_chain_ids(residues):
     for r in residues:
@@ -55,18 +57,18 @@ def rewrite_chain_ids(pdb_file):
                 line = line[:21] + '@' + line[22:]
             fh.write(line)
 
-def pdb2ali(pdb_file):
+def pdb2ali(pdb_file, fh=sys.stdout):
     residues = list(get_residues(pdb_file))
     if any_empty_chain_ids(residues):
         rewrite_chain_ids(pdb_file)
         residues = list(get_residues(pdb_file))
-    print(">P1;" + pdb_file)
+    print(">P1;" + pdb_file, file=fh)
     nres = len([r for r in residues if r.resnam != '-'])
     print("structureX:%s:%s:%s:+%d:%s:::-1.00:-1.00" %
           (pdb_file, residues[0].resnum, residues[0].chain, nres,
-           residues[-1].chain))
+           residues[-1].chain), file=fh)
     last_chain = None
-    p = SequencePrinter()
+    p = SequencePrinter(fh)
     for r in residues:
         if r.chain != last_chain:
             if last_chain is not None:
@@ -74,7 +76,7 @@ def pdb2ali(pdb_file):
             last_chain = r.chain
         p(r.resnam)
     p('*')
-    print()
+    print(file=fh)
 
 def parse_args():
     usage = """%prog <PDB file>

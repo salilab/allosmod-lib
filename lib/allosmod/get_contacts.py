@@ -103,7 +103,7 @@ If these atoms don't exist, the CA, O or N atom (in that order) is used as the
 center.
 
 HEM residues are considered to have four centers, corresponding to the centers
-of each of the four rings.
+of each of the four pyrrole rings.
 """
     parser = optparse.OptionParser(usage)
     options, args = parser.parse_args()

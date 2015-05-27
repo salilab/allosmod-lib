@@ -4,9 +4,11 @@ from __future__ import print_function, absolute_import
 import optparse
 import subprocess
 
-def check_output(args, stderr=None, retcode=0, *other):
-    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=stderr, *other)
-    stdout, stderr = p.communicate()
+def check_output(args, stderr=None, retcode=0, input=None, *other):
+    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=stderr,
+                         stdin=subprocess.PIPE if input else None,
+                         *other)
+    stdout, stderr = p.communicate(input)
     if p.returncode != retcode:
         raise OSError("Process %s exited with code %d"
                       % (" ".join(args), p.returncode))

@@ -15,6 +15,12 @@ Dependencies
 - [DSSP](http://swift.cmbi.ru.nl/gv/dssp/). It is expected that the `dssp`
   binary is in the `PATH`.
 
+If you will also be using SAXS profiles (e.g. for the AllosMod-FoXS web service)
+then you will need:
+
+- [ProFit](http://www.bioinf.org.uk/programs/profit/). The `profit` binary
+  needs to be in the `PATH`.
+
 Building
 ========
 

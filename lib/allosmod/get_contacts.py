@@ -22,9 +22,7 @@ def _get_average_hem(r):
                        get_av(['NC', 'C1C', 'C2C', 'C3C', 'C4C']),
                        get_av(['ND', 'C1D', 'C2D', 'C3D', 'C4D'])))
 
-def get_average_coordinate(r):
-    if r.pdb_name == 'HEM':
-        return _get_average_hem(r)
+def _get_average_aa(r):
     main_chain_atom_names = dict.fromkeys(['O', 'N', 'C', 'OT', 'CA', 'CB'])
     to_average = []
     for a in r.atoms:
@@ -42,6 +40,12 @@ def get_average_coordinate(r):
             except KeyError:
                 pass
     raise ValueError("no average")
+
+def get_average_coordinate(r):
+    if r.pdb_name == 'HEM':
+        return _get_average_hem(r)
+    else:
+        return _get_average_aa(r)
 
 def get_contact_type(r1, r2):
     hphob = 1
@@ -66,7 +70,7 @@ def get_contact_dist(r1, r2, rcut2):
     for av1 in r1.average:
         for av2 in r2.average:
             dist = sum((a-b) ** 2 for a, b in zip(av1,av2))
-            if dist > 0. and dist < rcut2:
+            if dist < rcut2:
                 return math.sqrt(dist)
 
 def get_contacts(pdb_file, rcut):

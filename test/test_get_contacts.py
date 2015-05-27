@@ -38,9 +38,6 @@ class Tests(unittest.TestCase):
             def __init__(self, av):
                 self.average = av
         self.assertEqual(get_contact_dist(Residue(((0,0,0),)),
-                                          Residue(((0,0,0),)), 15.0),
-                         None)
-        self.assertEqual(get_contact_dist(Residue(((0,0,0),)),
                                           Residue(((0,5,0),)), 16.0),
                          None)
         self.assertAlmostEqual(get_contact_dist(Residue(((0,0,0),)),

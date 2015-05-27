@@ -12,6 +12,9 @@ Dependencies
   installed Modeller from the `.tar.gz` package, you will need to set the
   `PYTHONPATH` and `LD_LIBRARY_PATH` environment variables to facilitate this.
 
+- [DSSP](http://swift.cmbi.ru.nl/gv/dssp/). It is expected that the `dssp`
+  binary is in the `PATH`.
+
 Building
 ========
 

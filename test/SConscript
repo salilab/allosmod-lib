@@ -12,14 +12,15 @@ except ImportError:
     coverage = None
 
 e = env.Clone()
+def prepend_path(pathname, dirs):
+    if pathname in e['ENV']:
+        e['ENV'][pathname] = dirs + ':' + e['ENV'][pathname]
+    else:
+        e['ENV'][pathname] = dirs
+
 covdir = '.coverage'
-e['ENV']['PYTHONPATH'] = '%s:lib' % covdir
-# Inherit setup from environment (so we can do "module load modeller")
-if 'PYTHONPATH' in os.environ:
-    e['ENV']['PYTHONPATH'] += ':%s' % os.environ['PYTHONPATH']
-if 'LD_LIBRARY_PATH' in os.environ:
-    e['ENV']['LD_LIBRARY_PATH'] = os.environ['LD_LIBRARY_PATH']
-e['ENV']['PATH'] = 'bin:%s:%s' % (e['ENV']['PATH'], os.environ['PATH'])
+prepend_path('PYTHONPATH', '%s:lib' % covdir)
+prepend_path('PATH', 'bin')
 
 def setup_coverage():
     if os.path.exists(covdir):
@@ -80,3 +81,4 @@ e.Append(BUILDERS = {'Test': Builder(action=builder_unit_test)})
 test = e.Test("test.passed", ["run-all-tests.py"])
 e.Alias("test", test)
 e.AlwaysBuild("test.passed")
+Return('test')

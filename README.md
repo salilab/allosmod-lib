@@ -8,9 +8,10 @@ Dependencies
 ============
 
 - [MODELLER](http://salilab.org/modeller/). This library expects to be able
-  to directly import the Modeller Python package (via `import modeller`). If you
-  installed Modeller from the `.tar.gz` package, you will need to set the
-  `PYTHONPATH` and `LD_LIBRARY_PATH` environment variables to facilitate this.
+  to directly import the Modeller Python package (via `import modeller`) and to
+  run the Modeller binary (e.g. `mod9.15`). If you installed Modeller from the
+  `.tar.gz` package, you will need to set the `PYTHONPATH`, `PATH` and
+  `LD_LIBRARY_PATH` environment variables to facilitate this.
 
 - [DSSP](http://swift.cmbi.ru.nl/gv/dssp/). It is expected that the `dssp`
   binary is in the `PATH`.
@@ -20,6 +21,10 @@ then you will need:
 
 - [ProFit](http://www.bioinf.org.uk/programs/profit/). The `profit` binary
   needs to be in the `PATH`.
+
+In the Sali lab, running `module load modeller dssp profit` will get all
+of these dependencies.
+
 
 Building
 ========

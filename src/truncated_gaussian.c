@@ -26,7 +26,7 @@ static void get_param(const float *pcsr, float *w_i, float *mean, float *stdev, 
   }
 }
 
-/* Evaluate the trucated multiGaussian form */
+/* Evaluate the truncated multiGaussian form */
 static int myform_eval(void *data, const float *feat, const int *iftyp,
                        const int *modal, int n_feat, const float *pcsr,
                        int n_pcsr, gboolean deriv, float *fderv, float *val)
@@ -201,7 +201,7 @@ static int myform_eval(void *data, const float *feat, const int *iftyp,
   return 0;
 }
 
-/* Find index for the minimum feature mean of the trucated gaussian form */
+/* Find index for the minimum feature mean of the truncated gaussian form */
 static int myform_ivmin(void *data, const float *feat, const int *iftyp,
                           const int *modal, int n_feat, const float *mean,
                           int n_pcsr, int *val)
@@ -222,7 +222,7 @@ static int myform_ivmin(void *data, const float *feat, const int *iftyp,
   return 0;
 }
 
-/* Find index for the heavy feature mean of the trucated gaussian form */
+/* Find index for the heavy feature mean of the truncated gaussian form */
 static int myform_ivheavy(void *data, const float *feat, const int *iftyp,
                             const int *modal, int n_feat, const float *w_i,
                             int n_pcsr, int *val)
@@ -243,7 +243,7 @@ static int myform_ivheavy(void *data, const float *feat, const int *iftyp,
   return 0;
 }
 
-/* Evaluate the minimum feature mean of the trucated gaussian form */
+/* Evaluate the minimum feature mean of the truncated gaussian form */
 static int myform_minmean(void *data, const float *feat, const int *iftyp,
                           const int *modal, int n_feat, const float *pcsr,
                           int n_pcsr, float *val)
@@ -257,7 +257,7 @@ static int myform_minmean(void *data, const float *feat, const int *iftyp,
   return 0;
 }
 
-/* Evaluate the heavy feature mean of the trucated gaussian form */
+/* Evaluate the heavy feature mean of the truncated gaussian form */
 static int myform_heavymean(void *data, const float *feat, const int *iftyp,
 			    const int *modal, int n_feat, const float *pcsr,
 			    int n_pcsr, float *val)
@@ -271,7 +271,7 @@ static int myform_heavymean(void *data, const float *feat, const int *iftyp,
   return 0;
 }
 
-/* Evaluate the minimum violation of the trucated gaussian form */
+/* Evaluate the minimum violation of the truncated gaussian form */
 static int myform_vmin(void *data, const float *feat, const int *iftyp,
                        const int *modal, int n_feat, const float *pcsr,
                        int n_pcsr, float *val)
@@ -284,7 +284,7 @@ static int myform_vmin(void *data, const float *feat, const int *iftyp,
   return ierr;
 }
 
-/* Evaluate the heavy violation of the trucated gaussian form */
+/* Evaluate the heavy violation of the truncated gaussian form */
 static int myform_vheavy(void *data, const float *feat, const int *iftyp,
                        const int *modal, int n_feat, const float *pcsr,
                        int n_pcsr, float *val)
@@ -297,7 +297,7 @@ static int myform_vheavy(void *data, const float *feat, const int *iftyp,
   return ierr;
 }
 
-/* Evaluate the relative minimum violation of the trucated gaussian form */
+/* Evaluate the relative minimum violation of the truncated gaussian form */
 static int myform_rvmin(void *data, const float *feat, const int *iftyp,
                        const int *modal, int n_feat, const float *pcsr,
                        int n_pcsr, float *val)
@@ -310,7 +310,7 @@ static int myform_rvmin(void *data, const float *feat, const int *iftyp,
   return ierr;
 }
 
-/* Evaluate the relative heavy violation of the trucated gaussian form */
+/* Evaluate the relative heavy violation of the truncated gaussian form */
 static int myform_rvheavy(void *data, const float *feat, const int *iftyp,
 			const int *modal, int n_feat, const float *pcsr,
 			int n_pcsr, float *val)
@@ -323,7 +323,7 @@ static int myform_rvheavy(void *data, const float *feat, const int *iftyp,
   return ierr;
 }
 
-/* Get the range (for splining) of the trucated gaussian form */
+/* Get the range (for splining) of the truncated gaussian form */
 static int myform_range(void *data, int iftyp, int modal, const float *pcsr,
 			int n_pcsr, float spline_range, float *minfeat,
                         float *maxfeat)
@@ -357,7 +357,7 @@ static int myform_range(void *data, int iftyp, int modal, const float *pcsr,
   return 0;
 }
 
-/* Create the new trucated gaussian form, and return its identifier */
+/* Create the new truncated gaussian form, and return its identifier */
 int truncated_gaussian_create(void)
 {
   return mod_user_form_new2(myform_eval, NULL, myform_vmin, NULL, myform_vheavy,

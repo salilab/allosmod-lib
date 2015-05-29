@@ -1,0 +1,7 @@
+/netapp/sali/allosmod/modeller-SVN/ appears to be an SVN checkout of Modeller
+around r7109, with modeller-SVN.patch applied and modlib/radii.lib and
+modlib/radii14.lib updated to at least r8698.
+
+/netapp/sali/allosmod/modeller0/ appears to be an SVN checkout of Modeller
+around r8283, with modeller0.patch applied and modlib/radii.lib and
+modlib/radii14.lib updated to at least r8698.

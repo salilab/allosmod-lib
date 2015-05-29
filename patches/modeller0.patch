@@ -1,0 +1,490 @@
+diff -Nur --exclude aclocal.m4 --exclude mdt_convert --exclude '*.in' --exclude libs.lib --exclude '*.pyc' --exclude mdt.lib --exclude library_restraints --exclude config.py --exclude top_interpreter modeller0/modlib/modeller/automodel/automodel.py modeller-trunk/modlib/modeller/automodel/automodel.py
+--- modeller0/modlib/modeller/automodel/automodel.py	2015-05-28 17:07:36.999125157 -0700
++++ modeller-trunk/modlib/modeller/automodel/automodel.py	2015-05-28 17:22:01.558557648 -0700
+@@ -9,10 +9,8 @@
+ from modeller import log, physical, io_data
+ from modeller.scripts import align_strs_seq
+ from modeller.optimizers import conjugate_gradients, molecular_dynamics, actions
+-import refine
+-import generate
+-import randomize
+-import autosched
++from modeller.automodel import refine, generate, randomize, autosched
++import sys
+ 
+ __docformat__ = "epytext en"
+ 
+@@ -28,13 +26,12 @@
+     deviation = 4.0
+     toplib = '${LIB}/top_heav.lib'
+     parlib = '${LIB}/par.lib'
+-#    spline_on_site = True
+-    spline_on_site = False
++    spline_on_site = True
+     initial_malign3d = False
+     final_malign3d = False
+-    starting_model = 1 #necessary
+-    ending_model = 1 #necessary
+-    write_intermediates = True #necessary
++    starting_model = 1
++    ending_model = 1
++    write_intermediates = False
+     library_schedule = autosched.normal
+     pdb_ext = '.pdb'
+     repeat_optimization = 1
+@@ -83,7 +80,6 @@
+                 env.libs.topology.clear() and env.libs.parameters.clear()""")
+         if deviation:
+             self.deviation = deviation
+-            self.rand_method = randomize.xyz
+         if library_schedule:
+             self.library_schedule = library_schedule
+         if csrfile:
+@@ -121,8 +117,7 @@
+         self.csrfile = self.sequence + '.rsr'
+         self.schfile = self.sequence + '.sch'
+         self.generate_method = generate.transfer_xyz
+-        #self.rand_method = randomize.xyz
+-        self.rand_method = None
++        self.rand_method = randomize.xyz
+         self.md_level = refine.very_fast
+ 
+     def auto_align(self, matrix_file='family.mat', overhang=0, write_fit=False):
+@@ -164,14 +159,13 @@
+ 
+     def write_ok_summary(self, all, modeltyp):
+         """Print out a summary of all successfully generated models"""
+-        print
+-        print ">> Summary of successfully produced %s:" % modeltyp
++        print("\n>> Summary of successfully produced %s:" % modeltyp)
+         fields = [x for x in all[0].keys() if x.endswith(' score')]
+         fields.sort()
+         fields = ['molpdf'] + fields
+         header = '%-25s ' % 'Filename' + " ".join(['%14s' % x for x in fields])
+-        print header
+-        print '-' * len(header)
++        print(header)
++        print('-' * len(header))
+         for mdl in all:
+             text = '%-25s' % mdl['name']
+             for field in fields:
+@@ -179,16 +173,15 @@
+                     text = text + ' %14.5f' % mdl[field][0]
+                 else:
+                     text = text + ' %14.5f' % mdl[field]
+-            print text
+-        print
++            print(text)
++        print('')
+ 
+     def write_failure_summary(self, all, modeltyp):
+         """Print out a summary of all failed models"""
+-        print
+-        print ">> Summary of failed %s:" % modeltyp
++        print("\n>> Summary of failed %s:" % modeltyp)
+         for mdl in all:
+-            print "%-25s %s" % (mdl['name'], mdl['failure'])
+-        print
++            print("%-25s %s" % (mdl['name'], mdl['failure']))
++        print('')
+ 
+     def rd_restraints(self):
+         """Read all restraints. You can override this in subclasses to read
+@@ -255,7 +248,7 @@
+         if self.trace_output > 0:
+             filename = modfile.default(file_ext='', file_id='.D',
+                                        root_name=self.sequence, id1=0, id2=num)
+-            return file(filename, 'w')
++            return open(filename, 'w')
+         else:
+             return None
+ 
+@@ -303,7 +296,8 @@
+             for irepeat in range(0, self.repeat_optimization):
+                 self.single_model_pass(atmsel, num, sched)
+             self.to_iupac()
+-        except (ModellerError, OverflowError), detail:
++        except (ModellerError, OverflowError):
++            detail = sys.exc_info()[1]
+             if len(str(detail)) > 0:
+                 out['failure'] = detail
+             else:
+@@ -366,7 +360,7 @@
+                 assess_list = [ assess_list ]
+             for method in assess_list:
+                 (key,value) = method(atmsel)
+-                if out:
++                if out is not None:
+                     out[key] = value
+ 
+     def single_model_pass(self, atmsel, num, sched):
+@@ -394,7 +388,7 @@
+         """Write intermediate model file during optimization, if so requested"""
+         if self.write_intermediates:
+             self.write(file=self.get_model_filename(self.sequence, id1, id2,
+-                                               self.pdb_ext))
++                                                    self.pdb_ext))
+ 
+     def read_alignment(self, aln=None):
+         """Read the template-sequence alignment needed for modeling"""
+@@ -485,7 +479,7 @@
+         if not isinstance(libraries, (tuple, list)):
+             libraries = (libraries,)
+         for lib in libraries:
+-            if callable(lib):
++            if hasattr(lib, '__call__'):
+                 func = lib
+             else:
+                 func = lib.make_restraints
+@@ -502,8 +496,8 @@
+         elif atmsel.get_model() is not self:
+             raise ModellerError("selection is defined on the wrong model")
+         elif len(atmsel) < len(self.atoms):
+-            print "%d (of %d total) atoms selected for optimization" \
+-                  % (len(atmsel), len(self.atoms))
++            print("%d (of %d total) atoms selected for optimization" \
++                  % (len(atmsel), len(self.atoms)))
+         return atmsel
+ 
+     def mkhomcsr(self, atmsel, aln):
+@@ -573,61 +567,68 @@
+ 
+     def het_std_restraints(self, aln, selhet, ca_distance, bond_distance,
+                            rsrgrp):
+-        """Constrain each atom in a HETATM residue by its distance to all
++        """Constrain each atom in a HETATM or BLK residue by its distance to all
+            protein atoms within C{bond_distance} (these interactions are also
+-           removed from the nonbonded list) and also to all protein CA atoms
+-           that are within C{ca_distance}. The former maintains any
+-           protein-HETATM bonding, and the latter maintains the residue in
+-           roughly the right position."""
++           removed from the nonbonded list) and also less strongly to all
++           protein CA atoms that are within C{ca_distance}. The former
++           maintains any protein-HETATM bonding, and the latter maintains
++           the residue in roughly the right position."""
+ 
+         rsr = self.restraints
+         selstd = selection(self).only_std_residues()
+         selca = selstd.only_atom_types('CA')
+ 
+-        print "%d atoms in HETATM/BLK residues constrained\n" % len(selhet) \
++        print("%d atoms in HETATM/BLK residues constrained\n" % len(selhet) \
+               + "to protein atoms within %.2f angstroms\n" % bond_distance \
+-              + "and protein CA atoms within %.2f angstroms" % ca_distance
++              + "and protein CA atoms within %.2f angstroms" % ca_distance)
+         # Build the bonds first; this avoids duplicated CA-ligand bonds since
+         # make_distance() will not build restraints that are already on the
+         # nonbond exclusion list
+-        for (sel, dist, excl) in ((selstd, bond_distance, bond_distance),
+-                                  (selca, ca_distance, 0.0)):
++        for (sel, dist, excl,
++             strength) in ((selstd, bond_distance, bond_distance, 0.05),
++                           (selca, ca_distance, 0.0, 0.2)):
+             rsr.make_distance(sel, selhet, aln=aln, distance_rsr_model=7,
+                               maximal_distance=dist,
+                               spline_on_site=self.spline_on_site,
+                               restraint_group=rsrgrp,
+-                              restraint_stdev=(0.2, 0.0),
++                              restraint_stdev=(strength, 0.0),
+                               residue_span_range=(1, 99999),
+                               residue_span_sign=False, exclude_distance=excl)
+ 
+ 
+     def het_het_restraints(self, aln, selhet, maximal_distance, bond_distance,
+                            rsrgrp):
+-        """Constrain atom-atom distances between different HETATM residues,
+-           to maintain their relative orientation. Distances less than
+-           C{bond_distance} are assumed to be bonds, and so are also excluded
+-           from the nonbonded list."""
++        """Constrain atom-atom distances between different HETATM or BLK
++           residues, to maintain their relative orientation. Distances less than
++           C{bond_distance} are assumed to be bonds, and so are restrained
++           more strongly and also excluded from the nonbonded list."""
+ 
+         rsr = self.restraints
+-        rsr.make_distance(selhet, selhet, aln=aln, distance_rsr_model=7,
+-                          maximal_distance=maximal_distance,
+-                          spline_on_site=self.spline_on_site,
+-                          restraint_group=rsrgrp, restraint_stdev=(0.2, 0.0),
+-                          residue_span_range=(1, 99999),
+-                          residue_span_sign=True,
+-                          exclude_distance=bond_distance)
++        # Handle bonds first, to avoid duplicated restraints (the second call
++        # to make_distance() will not build restraints that are already on the
++        # nonbond exclusion list)
++        for (dist, excl, strength) in ((bond_distance, bond_distance, 0.05),
++                                       (maximal_distance, 0.0, 0.2)):
++            rsr.make_distance(selhet, selhet, aln=aln, distance_rsr_model=7,
++                              maximal_distance=dist,
++                              spline_on_site=self.spline_on_site,
++                              restraint_group=rsrgrp,
++                              restraint_stdev=(strength, 0.0),
++                              residue_span_range=(1, 99999),
++                              residue_span_sign=True,
++                              exclude_distance=excl)
+ 
+ 
+     def het_internal_restraints(self, aln, selhet, rsrgrp):
+-        """Constrain internal distances within any HETATM residue that has no
+-           defined topology, to keep it rigid."""
++        """Constrain internal distances within any HETATM or BLK
++           residue that has no defined topology, to keep it rigid."""
+ 
+         # Get all residues without defined topology:
+         selhet = selhet.only_no_topology()
+ 
+         # Intra-residue:
+-        print "%d atoms in residues without defined topology\n" % len(selhet) \
+-              + "constrained to be rigid bodies"
++        print("%d atoms in residues without defined topology\n" % len(selhet) \
++              + "constrained to be rigid bodies")
+         rsr = self.restraints
+         rsr.make_distance(selhet, selhet, aln=aln,
+                           distance_rsr_model=7, maximal_distance=10.0,
+@@ -683,17 +684,17 @@
+         homol_typ = (physical.ca_distance, physical.n_o_distance,
+                      physical.omega_dihedral, physical.sd_mn_distance,
+                      physical.phi_psi_dihedral, physical.sd_sd_distance)
+-        if self.rstrs_defined == 0:
++        if self.rstrs_refined == 0:
+             # Refine only hotspots that have badly violated stereochemical
+             # restraints:
+             for typ in stereo_typ:
+                 viol_rc[typ] = 4
+-        elif self.rstrs_defined == 1:
++        elif self.rstrs_refined == 1:
+             # Refine hotspots that have badly violated stereochemical
+             # restraints and the important homology-derived restraints:
+             for typ in stereo_typ + homol_typ:
+                 viol_rc[typ] = 4
+-        elif self.rstrs_defined == 2:
++        elif self.rstrs_refined == 2:
+             # Refine hotspots that have badly violated any kind of
+             # restraints
+             viol_rc['default'] = 4
+@@ -730,21 +731,17 @@
+             self.initial_refine_hot(atmsel)
+ 
+         # Do simulated annealing MD:
+-        edat = energy_data(copy=self.env.edat)
+-        #update_dynamic=(contact_shell-max_overlap_dist)/2, max_overlap_dist=3.2
+-        edat.contact_shell=4.0
+-        edat.update_dynamic=0.39
+         if self.md_level:
+-            self.md_level(atmsel, actions, edat)
++            self.md_level(atmsel, actions)
+ 
+         # Possibly skip 'HOT CG' after MD:
+         if self.refine_hot_only:
+             self.final_refine_hot(atmsel)
+ 
+         # Get a final conjugate gradients refined structure:
+-        #cg = conjugate_gradients()
+-        #cg.optimize(atmsel, max_iterations=200, output=self.optimize_output,
+-        #            actions=actions)
++        cg = conjugate_gradients()
++        cg.optimize(atmsel, max_iterations=200, output=self.optimize_output,
++                    actions=actions)
+ 
+         # Evaluate gross changes between the initial and final refined model:
+         if 'NO_FIT' not in self.fit_in_refine:
+diff -Nur --exclude aclocal.m4 --exclude mdt_convert --exclude '*.in' --exclude libs.lib --exclude '*.pyc' --exclude mdt.lib --exclude library_restraints --exclude config.py --exclude top_interpreter modeller0/modlib/modeller/automodel/autosched.py modeller-trunk/modlib/modeller/automodel/autosched.py
+--- modeller0/modlib/modeller/automodel/autosched.py	2015-05-28 17:07:37.004125200 -0700
++++ modeller-trunk/modlib/modeller/automodel/autosched.py	2015-05-28 16:28:57.857250825 -0700
+@@ -10,7 +10,6 @@
+ from modeller import physical
+ from modeller.schedule import schedule, step
+ from modeller.optimizers import conjugate_gradients as CG
+-from modeller.optimizers import molecular_dynamics as MD
+ 
+ __docformat__ = "epytext en"
+ 
+@@ -50,30 +49,6 @@
+          step(CG, 1000, mk_scale(default=1.00, nonbond=0.5)),
+          step(CG, 9999, physical.values(default=1.00)) ])
+ 
+-#: MD optimization, thorough
+-MDopt = schedule(4,
+-       [ step(CG(max_iterations=500), 2, mk_scale(default=0.00001, nonbond=0.0)) ] + \
+-       [ step(CG(max_iterations=500), 9999, mk_scale(default=rng, nonbond=0.0)) for rng in \
+-                  (0.00001,0.0001,0.001,0.01,0.1,0.5,1.0) ] + \
+-       [ step(MD(temperature=rng, cap_atom_shift=0.028, md_time_step=1.0, equilibrate=20, max_iterations=50000), 9999, mk_scale(default=1.00, nonbond=0.001)) for rng in \
+-         (50.0,100.0,200.0,300.0) ] + \
+-       [ step(MD(temperature=300.0, cap_atom_shift=0.028, md_time_step=1.0, equilibrate=20, max_iterations=50000), 9999, mk_scale(default=1.00, nonbond=0.01)),
+-         step(MD(temperature=300.0, cap_atom_shift=0.028, md_time_step=1.0, equilibrate=20, max_iterations=50000), 9999, mk_scale(default=1.00, nonbond=0.1)),
+-         step(MD(temperature=300.0, cap_atom_shift=0.028, md_time_step=1.0, equilibrate=20, max_iterations=50000), 9999, mk_scale(default=1.00, nonbond=0.5)),
+-         step(MD(temperature=300.0, cap_atom_shift=0.028, md_time_step=1.0, equilibrate=20, max_iterations=50000), 9999, physical.values(default=1.00)) ])
+-
+-#: MD optimization, fast
+-MDfast = schedule(4,
+-       [ step(CG(max_iterations=500), 2, mk_scale(default=0.00001, nonbond=0.0)) ] + \
+-       [ step(CG(max_iterations=500), 9999, mk_scale(default=rng, nonbond=0.0)) for rng in \
+-                  (0.0001,0.001,0.01,0.1,0.5,1.0) ] + \
+-       [ step(MD(temperature=rng, cap_atom_shift=0.028, md_time_step=1.0, equilibrate=20, max_iterations=1000), 9999, mk_scale(default=1.00, nonbond=0.001)) for rng in \
+-         (50.0,100.0,200.0,300.0) ] + \
+-       [ step(MD(temperature=300.0, cap_atom_shift=0.028, md_time_step=1.0, equilibrate=20, max_iterations=1000), 9999, mk_scale(default=1.00, nonbond=0.01)),
+-         step(MD(temperature=300.0, cap_atom_shift=0.028, md_time_step=1.0, equilibrate=20, max_iterations=1000), 9999, mk_scale(default=1.00, nonbond=0.1)),
+-         step(MD(temperature=300.0, cap_atom_shift=0.028, md_time_step=1.0, equilibrate=20, max_iterations=1000), 9999, mk_scale(default=1.00, nonbond=0.5)),
+-         step(MD(temperature=300.0, cap_atom_shift=0.028, md_time_step=1.0, equilibrate=20, max_iterations=1000), 9999, physical.values(default=1.00)) ])
+-
+ #: fast optimization
+ fast = schedule(4,
+        [ step(CG, 2, mk_scale(default=0.01, nonbond=0.0)),
+diff -Nur --exclude aclocal.m4 --exclude mdt_convert --exclude '*.in' --exclude libs.lib --exclude '*.pyc' --exclude mdt.lib --exclude library_restraints --exclude config.py --exclude top_interpreter modeller0/modlib/modeller/automodel/refine.py modeller-trunk/modlib/modeller/automodel/refine.py
+--- modeller0/modlib/modeller/automodel/refine.py	2015-05-28 17:07:37.025125381 -0700
++++ modeller-trunk/modlib/modeller/automodel/refine.py	2015-05-28 16:28:57.855250808 -0700
+@@ -3,49 +3,9 @@
+    object."""
+ 
+ 
+-def consttemp(atmsel, actions, edat):
+-    """constant temperature MD"""
+-    MDtemp=300.0
+-    tmstep=3.0
+-    nmov=2000
+-    incequil=200
+-    incmov=1000
+-    #cap_atom_shift is 3 std dev above average avg max atomic move step, and will change as a function of MDtemp and tmstep
+-    cap_atom_shift=0.000101389*MDtemp+0.0525431
+-    write_intermediates = True
+-    if MDtemp > 300.0:
+-        EQtemp1=300.0+(MDtemp-300.0)/10.0
+-        EQtemp2=300.0+(MDtemp-300.0)/6.0
+-        EQtemp3=300.0+(MDtemp-300.0)/4.0
+-        EQtemp4=300.0+(MDtemp-300.0)/3.0
+-        EQtemp5=300.0+(MDtemp-300.0)/2.5
+-        EQtemp6=300.0+(MDtemp-300.0)/2.0
+-        EQtemp7=300.0+(MDtemp-300.0)/1.5
+-        EQtemp8=MDtemp
+-        EQtemp9=MDtemp
+-        EQtemp10=MDtemp
+-        EQits=50000
+-    else:
+-        EQtemp1=300.0
+-        EQtemp2=300.0
+-        EQtemp3=300.0
+-        EQtemp4=300.0
+-        EQtemp5=300.0
+-        EQtemp6=300.0
+-        EQtemp7=300.0
+-        EQtemp8=300.0
+-        EQtemp9=300.0
+-        EQtemp10=300.0
+-        EQits=50000
+-
+-    refineCT(write_intermediates, edat, atmsel, actions, cap=cap_atom_shift, timestep=tmstep,
+-           equil_its=EQits, equil_equil=20,
+-           equil_temps=(EQtemp1, EQtemp2, EQtemp3, EQtemp4, EQtemp5, EQtemp6, EQtemp7, EQtemp8, EQtemp9, EQtemp10),
+-           sampl_its=incmov, sampl_equil=incequil,
+-           sampl_temp=MDtemp, sampl_nmov=nmov)
+-
+-def very_fast(atmsel, actions, edat):
++def very_fast(atmsel, actions):
+     """Very fast MD annealing"""
++    # at T=1000, max_atom_shift for 4fs is cca 0.15 A.
+     refine(atmsel, actions, cap=0.39, timestep=4.0,
+            equil_its=50, equil_equil=10,
+            equil_temps=(150.0, 400.0, 1000.0),
+@@ -53,7 +13,7 @@
+            sampl_temps=(1000.0, 800.0, 500.0, 300.0))
+ 
+ 
+-def fast(atmsel, actions, edat):
++def fast(atmsel, actions):
+     """Fast MD annealing"""
+     refine(atmsel, actions, cap=0.39, timestep=4.0,
+            equil_its=100, equil_equil=20,
+@@ -62,7 +22,7 @@
+            sampl_temps=(1000.0, 800.0, 500.0, 300.0))
+ 
+ 
+-def slow(atmsel, actions, edat):
++def slow(atmsel, actions):
+     """Slow MD annealing"""
+     refine(atmsel, actions, cap=0.39, timestep=4.0,
+            equil_its=200, equil_equil=20,
+@@ -70,24 +30,8 @@
+            sampl_its=600, sampl_equil=200,
+            sampl_temps=(1000.0, 800.0, 600.0, 500.0, 400.0, 300.0))
+ 
+-def moderate(atmsel, actions, edat):
+-    """contant temperature annealing"""
+-    refine(atmsel, actions, cap=0.03, timestep=1.0,
+-           equil_its=300, equil_equil=20,
+-           equil_temps=(50.0, 150.0, 250.0, 300.0),
+-           sampl_its=1000, sampl_equil=200,
+-           sampl_temps=(400.0, 500.0, 300.0, 200.0, 50.0))
+-
+-def none(atmsel, actions, edat):
+-    """NO MD annealing"""
+-    refine(atmsel, actions, cap=0.39, timestep=0.0001,
+-           equil_its=2, equil_equil=1,
+-           equil_temps=(0.01, 0.01),
+-           sampl_its=2, sampl_equil=1,
+-           sampl_temps=(0.01, 0.01))
+-
+ 
+-def very_slow(atmsel, actions, edat):
++def very_slow(atmsel, actions):
+     """Very slow MD annealing"""
+     refine(atmsel, actions, cap=0.39, timestep=4.0,
+            equil_its=300, equil_equil=20,
+@@ -97,7 +41,7 @@
+                         320.0, 300.0))
+ 
+ 
+-def slow_large(atmsel, actions, edat):
++def slow_large(atmsel, actions):
+     """Very slow/large dt MD annealing"""
+     refine(atmsel, actions, cap=0.39, timestep=10.0,
+            equil_its=200, equil_equil=20,
+@@ -122,35 +66,3 @@
+             md.optimize(atmsel, max_iterations=its, equilibrate=equil,
+                         temperature=temp, init_velocities=init_vel)
+             init_vel=False
+-
+-
+-def refineCT(write_intermediates, edat, atmsel, actions, cap, timestep, equil_its, equil_equil,
+-             equil_temps, sampl_its, sampl_equil, sampl_temp, sampl_nmov, **args):
+-    from modeller.optimizers import molecular_dynamics
+-    
+-    mdl = atmsel.get_model()
+-    
+-    md = molecular_dynamics(cap_atom_shift=cap, md_time_step=timestep,
+-                            md_return='FINAL', output=mdl.optimize_output,
+-                            actions=actions, edat=edat, **args)
+-    init_vel = True
+-    # First run equilibration, reset velocities to equilibrate more quickly
+-    ctr=500
+-    for temp in equil_temps:
+-        md.optimize(atmsel, max_iterations=equil_its, equilibrate=equil_equil,
+-                    temperature=temp, init_velocities=init_vel, md_time_step=timestep)
+-        init_vel=False #turn off for randomized Dynamics
+-        if write_intermediates:
+-            ctr=ctr+1
+-            atmsel.get_model().write_int(ctr, 0001)
+-
+-
+-    init_vel=False #turn off for randomized Dynamics
+-    #begin sampling
+-    ctr=1000
+-    for i in range(sampl_nmov):
+-        md.optimize(atmsel, max_iterations=sampl_its, equilibrate=sampl_equil,
+-                    temperature=sampl_temp, init_velocities=init_vel, md_time_step=3.0)
+-        if write_intermediates:
+-            ctr=ctr+1
+-            atmsel.get_model().write_int(ctr, 0001)
+diff -Nur --exclude aclocal.m4 --exclude mdt_convert --exclude '*.in' --exclude libs.lib --exclude '*.pyc' --exclude mdt.lib --exclude library_restraints --exclude config.py --exclude top_interpreter modeller0/modlib/restyp.lib modeller-trunk/modlib/restyp.lib
+--- modeller0/modlib/restyp.lib	2015-05-28 17:07:36.443120372 -0700
++++ modeller-trunk/modlib/restyp.lib	2015-05-28 16:39:22.841561977 -0700
+@@ -75,8 +75,8 @@
+ ATOM   | GLX                 | Z | Q | GLX  | GLU/GLN ambiguous
+ ATOM   | UNK                 | X | A | UNK  | unknown residue type
+ HETATM | PCA PGA             | p |   | #### | pyrrolidine carboxylic acid (pyroglutamate)
+-ATOM   | HIS                 | 6 | H | HSE  | histidine, neutral, proton on NE2
+-ATOM   | HIS                 | 7 | H | HSP  | histidine, +1 (proton on NE2 and ND1)
++ATOM   | HSE                 | 6 | H | HSE  | histidine, neutral, proton on NE2
++ATOM   | HSP                 | 7 | H | HSP  | histidine, +1 (proton on NE2 and ND1)
+ HETATM | HOH H2O OH2 MOH WAT | w |   | TIP3 | water
+ HETATM | CA CAL              | 3 |   | CAL  | calcium ion, +2
+ HETATM | ZN ZN2              | z |   | ZN2  | zinc, +2

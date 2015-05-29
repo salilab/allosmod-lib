@@ -10,13 +10,13 @@ static const float smallest  = 3.4e-38;
 static const float largest   = 3.4e+38;
 
 /* Decode parameters from Modeller parameter array */
-static void get_param(const float *pcsr, float *w_i, float *mean, float *stdev, const int *modal)
+static void get_param(const float *pcsr, float *w_i, float *mean, float *stdev, int modal)
 {
   int iw, imean, istdv, k;
   iw = 2;
-  imean = 2 + *modal;
-  istdv = 2 + *modal + *modal;
-  for (k = 0; k < *modal; k++) {
+  imean = 2 + modal;
+  istdv = 2 + modal + modal;
+  for (k = 0; k < modal; k++) {
     iw = iw + 1;
     imean = imean + 1;
     istdv = istdv + 1;
@@ -43,7 +43,7 @@ static int myform_eval(void *data, const float *feat, const int *iftyp,
   delE = pcsr[0];
   slope = pcsr[1];
   xmaxscale = pcsr[2];
-  get_param(pcsr, w_i, mean, stdev, modal);
+  get_param(pcsr, w_i, mean, stdev, *modal);
 
   p_tot = 0;
   //if assume p_tot=1 than this is not necessary
@@ -251,7 +251,7 @@ static int myform_minmean(void *data, const float *feat, const int *iftyp,
   float w_i[*modal], mean[*modal], stdev[*modal];
   int ivmin;
 
-  get_param(pcsr, w_i, mean, stdev, modal);
+  get_param(pcsr, w_i, mean, stdev, *modal);
   myform_ivmin(data, feat, iftyp, modal, n_feat, mean, n_pcsr, &ivmin);
   *val = mean[ivmin];
   return 0;
@@ -265,7 +265,7 @@ static int myform_heavymean(void *data, const float *feat, const int *iftyp,
   float w_i[*modal], mean[*modal], stdev[*modal];
   int ivheav;
 
-  get_param(pcsr, w_i, mean, stdev, modal);
+  get_param(pcsr, w_i, mean, stdev, *modal);
   myform_ivheavy(data, feat, iftyp, modal, n_feat, w_i, n_pcsr, &ivheav);
   *val = mean[ivheav];
   return 0;
@@ -278,7 +278,7 @@ static int myform_vmin(void *data, const float *feat, const int *iftyp,
 {
   float w_i[*modal], mean[*modal], stdev[*modal];
   int ierr, ivmin;
-  get_param(pcsr, w_i, mean, stdev, modal);
+  get_param(pcsr, w_i, mean, stdev, *modal);
   myform_ivmin(data, feat, iftyp, modal, n_feat, mean, n_pcsr, &ivmin);
   *val = mod_feature_delta(feat[0], mean[ivmin], iftyp[0], &ierr);
   return ierr;
@@ -291,7 +291,7 @@ static int myform_vheavy(void *data, const float *feat, const int *iftyp,
 {
   float w_i[*modal], mean[*modal], stdev[*modal];
   int ierr, ivheav;
-  get_param(pcsr, w_i, mean, stdev, modal);
+  get_param(pcsr, w_i, mean, stdev, *modal);
   myform_ivheavy(data, feat, iftyp, modal, n_feat, w_i, n_pcsr, &ivheav);
   *val = mod_feature_delta(feat[0], mean[ivheav], iftyp[0], &ierr);
   return ierr;
@@ -304,7 +304,7 @@ static int myform_rvmin(void *data, const float *feat, const int *iftyp,
 {
   float w_i[*modal], mean[*modal], stdev[*modal];
   int ierr, ivmin;
-  get_param(pcsr, w_i, mean, stdev, modal);
+  get_param(pcsr, w_i, mean, stdev, *modal);
   myform_ivmin(data, feat, iftyp, modal, n_feat, mean, n_pcsr, &ivmin);
   *val = mod_feature_delta(feat[0], mean[ivmin], iftyp[0], &ierr) / stdev[ivmin];
   return ierr;
@@ -317,16 +317,51 @@ static int myform_rvheavy(void *data, const float *feat, const int *iftyp,
 {
   float w_i[*modal], mean[*modal], stdev[*modal];
   int ierr, ivheav;
-  get_param(pcsr, w_i, mean, stdev, modal);
+  get_param(pcsr, w_i, mean, stdev, *modal);
   myform_ivheavy(data, feat, iftyp, modal, n_feat, w_i, n_pcsr, &ivheav);
   *val = mod_feature_delta(feat[0], mean[ivheav], iftyp[0], &ierr) / stdev[ivheav];
   return ierr;
 }
 
+/* Get the range (for splining) of the trucated gaussian form */
+static int myform_range(void *data, int iftyp, int modal, const float *pcsr,
+			int n_pcsr, float spline_range, float *minfeat,
+                        float *maxfeat)
+{
+  float w_i[modal], mean[modal], stdev[modal];
+  float min_mean, max_mean;
+  int imin, imax, i;
+
+  get_param(pcsr, w_i, mean, stdev, modal);
+
+  /* Get indices of biggest and smallest means */
+  imin = imax = 0;
+  min_mean = max_mean = mean[0];
+  for (i = 1; i < modal; ++i) {
+    if (mean[i] > max_mean) {
+      max_mean = mean[i];
+      imax = i;
+    }
+    if (mean[i] < min_mean) {
+      min_mean = mean[i];
+      imin = i;
+    }
+  }
+
+  *minfeat = mean[imin] - spline_range * stdev[imin];
+  *maxfeat = mean[imax] + spline_range * stdev[imax];
+  /* Assume feature is a distance, so min range cannot be negative */
+  if (*minfeat < 0.) {
+    *minfeat = 0.;
+  }
+  return 0;
+}
+
 /* Create the new trucated gaussian form, and return its identifier */
 int truncated_gaussian_create(void)
 {
-  return mod_user_form_new(myform_eval, NULL, myform_vmin, NULL, myform_vheavy,
-                           NULL, myform_rvmin, NULL, myform_rvheavy, NULL,
-                           myform_minmean, NULL, myform_heavymean, NULL);
+  return mod_user_form_new2(myform_eval, NULL, myform_vmin, NULL, myform_vheavy,
+                            NULL, myform_rvmin, NULL, myform_rvheavy, NULL,
+                            myform_minmean, NULL, myform_heavymean, NULL,
+                            myform_range, NULL);
 }

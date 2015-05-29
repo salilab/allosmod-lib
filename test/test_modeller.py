@@ -49,22 +49,24 @@ class Tests(unittest.TestCase):
             allosmod.modeller.moderate(atmsel, [])
 
     def test_refine_moderate_am(self):
-        """Test 'moderate_am' refinement"""
+        """Test 'ModerateAM' refinement"""
         m = WriteIntMock(self.env, 'dummyaln', 'known', 'seq')
         m.read(file=BytesIO(test_pdb))
         atmsel = modeller.selection(m)
         with mock_method(modeller.optimizers.molecular_dynamics, 'optimize'):
-            allosmod.modeller.moderate_am(atmsel, [])
+            c = allosmod.modeller.ModerateAM(md_temp=300.0)
+            c(atmsel, [])
         self.assertEqual(m.ints, [(x, 1) for x in range(501, 507)] +
                                  [(x, 1) for x in range(1001, 1101)])
 
     def test_refine_consttemp(self):
-        """Test 'consttemp' refinement"""
+        """Test 'ConstTemp' refinement"""
         m = WriteIntMock(self.env, 'dummyaln', 'known', 'seq')
         m.read(file=BytesIO(test_pdb))
         atmsel = modeller.selection(m)
         with mock_method(modeller.optimizers.molecular_dynamics, 'optimize'):
-            allosmod.modeller.consttemp(atmsel, [])
+            c = allosmod.modeller.ConstTemp(md_temp=300.0)
+            c(atmsel, [])
         self.assertEqual(m.ints, [(x, 1) for x in range(501, 511)] +
                                  [(x, 1) for x in range(1001, 3001)])
 

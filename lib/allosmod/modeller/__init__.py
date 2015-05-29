@@ -27,38 +27,45 @@ MDopt = schedule(4,
          step(MD(temperature=300.0, cap_atom_shift=0.028, md_time_step=1.0, equilibrate=20, max_iterations=50000), 9999, physical.values(default=1.00)) ])
 
 #: MD equilibration and simulation
-def consttemp(atmsel, actions):
-    """constant temperature MD"""
-    MDtemp=300.0    # temperature for the MD run
-    tmstep=3.0      # MD timestep
-    nmov=2000       # number of trajectory snapshots
-    incequil=200    
-    incmov=1000     # number of timesteps = nmov*incmov
-    #cap_atom_shift is 3 std dev above average avg max atomic move step, this will change as a function of MDtemp and tmstep
-    cap_atom_shift=(0.000101389*MDtemp+0.0525431)*(tmstep/3.0)
-    write_intermediates = True
-    EQtemp1=300.0+(MDtemp-300.0)/10.0
-    EQtemp2=300.0+(MDtemp-300.0)/6.0
-    EQtemp3=300.0+(MDtemp-300.0)/4.0
-    EQtemp4=300.0+(MDtemp-300.0)/3.0
-    EQtemp5=300.0+(MDtemp-300.0)/2.5
-    EQtemp6=300.0+(MDtemp-300.0)/2.0
-    EQtemp7=300.0+(MDtemp-300.0)/1.5
-    EQtemp8=MDtemp
-    EQtemp9=MDtemp
-    EQtemp10=MDtemp
-    EQits=50000
+class ConstTemp(object):
+    def __init__(self, md_temp=300.0, tmstep=3.0, nmov=2000, incequil=200,
+                 incmov=1000):
+        self.MDtemp = md_temp    # temperature for the MD run
+        self.tmstep = tmstep     # MD timestep
+        self.nmov = nmov         # number of trajectory snapshots
+        self.incequil = incequil
+        self.incmov = incmov     # number of timesteps = nmov*incmov
 
-    mdl = atmsel.get_model()
-    edat = energy_data(copy=mdl.env.edat)
-    edat.contact_shell=4.0
-    edat.update_dynamic=0.39
+    def __call__(self, atmsel, actions):
+        """constant temperature MD"""
+        # cap_atom_shift is 3 std dev above average avg max atomic move step;
+        # this will change as a function of MDtemp and tmstep
+        cap_atom_shift=(0.000101389*self.MDtemp+0.0525431)*(self.tmstep/3.0)
+        write_intermediates = True
+        EQtemp1=300.0+(self.MDtemp-300.0)/10.0
+        EQtemp2=300.0+(self.MDtemp-300.0)/6.0
+        EQtemp3=300.0+(self.MDtemp-300.0)/4.0
+        EQtemp4=300.0+(self.MDtemp-300.0)/3.0
+        EQtemp5=300.0+(self.MDtemp-300.0)/2.5
+        EQtemp6=300.0+(self.MDtemp-300.0)/2.0
+        EQtemp7=300.0+(self.MDtemp-300.0)/1.5
+        EQtemp8=self.MDtemp
+        EQtemp9=self.MDtemp
+        EQtemp10=self.MDtemp
+        EQits=50000
 
-    _refineCT(write_intermediates, edat, atmsel, actions, cap=cap_atom_shift, timestep=tmstep,
-           equil_its=EQits, equil_equil=20,
-           equil_temps=(EQtemp1, EQtemp2, EQtemp3, EQtemp4, EQtemp5, EQtemp6, EQtemp7, EQtemp8, EQtemp9, EQtemp10),
-           sampl_its=incmov, sampl_equil=incequil,
-           sampl_temp=MDtemp, sampl_nmov=nmov)
+        mdl = atmsel.get_model()
+        edat = energy_data(copy=mdl.env.edat)
+        edat.contact_shell=4.0
+        edat.update_dynamic=0.39
+
+        _refineCT(write_intermediates, edat, atmsel, actions,
+                  cap=cap_atom_shift, timestep=self.tmstep,
+                  equil_its=EQits, equil_equil=20,
+                  equil_temps=(EQtemp1, EQtemp2, EQtemp3, EQtemp4, EQtemp5,
+                               EQtemp6, EQtemp7, EQtemp8, EQtemp9, EQtemp10),
+                  sampl_its=self.incmov, sampl_equil=self.incequil,
+                  sampl_temp=self.MDtemp, sampl_nmov=self.nmov)
 
 #: Omit optimization
 MDnone = schedule(4,
@@ -86,31 +93,37 @@ def moderate(atmsel, actions):
            sampl_temps=(400.0, 500.0, 300.0, 200.0, 50.0))
 
 #: Refine quickly using AllosMod energy landscape
-def moderate_am(atmsel, actions):
-    """contant temperature annealing"""
-    MDtemp=300.0    # temperature for the MD run
-    tmstep=2.0
-    #cap_atom_shift is 3 std dev above average avg max atomic move step, this will change as a function of MDtemp and tmstep
-    cap_atom_shift=(0.000101389*MDtemp+0.0525431)*(tmstep/3.0)
-    write_intermediates = True
+class ModerateAM(object):
+    def __init__(self, md_temp=300.0, tmstep=2.0):
+        self.MDtemp = md_temp # temperature for the MD run
+        self.tmstep = tmstep
 
-    EQtemp1=300.0+(MDtemp-300.0)/6.0
-    EQtemp2=300.0+(MDtemp-300.0)/3.0
-    EQtemp3=300.0+(MDtemp-300.0)/2.0
-    EQtemp4=300.0+(MDtemp-300.0)/1.5
-    EQtemp5=300.0+(MDtemp-300.0)/1.25
-    EQtemp6=MDtemp
-    
-    mdl = atmsel.get_model()
-    edat = energy_data(copy=mdl.env.edat)
-    edat.contact_shell=4.0
-    edat.update_dynamic=0.39
+    def __call__(self, atmsel, actions):
+        """contant temperature annealing"""
+        # cap_atom_shift is 3 std dev above average avg max atomic move step;
+        # this will change as a function of MDtemp and tmstep
+        cap_atom_shift=(0.000101389*self.MDtemp+0.0525431)*(self.tmstep/3.0)
+        write_intermediates = True
 
-    _refineCT(write_intermediates, edat, atmsel, actions, cap=cap_atom_shift, timestep=tmstep,
-           equil_its=300, equil_equil=20,
-           equil_temps=(EQtemp1, EQtemp2, EQtemp3, EQtemp4, EQtemp5, EQtemp6),
-           sampl_its=1000, sampl_equil=200,
-           sampl_temp=MDtemp, sampl_nmov=100)
+        EQtemp1=300.0+(self.MDtemp-300.0)/6.0
+        EQtemp2=300.0+(self.MDtemp-300.0)/3.0
+        EQtemp3=300.0+(self.MDtemp-300.0)/2.0
+        EQtemp4=300.0+(self.MDtemp-300.0)/1.5
+        EQtemp5=300.0+(self.MDtemp-300.0)/1.25
+        EQtemp6=self.MDtemp
+
+        mdl = atmsel.get_model()
+        edat = energy_data(copy=mdl.env.edat)
+        edat.contact_shell=4.0
+        edat.update_dynamic=0.39
+
+        _refineCT(write_intermediates, edat, atmsel, actions,
+                  cap=cap_atom_shift, timestep=self.tmstep,
+                  equil_its=300, equil_equil=20,
+                  equil_temps=(EQtemp1, EQtemp2, EQtemp3, EQtemp4, EQtemp5,
+                               EQtemp6),
+                  sampl_its=1000, sampl_equil=200,
+                  sampl_temp=self.MDtemp, sampl_nmov=100)
 
 def _refine(atmsel, actions, cap, timestep, equil_its, equil_equil,
            equil_temps, sampl_its, sampl_equil, sampl_temps, **args):

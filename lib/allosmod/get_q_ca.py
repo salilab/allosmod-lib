@@ -41,10 +41,10 @@ class QScores(object):
             self.ql.add(qcont)
 
 
-def get_distances(coord):
+def get_distances(coord, resdelta=1):
     dist = {}
-    for i in range(len(coord) - 1):
-        for j in range(i + 1, len(coord)):
+    for i in range(len(coord) - resdelta):
+        for j in range(i + resdelta, len(coord)):
             d = get_distance(coord[i], coord[j])
             if d is not None:
                 dist[(i,j)] = math.sqrt(d)

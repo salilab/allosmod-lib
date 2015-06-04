@@ -15,3 +15,13 @@ def temporary_directory():
     tempd = tempfile.mkdtemp()
     yield tempd
     shutil.rmtree(tempd)
+
+def get_modeller_environ(opts, **keys):
+    """Get a new Modeller environment, and set up logging."""
+    import modeller
+    e = modeller.environ(**keys)
+    if opts.verbose:
+        modeller.log.verbose()
+    else:
+        modeller.log.none()
+    return e

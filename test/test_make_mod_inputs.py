@@ -59,13 +59,12 @@ ATOM      7  CA  TYR A   2      26.593  16.867   8.258  1.00120.51           C
         """Test make_mod_inputs with nucleic acids"""
         import modeller.automodel
         from allosmod.make_mod_inputs import make_mod_inputs
-        e = modeller.environ()
         self.setup_inputs()
         def mock_make(cls, exit_stage):
             self.assertEqual(exit_stage, 1)
             self.assertAlmostEqual(cls.max_sc_sc_distance, 14.0, places=1)
         with mock_method(modeller.automodel.automodel, 'make', mock_make):
-            make_mod_inputs(e, '1fdx', ['5fd1'], [3,3,3], 4, True)
+            make_mod_inputs('1fdx', ['5fd1'], -3333, [3,3,3], 4, True)
         for f in ('templates', 'avgpdb.pdb', '5fd1', 'align.ali', 'random.ini'):
             os.unlink(f)
 

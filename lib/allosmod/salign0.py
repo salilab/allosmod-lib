@@ -16,8 +16,9 @@ def determine_fit_atoms(mdl):
     else:
         return 'P'
 
-def salign0(env, ff1, ff2):
+def salign0(ff1, ff2):
     import modeller
+    env = modeller.environ()
     env.io.atom_files_directory = ['.', '../atom_files']
 
     # Read in HETATM records from template PDBs
@@ -54,9 +55,7 @@ and fit PDBs.
 The fit is done using either P or CA atoms depending on which are found more
 in the first PDB file.
 """
-    parser = optparse.OptionParser(usage)
-    parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
-                      help="verbose output")
+    parser = allosmod.util.ModellerOptionParser(usage)
 
     opts, args = parser.parse_args()
     if len(args) != 3:
@@ -64,10 +63,8 @@ in the first PDB file.
     return args[0], args[1], args[2], opts
 
 def main():
-    import modeller
     ff1, ff2, aln_file, opts = parse_args()
-    env = allosmod.util.get_modeller_environ(opts)
-    aln = salign0(env, ff1, ff2)
+    aln = salign0(ff1, ff2)
     aln.write(file=aln_file)
 
 if __name__ == '__main__':

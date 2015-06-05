@@ -2,6 +2,7 @@
 
 from __future__ import print_function, absolute_import
 import optparse
+import allosmod.util
 
 def convert_restraints(rsr):
     from modeller import forms, physical, features
@@ -39,7 +40,7 @@ TruncatedGaussian restraints are converted to splines. Splines are much faster
 to evaluate than these restraint types, and it also means that the end user
 of an AllosMod protocol need not have the TruncatedGaussian implementation.
 """
-    parser = optparse.OptionParser(usage)
+    parser = allosmod.util.ModellerOptionParser(usage)
 
     opts, args = parser.parse_args()
     if len(args) != 3:

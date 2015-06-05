@@ -61,8 +61,7 @@ def get_pm_initialstruct(aln_file, templates, pdb_dir, nmodel,
                          refine_level, opts):
     # Note the assumption is made in this code that the align code and the
     # PDB file are the same. This is not necessarily the case in Modeller.
-    env = allosmod.util.get_modeller_environ(opts,
-                                   rand_seed=random.randint(-40000, -2))
+    env = modeller.environ(rand_seed=random.randint(-40000, -2))
     target = get_target(env, opts.target, aln_file)
     dirname = 'pred_%s' % templates[0]
     if os.path.exists(dirname):
@@ -114,7 +113,7 @@ Makes an initial comparative model from a sequence.
 <nmodel> is the number of models to generate.
 <refine level> is a Modeller refinement level, e.g. "slow".
 """
-    parser = optparse.OptionParser(usage)
+    parser = allosmod.util.ModellerOptionParser(usage)
     parser.add_option("--restraints-only", action="store_true", dest="rsronly",
                       help="exit upon making the restraint file "
                            "(make no models)")
@@ -126,8 +125,6 @@ Makes an initial comparative model from a sequence.
                       help="use the alignment for modeling (by default, "
                            "Modeller will automatically align the target "
                            "with the template)")
-    parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
-                      help="verbose output")
 
     opts, args = parser.parse_args()
     if len(args) != 5:

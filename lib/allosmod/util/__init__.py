@@ -1,4 +1,5 @@
 import contextlib
+import optparse
 import tempfile
 import shutil
 
@@ -16,12 +17,19 @@ def temporary_directory():
     yield tempd
     shutil.rmtree(tempd)
 
-def get_modeller_environ(opts, **keys):
-    """Get a new Modeller environment, and set up logging."""
-    import modeller
-    e = modeller.environ(**keys)
-    if opts.verbose:
-        modeller.log.verbose()
-    else:
-        modeller.log.none()
-    return e
+class ModellerOptionParser(optparse.OptionParser):
+    """Add options to control the amount of Modeller logging to optparse"""
+
+    def __init__(self, *args, **keys):
+        optparse.OptionParser.__init__(self, *args, **keys)
+        self.add_option("-v", "--verbose", action="store_true", dest="verbose",
+                        help="verbose output")
+
+    def parse_args(self):
+        import modeller
+        opts, args = optparse.OptionParser.parse_args(self)
+        if opts.verbose:
+            modeller.log.verbose()
+        else:
+            modeller.log.none()
+        return opts, args

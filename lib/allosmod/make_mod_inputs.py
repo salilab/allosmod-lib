@@ -4,10 +4,11 @@ from __future__ import print_function, absolute_import
 import optparse
 import allosmod.util
 
-def make_mod_inputs(env, target, templates, rand_ang, deviation,
+def make_mod_inputs(target, templates, rand_seed, rand_ang, deviation,
                     nucleic_acids):
     import modeller.automodel
     import modeller.scripts
+    env = modeller.environ(rand_seed=rand_seed)
     env.io.atom_files_directory = ['../atom_files']
     env.libs.topology.read(file='$(LIB)/top_heav.lib')
     env.libs.parameters.read(file='$(LIB)/par.lib')
@@ -52,11 +53,9 @@ model (random.ini) and a restraints file.
                  about each axis (z, y, x).
 <deviation> is an amount (in angstroms) to randomize the model by.
 """
-    parser = optparse.OptionParser(usage)
+    parser = allosmod.util.ModellerOptionParser(usage)
     parser.add_option("--nucleic-acids", action="store_true", dest="nuc",
                       help="use longer restraints for nucleic acids")
-    parser.add_option("-v", "--verbose", action="store_true", dest="verbose",
-                      help="verbose output")
 
     opts, args = parser.parse_args()
     if len(args) != 7:
@@ -67,9 +66,8 @@ model (random.ini) and a restraints file.
 
 def main():
     target, template_file, rand_seed, rand_ang, deviation, opts = parse_args()
-    env = allosmod.util.get_modeller_environ(opts, rand_seed=rand_seed)
-    make_mod_inputs(env, target, allosmod.util.read_templates(template_file),
-                    rand_ang, deviation, opts.nuc)
+    make_mod_inputs(target, allosmod.util.read_templates(template_file),
+                    rand_seed, rand_ang, deviation, opts.nuc)
 
 if __name__ == '__main__':
     main()

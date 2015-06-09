@@ -3,16 +3,37 @@ import os
 import unittest
 
 class Tests(unittest.TestCase):
-    def test_truncated_gaussian(self):
-        """Test TruncatedGaussian math form"""
+
+    def make_model(self):
         import modeller
-        from allosmod.modeller.forms import TruncatedGaussian
         env = modeller.environ()
         env.edat.dynamic_sphere= False
         with open('test.pdb', 'w') as fh:
             fh.write("ATOM      2  CA  ALA     1      27.449  14.935   5.140  1.00 29.87           C\n")
         m = modeller.model(env, file='test.pdb')
         os.unlink('test.pdb')
+        return m
+
+    def test_bad_arg(self):
+        """Test bad inputs to TruncatedGaussian"""
+        import modeller
+        from allosmod.modeller.forms import TruncatedGaussian
+        m = self.make_model()
+        feat = modeller.features.x_coordinate(m.atoms[0])
+        self.assertRaises(TypeError, TruncatedGaussian,
+                          group=modeller.physical.xy_distance, feature=feat,
+                          dele_max=10, slope=4.0, scl_delx=0.7,
+                          weights=(1,1), means=(14,), stdevs=(1, 2))
+        self.assertRaises(TypeError, TruncatedGaussian,
+                          group=modeller.physical.xy_distance, feature=feat,
+                          dele_max=10, slope=4.0, scl_delx=0.7,
+                          weights=(1,1), means='garbage', stdevs=(1, 2))
+
+    def test_truncated_gaussian(self):
+        """Test TruncatedGaussian math form"""
+        import modeller
+        from allosmod.modeller.forms import TruncatedGaussian
+        m = self.make_model()
         feat = modeller.features.x_coordinate(m.atoms[0])
         f = TruncatedGaussian(group=modeller.physical.xy_distance, feature=feat,
                               dele_max=10, slope=4.0, scl_delx=0.7,

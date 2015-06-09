@@ -3,20 +3,13 @@
 from __future__ import print_function, absolute_import
 import optparse
 import math
+import allosmod.util
 from allosmod.get_contacts import _get_average_aa, get_contact_type
 from allosmod.get_contacts import get_contact_dist
 
-def get_inter_contacts(file1, file2, rcut):
-    import modeller
-
-    modeller.log.none()
-    e = modeller.environ()
-    e.io.hetatm = True
-
-    m = modeller.model(e, file=file1)
-    av1 = [_get_average_aa(r) for r in m.residues]
-    m = modeller.model(e, file=file2)
-    av2 = [_get_average_aa(r) for r in m.residues]
+def get_inter_contacts(env, mdl1, mdl2, rcut):
+    av1 = [_get_average_aa(r) for r in mdl1.residues]
+    av2 = [_get_average_aa(r) for r in mdl2.residues]
 
     rcut2 = rcut * rcut
     for i in av1:
@@ -36,15 +29,20 @@ This center is the mass center of all heavy atoms in the amino acid sidechain,
 plus CB (for all residues except GLY) or CA (for GLY). If these atoms don't
 exist, the CA, O or N atom (in that order) is used as the center.
 """
-    parser = optparse.OptionParser(usage)
+    parser = allosmod.util.ModellerOptionParser(usage)
     options, args = parser.parse_args()
     if len(args) != 3:
         parser.error("incorrect number of arguments")
     return args[0], args[1], float(args[2])
 
 def main():
+    import modeller
     file1, file2, rcut = parse_args()
-    for ri, rj, dist in get_inter_contacts(file1, file2, rcut):
+    e = modeller.environ()
+    e.io.hetatm = True
+    mdl1 = modeller.model(e, file=file1)
+    mdl2 = modeller.model(e, file=file2)
+    for ri, rj, dist in get_inter_contacts(e, mdl1, mdl2, rcut):
         print("  %6s  %2s  %6s  %2s  %3s  %3s%3d%11.3f  %1d  %1d"
               % (ri.num, ri.chain.name, rj.num, rj.chain.name,
                  ri.pdb_name, rj.pdb_name, get_contact_type(ri, rj),

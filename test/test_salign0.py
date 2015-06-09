@@ -42,8 +42,8 @@ class Tests(unittest.TestCase):
             fh.write(test_pdb)
         with open('test2.pdb', 'w') as fh:
             fh.write(test_pdb)
-        out = check_output(['allosmod', 'salign0', 'test1.pdb', 'test2.pdb',
-                            'out.aln'])
+        out = check_output(['allosmod', 'salign0', '-v',
+                            'test1.pdb', 'test2.pdb', 'out.aln'])
         os.unlink('out.aln')
         os.unlink('test1_fit.pdb')
         os.unlink('test2_fit.pdb')

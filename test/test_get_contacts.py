@@ -6,6 +6,23 @@ import subprocess
 import collections
 from test_pdb2ali import check_output
 
+MockResidue = collections.namedtuple('MockResidue', ['pdb_name', 'atoms'])
+MockAtom = collections.namedtuple('MockAtom', ['name', 'x', 'y', 'z'])
+
+class AtomList(object):
+    def __init__(self, *atoms):
+        self.atoms = atoms
+        self.atom_map = {}
+        for a in atoms:
+            self.atom_map[a.name] = a
+    def __len__(self):
+        return len(self.atoms)
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            return self.atoms[key]
+        else:
+            return self.atom_map[key]
+
 test_dir = os.path.dirname(sys.argv[0])
 
 class Tests(unittest.TestCase):
@@ -30,6 +47,22 @@ class Tests(unittest.TestCase):
         self.assertEqual(get_contact_type(Residue('TRP'), Residue('ASN')), 3)
         self.assertEqual(get_contact_type(Residue('HEM'), Residue('ASN')), 0)
         self.assertEqual(get_contact_type(Residue('TRP'), Residue('HEM')), 0)
+
+    def test_get_average_aa(self):
+        """Test _get_average_aa()"""
+        from allosmod.get_contacts import _get_average_aa
+        # Should take CA in preference to O, in preference to N
+        CA = MockAtom(name='CA', x=10, y=0, z=0)
+        O = MockAtom(name='O', x=20, y=0, z=0)
+        N = MockAtom(name='N', x=30, y=0, z=0)
+        a = _get_average_aa(MockResidue(pdb_name='HIS', atoms=AtomList(CA,O,N)))
+        self.assertEqual(a.average, ((10,0,0),))
+        a = _get_average_aa(MockResidue(pdb_name='HIS', atoms=AtomList(O,N)))
+        self.assertEqual(a.average, ((20,0,0),))
+        a = _get_average_aa(MockResidue(pdb_name='HIS', atoms=AtomList(N)))
+        self.assertEqual(a.average, ((30,0,0),))
+        self.assertRaises(ValueError, _get_average_aa,
+                          MockResidue(pdb_name='HIS', atoms=AtomList()))
 
     def test_get_contact_dist(self):
         """Test get_contact_dist()"""

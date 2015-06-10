@@ -70,6 +70,8 @@ def parse_args():
 Output all residues from <PDB file> that are involved in charge contacts
 (as specified by <restraint file>). Charged residues will also be output
 to break.dat (with the given <sclbreak> scale factor).
+
+Note that residue indices (starting from 1) are used, not PDB residue numbers.
 """
     parser = allosmod.util.ModellerOptionParser(usage)
     parser.add_option("--cdensity_cutoff", type=float, default=None,

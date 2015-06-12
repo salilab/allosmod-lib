@@ -21,7 +21,7 @@ def get_ss(pdb_file):
         if "RESIDUE AA STRUCTURE" in line:
             start = True
         elif start and len(line) > 16 and line[11] != ' ':
-            print(line[16] if line[16] != ' ' else '-')
+            yield line[16] if line[16] != ' ' else '-'
 
 def parse_args():
     usage = """%prog <PDB file>
@@ -37,7 +37,8 @@ structure type for each residue, one per line.
 
 def main():
     pdb_file = parse_args()
-    get_ss(pdb_file)
+    for res in get_ss(pdb_file):
+        print(res)
 
 if __name__ == '__main__':
     main()

@@ -326,8 +326,9 @@ def get_nuc_restrained(atm_name, res_name):
     else:
         return atm_name in ('N1', 'C2', 'O2', 'N3', 'C4', 'N4', 'C5', 'C6')
 
-
-def test(listoth_rsr, listas_rsr, pdb_file, contacts_pdbs, atomlist_asrs, sig_AS, sig_RS, sig_inter, rcut, ntotal, delEmax, break_file, coarse, locrigid):
+def edit_restraints(listoth_rsr, listas_rsr, pdb_file, contacts_pdbs,
+                    atomlist_asrs, sig_AS, sig_RS, sig_inter, rcut, ntotal,
+                    delEmax, break_file, coarse, locrigid):
     # if empty_AS, then only use: cov bonds, angles, dihedrals for AS
     # (ignore nonbonded contacts within AS site, RS and interface OK)
     empty_AS=False
@@ -480,29 +481,72 @@ def test(listoth_rsr, listas_rsr, pdb_file, contacts_pdbs, atomlist_asrs, sig_AS
     add_ca_boundary_restraints(atoms)
 
 def parse_args():
-    usage = """%prog [opts] <restraint file> <PDB file> <sclbreak>
+    usage = """%prog [opts] <RS-RS restraints> <AS-RS restraints>
+                 <PDB file> <contact list> <atomlistASRS>
 
-Output all residues from <PDB file> that are involved in charge contacts
-(as specified by <restraint file>). Charged residues will also be output
-to break.dat (with the given <sclbreak> scale factor).
+Process restraints and generate a new restraints file for further modeling
+with AllosMod.
 
-Note that residue indices (starting from 1) are used, not PDB residue numbers.
+<RS-RS restraints>  a Modeller restraints file for templates used for RS-RS
+                    contacts only (usually 2 templates)
+<AS-RS restraints>  a Modeller restraints file for template used for AS-AS
+                    contacts and AS-RS interface contacts (usually 1 template)
+<PDB file>          structure used to extract atom characteristics
+                    (AS v RS,SC v BB)
+<contact list>      list of PDB files used to define contact maps
+<atomlistASRS>      file labeling atoms as AS or RS
 """
     parser = allosmod.util.ModellerOptionParser(usage)
-    parser.add_option("--cdensity_cutoff", type=float, default=None,
-                      dest="cdensity_cutoff", metavar='FLOAT',
-                      help="If given, only residues that are buried and with "
-                           "a high charge density (> cutoff standard "
-                           "deviations above the mean) will be output; "
-                           "otherwise, all charged residues will be output.")
+    parser.add_option("--ntotal", type=int, default=1,
+                      dest="ntotal", metavar='INT',
+                      help="average number of templates per residue")
+    parser.add_option("--cutoff", type=float, default=15.0,
+                      dest="cutoff", metavar='FLOAT',
+                      help="Cutoff for distance restraints")
+    parser.add_option("--sigma_AS", type=float, default=2.0,
+                      dest="sig_AS", metavar='FLOAT',
+                      help="Standard deviation for restraints in "
+                           "the allosteric site")
+    parser.add_option("--sigma_RS", type=float, default=2.0,
+                      dest="sig_RS", metavar='FLOAT',
+                      help="Standard deviation for restraints in "
+                           "the regulated site")
+    parser.add_option("--sigma_inter", type=float, default=2.0,
+                      dest="sig_inter", metavar='FLOAT',
+                      help="Standard deviation for restraints between "
+                           "the allosteric and regulated sites")
+    parser.add_option("--delEmax", type=float, default=0.1,
+                      dest="delEmax", metavar='FLOAT',
+                      help="delEmax parameter for truncated Gaussian")
+    parser.add_option("--slope", type=float, default=4.0,
+                      dest="slope", metavar='FLOAT',
+                      help="slope parameter for truncated Gaussian")
+    parser.add_option("--scl_delx", type=float, default=0.7,
+                      dest="scl_delx", metavar='FLOAT',
+                      help="scl_delx parameter for truncated Gaussian")
+    parser.add_option("--break_file", type=str, default=None,
+                      dest="break_file", metavar='FILE',
+                      help="Name of break.dat file")
+    parser.add_option("--coarse", action='store_true',
+                      dest="coarse", metavar='BOOL',
+                      help="Use coarse (CA-CB) energy landscape")
+    parser.add_option("--locrigid", action='store_true',
+                      dest="locrigid", metavar='BOOL',
+                      help="Increase local rigidity")
 
     opts, args = parser.parse_args()
-    if len(args) != 3:
+    if len(args) != 5:
         parser.error("incorrect number of arguments")
-    return args[0], args[1], args[2], opts
+    return args + [opts]
 
 def main():
-    return test('listOTH.rsr', 'listAS.rsr', 'pm_3UWP.pdb', ['3UWP.pdb'], 'atomlistASRS', 2.0, 2.0, 2.0, 11.0, 1, 0.01, None, False, False)
+    (listoth_rsr, listas_rs, pdb_file, contacts_pdbs, atomlist_asrs,
+     opts) = parse_args()
+    edit_restraints(listoth_rsr, listas_rs, pdb_file,
+                    allosmod.util.read_templates(contacts_pdbs),
+                    atomlist_asrs, opts.sig_AS, opts.sig_RS, opts.sig_inter,
+                    opts.cutoff, opts.ntotal, opts.delEmax, opts.break_file,
+                    opts.coarse, opts.locrigid)
 
 if __name__ == '__main__':
     main()

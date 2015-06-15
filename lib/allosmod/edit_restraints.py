@@ -16,6 +16,9 @@ class Sigmas(object):
         self.sig_RS = sig_RS
         self.sig_inter = sig_inter
 
+    def get_scaled(self, atoms):
+        return self.get(atoms) * self.ntotal * self.ntotal
+
     def get(self, atoms):
         """Get sigma most appropriate for the given atoms"""
         isSC1, isSC2 = atoms[0].isSC, atoms[1].isSC
@@ -326,9 +329,7 @@ def get_nuc_restrained(atm_name, res_name):
     else:
         return atm_name in ('N1', 'C2', 'O2', 'N3', 'C4', 'N4', 'C5', 'C6')
 
-def edit_restraints(listoth_rsr, listas_rsr, pdb_file, contacts_pdbs,
-                    atomlist_asrs, sig_AS, sig_RS, sig_inter, rcut, ntotal,
-                    delEmax, break_file, coarse, locrigid):
+class RestraintEditor(object):
     # if empty_AS, then only use: cov bonds, angles, dihedrals for AS
     # (ignore nonbonded contacts within AS site, RS and interface OK)
     empty_AS=False
@@ -341,144 +342,177 @@ def edit_restraints(listoth_rsr, listas_rsr, pdb_file, contacts_pdbs,
     delEmaxNUC=0.12
     rcutNUC=8.0
     distco_scsc=5.0
-    sigmas = Sigmas(ntotal, sig_AS, sig_RS, sig_inter)
 
-    modeller.log.none()
-    e = modeller.environ()
-    e.io.hetatm = True
-    m = modeller.model(e, file=pdb_file)
-    atoms = [Atom(a) for a in m.atoms]
-    contacts = get_contacts(contacts_pdbs, rcut)
-    breaks = get_breaks(open(break_file)) if break_file else {}
-    tgparams = TruncatedGaussianParameters(delEmax=delEmax, slope=4.0,
-                                           scl_delx=0.7, breaks=breaks)
-    beta_structure = get_beta(pdb_file)
-    NUCLEIC_ACIDS = dict.fromkeys(['ADE', 'A', 'DA', 'THY', 'T', 'DT', 'URA', 'U', 'DU', 'GUA', 'G', 'DG', 'CYT', 'C', 'DC'])
-    BACKBONE_ATOMS = dict.fromkeys(['CA', 'CB', 'O', 'N', 'C', 'OT', 'NA', 'NB', 'NC', 'ND', 'C1A', 'C2A', 'C3A', 'C4A', 'C1B', 'C2B', 'C3B', 'C4B', 'C1C', 'C2C', 'C3C', 'C4C', 'C1D', 'C2D', 'C3D', 'C4D'])
-    for a in atoms:
-        r = a.a.residue
-        if r.pdb_name in NUCLEIC_ACIDS:
-            a.isNUC = True
-            a.torestr = get_nuc_restrained(a.a.name, r.pdb_name)
-            for rj in range(1, len(m.residues) + 1):
-                contacts[(r.index,rj)] = True
-        if a.a.name in BACKBONE_ATOMS or r.pdb_name in NUCLEIC_ACIDS:
-            a.isSC = False
-            a.isCA = a.a.name == 'CA'
-            a.isCB = a.a.name == 'CB'
+    def __init__(self, listoth_rsr, listas_rsr, pdb_file, contacts_pdbs,
+                 atomlist_asrs, sigmas, rcut, delEmax, break_file,
+                 coarse, locrigid):
+        self.listoth_rsr = listoth_rsr
+        self.listas_rsr = listas_rsr
+        self.pdb_file = pdb_file
+        self.contacts_pdbs = contacts_pdbs
+        self.atomlist_asrs = atomlist_asrs
+        self.sigmas = sigmas
+        self.rcut = rcut
+        self.delEmax = delEmax
+        self.break_file = break_file
+        self.coarse = coarse
+        self.locrigid = locrigid
+
+    def setup_atoms(self, env):
+        self.m = modeller.model(env, file=self.pdb_file)
+        self.atoms = [Atom(a) for a in self.m.atoms]
+        self.contacts = get_contacts(self.contacts_pdbs, self.rcut)
+        if self.break_file:
+            self.breaks = get_breaks(open(self.break_file))
         else:
-            a.isSC = a.a.name != 'H'
-    for a, asrs in zip(atoms, parse_atomlist_asrs(open(atomlist_asrs))):
-        a.isAS = asrs
+            self.breaks = {}
+        self.beta_structure = get_beta(self.pdb_file)
+        NUCLEIC_ACIDS = dict.fromkeys(['ADE', 'A', 'DA', 'THY', 'T', 'DT',
+                                       'URA', 'U', 'DU', 'GUA', 'G', 'DG',
+                                       'CYT', 'C', 'DC'])
+        BACKBONE_ATOMS = dict.fromkeys(['CA', 'CB', 'O', 'N', 'C', 'OT', 'NA',
+                                        'NB', 'NC', 'ND', 'C1A', 'C2A', 'C3A',
+                                        'C4A', 'C1B', 'C2B', 'C3B', 'C4B',
+                                        'C1C', 'C2C', 'C3C', 'C4C', 'C1D',
+                                        'C2D', 'C3D', 'C4D'])
+        for a in self.atoms:
+            r = a.a.residue
+            if r.pdb_name in NUCLEIC_ACIDS:
+                a.isNUC = True
+                a.torestr = get_nuc_restrained(a.a.name, r.pdb_name)
+                for rj in range(1, len(m.residues) + 1):
+                    self.contacts[(r.index,rj)] = True
+            if a.a.name in BACKBONE_ATOMS or r.pdb_name in NUCLEIC_ACIDS:
+                a.isSC = False
+                a.isCA = a.a.name == 'CA'
+                a.isCB = a.a.name == 'CB'
+            else:
+                a.isSC = a.a.name != 'H'
+        for a, asrs in zip(self.atoms,
+                           parse_atomlist_asrs(open(self.atomlist_asrs))):
+            a.isAS = asrs
 
-    if coarse:
+    def setup_delEmax(self):
+        if not self.coarse:
+            return
         ndist = ndistCACB = 0
-        for r in parse_restraints_file(open(listas_rsr), atoms):
+        for r in parse_restraints_file(open(self.listas_rsr), self.atoms):
             if (isinstance(r, GaussianRestraint)
                 and len(r.atoms) == 2 and r.group != 1) \
                or (isinstance(r, MultiGaussianRestraint)
                    and len(r.atoms) == 2):
-                if contacts[(r.atoms[0], r.atoms[1])]:
+                if self.contacts[(r.atoms[0], r.atoms[1])]:
                     if (not r.atoms[0].isSC and not r.atoms[0].isCB) \
                        or (not r.atoms[1].isSC and not r.atoms[1].isCB) \
-                       or r.firstmean < distco_scsc:
+                       or r.firstmean < self.distco_scsc:
                         ndist += 1
                     if (r.atoms[0].isCA or r.atoms[0].isCB) \
                        and (r.atoms[1].isCA or r.atoms[1].isCB):
                         ndistCACB += 1
-        delEmax = (6.5 / 7.8) * (ndist / ndistCACB) * delEmax
-        delEmaxNUC = (6.5 / 7.8) * (ndist / ndistCACB) * delEmaxNUC
+        self.delEmax = (6.5 / 7.8) * (ndist / ndistCACB) * self.delEmax
+        self.delEmaxNUC = (6.5 / 7.8) * (ndist / ndistCACB) * self.delEmaxNUC
 
-    print("MODELLER5 VERSION: MODELLER FORMAT")
-    # get restraints
-    for (fname, filter) in ((listoth_rsr, filter_rs_rs),
-                            (listas_rsr, filter_not_rs_rs)):
-        for r in parse_restraints_file(open(fname), atoms, filter):
-            # gaussian; bond, angle or torsion
-            # keep as is for prot, scale for HET
-            if isinstance(r, GaussianRestraint) and \
-               ((len(r.atoms) == 2 and r.group == 1) \
-                or len(r.atoms) == 3 or len(r.atoms) == 4):
-                if r.is_intrahet():
-                    r.stdev *= HETscale
-                r.write()
-            # multigaussian; angle or torsion
-            # keep as is for prot, scale for HET
-            elif isinstance(r, MultiGaussianRestraint) and \
-                len(r.atoms) >= 3:
-                if r.is_intrahet():
-                    r.stdevs = [x * HETscale for x in r.stdevs]
-                r.write()
-            # cosine dihedrals for backbone dihedrals and 
-            # side chain dihedrals with few alignments
-            elif isinstance(r, CosineRestraint):
-                if r.is_intrahet():
-                    r.force *= HETscale
-                r.write()
-            # Keep as is
-            elif isinstance(r, SplineRestraint):
-                r.write()
-            # Gaussian or MultiGaussian distance restraint
-            elif len(r.atoms) == 2 \
-                 and ((isinstance(r, GaussianRestraint) and r.group != 1) \
-                      or (isinstance(r, MultiGaussianRestraint))):
-                if coarse and not r.is_ca_cb_interaction():
-                    continue
-                # omit side chain interactions > 5 Ang
-                if r.is_sidechain_sidechain_interaction() \
-                   and not r.any_mean_below(distco_scsc):
-                    continue
-                seqdst = abs(r.atoms[0].a.residue.index
-                             - r.atoms[1].a.residue.index)
-                if locrigid and 2 <= seqdst <= 5 and r.is_ca_cb_interaction():
-                    r.transform(tgparams, modal=2, stdev=2.0)
-                elif locrigid and 6 <= seqdst <= 12 \
-                   and r.is_ca_cb_interaction() and r.any_mean_below(6.0):
-                    r.transform(tgparams, modal=2, stdev=2.0)
-                elif 2 <= seqdst and r.any_mean_below(6.0) \
-                   and r.is_ca_cb_interaction() \
-                   and r.is_beta_beta_interaction(beta_structure):
-                    r.transform(tgparams, modal=2, stdev=2.0)
-                elif contacts[(r.atoms[0], r.atoms[1])]:
-                    if isinstance(r, MultiGaussianRestraint):
-                        sig = sigmas.get(r.atoms) * ntotal * ntotal
-                        r.transform(tgparams, modal=r.modal,
-                                    stdev=sig, truncated=delEmax != 0.)
-                    elif r.is_intra_protein_interaction():
-                        sig = sigmas.get(r.atoms) * ntotal * ntotal
-                        if r.is_allosteric_interaction():
-                            if not empty_AS:
-                                if tgauss_AS:
-                                    r.transform(tgparams, modal=2,
-                                                stdev=sig)
-                                else:
-                                    r.stdev = sig
-                                    r.write()
-                        else: # RS or interface
-                            if delEmax == 0.:
-                                r.transform(tgparams, modal=1,
-                                            stdev=sig, truncated=False)
-                            else:
+    def edit(self, env):
+        self.setup_atoms(env)
+        self.setup_delEmax()
+        tgparams = TruncatedGaussianParameters(delEmax=self.delEmax, slope=4.0,
+                                               scl_delx=0.7, breaks=self.breaks)
+        self.parse_restraints(tgparams)
+
+    def parse_restraints(self, tgparams, fh=sys.stdout):
+        print("MODELLER5 VERSION: MODELLER FORMAT", file=fh)
+        # get restraints
+        for (fname, filter) in ((self.listoth_rsr, filter_rs_rs),
+                                (self.listas_rsr, filter_not_rs_rs)):
+            for r in parse_restraints_file(open(fname), self.atoms, filter):
+                self.parse_restraint(tgparams, r, fh)
+        add_ca_boundary_restraints(self.atoms, fh)
+
+    def parse_restraint(self, tgparams, r, fh):
+        # gaussian; bond, angle or torsion
+        # keep as is for prot, scale for HET
+        if isinstance(r, GaussianRestraint) and \
+           ((len(r.atoms) == 2 and r.group == 1) \
+            or len(r.atoms) == 3 or len(r.atoms) == 4):
+            if r.is_intrahet():
+                r.stdev *= HETscale
+            r.write(fh)
+        # multigaussian; angle or torsion
+        # keep as is for prot, scale for HET
+        elif isinstance(r, MultiGaussianRestraint) and \
+            len(r.atoms) >= 3:
+            if r.is_intrahet():
+                r.stdevs = [x * HETscale for x in r.stdevs]
+            r.write(fh)
+        # cosine dihedrals for backbone dihedrals and 
+        # side chain dihedrals with few alignments
+        elif isinstance(r, CosineRestraint):
+            if r.is_intrahet():
+                r.force *= HETscale
+            r.write(fh)
+        # Keep as is
+        elif isinstance(r, SplineRestraint):
+            r.write(fh)
+        # Gaussian or MultiGaussian distance restraint
+        elif len(r.atoms) == 2 \
+             and ((isinstance(r, GaussianRestraint) and r.group != 1) \
+                  or (isinstance(r, MultiGaussianRestraint))):
+            if self.coarse and not r.is_ca_cb_interaction():
+                return
+            # omit side chain interactions > 5 Ang
+            if r.is_sidechain_sidechain_interaction() \
+               and not r.any_mean_below(self.distco_scsc):
+                return
+            seqdst = abs(r.atoms[0].a.residue.index
+                         - r.atoms[1].a.residue.index)
+            if self.locrigid and 2 <= seqdst <= 5 and r.is_ca_cb_interaction():
+                r.transform(tgparams, modal=2, stdev=2.0, fh=fh)
+            elif self.locrigid and 6 <= seqdst <= 12 \
+               and r.is_ca_cb_interaction() and r.any_mean_below(6.0):
+                r.transform(tgparams, modal=2, stdev=2.0, fh=fh)
+            elif 2 <= seqdst and r.any_mean_below(6.0) \
+               and r.is_ca_cb_interaction() \
+               and r.is_beta_beta_interaction(self.beta_structure):
+                r.transform(tgparams, modal=2, stdev=2.0, fh=fh)
+            elif self.contacts[(r.atoms[0], r.atoms[1])]:
+                if isinstance(r, MultiGaussianRestraint):
+                    sig = self.sigmas.get_scaled(r.atoms)
+                    r.transform(tgparams, modal=r.modal,
+                                stdev=sig, truncated=delEmax != 0., fh=fh)
+                elif r.is_intra_protein_interaction():
+                    sig = self.sigmas.get_scaled(r.atoms)
+                    if r.is_allosteric_interaction():
+                        if not self.empty_AS:
+                            if self.tgauss_AS:
                                 r.transform(tgparams, modal=2,
-                                            stdev=sig)
-                    elif r.is_protein_dna_interaction() \
-                         and r.any_mean_below(rcutNUC):
-                        sig = sigmas.get(r.atoms)
-                        r.transform(tgparams, modal=2, stdev=sig)
-                    elif r.is_intra_dna_interaction() \
-                         and r.any_mean_below(rcutNUC):
-                        r.stdev = 1.0
-                        r.write()
-            # add intra heme contacts to maintain geometry (not included
-            # above due to contmap), keep all as is
-            elif r.is_intrahet() and len(r.atoms) == 2:
-                if isinstance(r, GaussianRestraint) and r.group != 1:
-                    r.stdev *= HETscale
-                    r.write()
-                elif isinstance(r, MultiGaussianRestraint):
-                    r.stdevs = [x * HETscale for x in r.stdevs]
-                    r.write()
-    add_ca_boundary_restraints(atoms)
+                                            stdev=sig, fh=fh)
+                            else:
+                                r.stdev = sig
+                                r.write(fh)
+                    else: # RS or interface
+                        if self.delEmax == 0.:
+                            r.transform(tgparams, modal=1,
+                                        stdev=sig, truncated=False, fh=fh)
+                        else:
+                            r.transform(tgparams, modal=2,
+                                        stdev=sig, fh=fh)
+                elif r.is_protein_dna_interaction() \
+                     and r.any_mean_below(self.rcutNUC):
+                    sig = self.sigmas.get(r.atoms)
+                    r.transform(tgparams, modal=2, stdev=sig, fh=fh)
+                elif r.is_intra_dna_interaction() \
+                     and r.any_mean_below(self.rcutNUC):
+                    r.stdev = 1.0
+                    r.write(fh)
+        # add intra heme contacts to maintain geometry (not included
+        # above due to contmap), keep all as is
+        elif r.is_intrahet() and len(r.atoms) == 2:
+            if isinstance(r, GaussianRestraint) and r.group != 1:
+                r.stdev *= HETscale
+                r.write(fh)
+            elif isinstance(r, MultiGaussianRestraint):
+                r.stdevs = [x * HETscale for x in r.stdevs]
+                r.write(fh)
 
 def parse_args():
     usage = """%prog [opts] <RS-RS restraints> <AS-RS restraints>
@@ -540,13 +574,21 @@ with AllosMod.
     return args + [opts]
 
 def main():
+    import modeller
+
     (listoth_rsr, listas_rs, pdb_file, contacts_pdbs, atomlist_asrs,
      opts) = parse_args()
-    edit_restraints(listoth_rsr, listas_rs, pdb_file,
-                    allosmod.util.read_templates(contacts_pdbs),
-                    atomlist_asrs, opts.sig_AS, opts.sig_RS, opts.sig_inter,
-                    opts.cutoff, opts.ntotal, opts.delEmax, opts.break_file,
-                    opts.coarse, opts.locrigid)
+    sigmas = Sigmas(opts.ntotal, opts.sig_AS, opts.sig_RS, opts.sig_inter)
+
+    modeller.log.none()
+    env = modeller.environ()
+    env.io.hetatm = True
+
+    e = RestraintEditor(listoth_rsr, listas_rs, pdb_file,
+                        allosmod.util.read_templates(contacts_pdbs),
+                        atomlist_asrs, sigmas, opts.cutoff, opts.delEmax,
+                        opts.break_file, opts.coarse, opts.locrigid)
+    e.edit(env)
 
 if __name__ == '__main__':
     main()

@@ -7,7 +7,7 @@ import math
 import sys
 import allosmod.util
 import allosmod.get_contacts
-from allosmod.get_ss import get_ss
+import allosmod.get_ss
 
 class Sigmas(object):
     def __init__(self, ntotal, sig_AS, sig_RS, sig_inter):
@@ -305,7 +305,7 @@ def get_breaks(fh):
 
 def get_beta(pdb_file):
     beta = {}
-    dssp = list(get_ss(pdb_file))
+    dssp = list(allosmod.get_ss.get_ss(pdb_file))
     beta_fraction = dssp.count('E') / len(dssp) if len(dssp) > 0 else 0
     helix_fraction = dssp.count('H') / len(dssp) if len(dssp) > 0 else 0
     beta_structure = beta_fraction > 0.20 and helix_fraction < 0.05

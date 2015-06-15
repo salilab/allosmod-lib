@@ -267,6 +267,9 @@ class ContactMap(object):
     def __init__(self):
         self.__d = {}
 
+    def keys(self):
+        return self.__d.keys()
+
     def __getitem__(self, key):
         i,j = key
         if isinstance(i, Atom):
@@ -303,8 +306,8 @@ def get_breaks(fh):
 def get_beta(pdb_file):
     beta = {}
     dssp = list(get_ss(pdb_file))
-    beta_fraction = dssp.count('E') / len(dssp)
-    helix_fraction = dssp.count('H') / len(dssp)
+    beta_fraction = dssp.count('E') / len(dssp) if len(dssp) > 0 else 0
+    helix_fraction = dssp.count('H') / len(dssp) if len(dssp) > 0 else 0
     beta_structure = beta_fraction > 0.20 and helix_fraction < 0.05
     if beta_structure:
         for n,x in dssp:
@@ -380,7 +383,7 @@ class RestraintEditor(object):
             if r.pdb_name in NUCLEIC_ACIDS:
                 a.isNUC = True
                 a.torestr = get_nuc_restrained(a.a.name, r.pdb_name)
-                for rj in range(1, len(m.residues) + 1):
+                for rj in range(1, len(self.m.residues) + 1):
                     self.contacts[(r.index,rj)] = True
             if a.a.name in BACKBONE_ATOMS or r.pdb_name in NUCLEIC_ACIDS:
                 a.isSC = False

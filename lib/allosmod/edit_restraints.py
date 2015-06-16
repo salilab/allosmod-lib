@@ -43,12 +43,12 @@ class Sigmas(object):
 
 class TruncatedGaussianParameters(object):
     def __init__(self, delEmax, delEmaxNUC, slope, scl_delx, breaks):
-        self.delEmax, delEmaxNUC, self.slope = delEmax, delEmaxNUC, slope
+        self.delEmax, self.delEmaxNUC, self.slope = delEmax, delEmaxNUC, slope
         self.scl_delx, self.breaks = scl_delx, breaks
 
     def get_dele(self, atoms, local, nuc):
         if nuc:
-            return delEmaxNUC
+            return self.delEmaxNUC
         bscale = 1.0
         is_break = False
         for a in atoms:

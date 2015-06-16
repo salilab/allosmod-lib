@@ -72,7 +72,7 @@ class Tests(unittest.TestCase):
 
     def test_sigmas(self):
         """Test Sigmas class"""
-        from allosmod.edit_restraints import RestraintEditor, Sigmas
+        from allosmod.edit_restraints import Sigmas
         class Atom(object):
             def __init__(self, isAS, isSC):
                 self.isAS, self.isSC = isAS, isSC
@@ -115,6 +115,38 @@ class Tests(unittest.TestCase):
         g = sigmas.get((Atom(isAS=False, isSC=True),
                         Atom(isAS=True, isSC=True)))
         self.assertAlmostEqual(g, 1.5 * 1.5 * 3.0, places=1)
+
+    def test_truncated_gaussian_parameters(self):
+        """Test TruncatedGaussianParameters class"""
+        from allosmod.edit_restraints import TruncatedGaussianParameters
+        class Residue(object):
+            pass
+        class Atom(object):
+            def __init__(self, ri):
+                self.a = self
+                self.a.residue = Residue()
+                self.a.residue.index = ri
+
+        tgparams = TruncatedGaussianParameters(delEmax=1.0, delEmaxNUC=2.0,
+                                               slope=3.0, scl_delx=4.0,
+                                               breaks={})
+        # nuc
+        e = tgparams.get_dele(None, local=False, nuc=True)
+        self.assertAlmostEqual(e, 2.0, places=1)
+        # non-local, no breaks
+        e = tgparams.get_dele((Atom(1), Atom(2)), local=False, nuc=False)
+        self.assertAlmostEqual(e, 1.0, places=1)
+        # local, no breaks
+        e = tgparams.get_dele((Atom(1), Atom(2)), local=True, nuc=False)
+        self.assertAlmostEqual(e, 10.0, places=1)
+
+        # breaks
+        tgparams = TruncatedGaussianParameters(delEmax=2.0, delEmaxNUC=6.0,
+                                               slope=3.0, scl_delx=4.0,
+                                               breaks={1: 20.0})
+        for local in True, False:
+            e = tgparams.get_dele((Atom(1), Atom(2)), local=local, nuc=False)
+            self.assertAlmostEqual(e, 40.0, places=1)
 
 if __name__ == '__main__':
     unittest.main()

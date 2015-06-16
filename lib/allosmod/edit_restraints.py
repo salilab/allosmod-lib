@@ -78,11 +78,11 @@ class Restraint(object):
         raise ValueError("Could not handle %d" % self.form)
 
     def write(self, fh=sys.stdout):
-        fh.write('R %4d %4d %4d %4d %4d %4d %4d '
+        fh.write('R %4d%4d%4d%4d%4d%4d%4d'
                  % (self.form, self.modal, self.feat, self.group,
-                    len(self.atoms), self.nparam, 0))
-        fh.write(' '.join('%6d' % x.a.index for x in self.atoms))
-        fh.write(' ')
+                    len(self.atoms), self.nparam, 1))
+        fh.write(''.join('%6d' % x.a.index for x in self.atoms))
+        fh.write('    ')
         self.write_parameters(fh)
         fh.write('\n')
 
@@ -159,11 +159,11 @@ class GaussianRestraint(Restraint):
             parameters = []
         parameters.extend([1.0/modal]*modal + [self.mean] * modal
                           + [stdev]*modal)
-        fh.write('R %4d %4d %4d %4d %4d %4d %4d '
+        fh.write('R %4d%4d%4d%4d%4d%4d%4d'
                  % (50 if truncated else 4, modal, self.feat, self.group,
-                    len(self.atoms), len(parameters), 0))
-        fh.write(' '.join('%6d' % x.a.index for x in self.atoms))
-        fh.write(' ')
+                    len(self.atoms), len(parameters), 1))
+        fh.write(''.join('%6d' % x.a.index for x in self.atoms))
+        fh.write('    ')
         fh.write(' '.join('%9.4f' % x for x in parameters))
         fh.write('\n')
 

@@ -24,7 +24,7 @@ class Sigmas(object):
         isSC1, isSC2 = atoms[0].isSC, atoms[1].isSC
         isAS1, isAS2 = atoms[0].isAS, atoms[1].isAS
 
-        if not isSC1 and isSC2: # BB-BB
+        if not isSC1 and not isSC2: # BB-BB
             sig_scale = 1.0
         elif isSC1 != isSC2: # SC-BB
             sig_scale=1.5

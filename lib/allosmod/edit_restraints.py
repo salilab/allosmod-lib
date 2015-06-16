@@ -240,7 +240,7 @@ def add_ca_boundary_restraints(atoms, fh=sys.stdout):
         if a.isCA:
             for feat in range(9,12):
                 for (form, mean) in ((2, 100.0), (1, -100.0)):
-                    fh.write('R %4d %4d %4d %4d %4d %4d %4d %6d    '
+                    fh.write('R %4d%4d%4d%4d%4d%4d%4d%6d    '
                              '%9.4f %9.4f\n'
                              % (form, 0, feat, 27, 1, 2, 1, a.a.index, mean,
                                 10.0))

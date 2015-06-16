@@ -149,6 +149,152 @@ class Tests(unittest.TestCase):
             e = tgparams.get_dele((Atom(1), Atom(2)), local=local, nuc=False)
             self.assertAlmostEqual(e, 40.0, places=1)
 
+    def test_restraint(self):
+        """Test Restraint base class"""
+        from allosmod.edit_restraints import Restraint
+        class Atom(object):
+            def __init__(self, ind):
+                self.index = ind
+                self.a = self
+        self.assertRaises(ValueError, Restraint,
+                          "R 3 1 9 12 2 2 1 3 2 10.00 20.00",
+                          [Atom(i) for i in range(1,10)])
+
+    def make_restraint(self, modify_atom_func, *args):
+        from allosmod.edit_restraints import GaussianRestraint, Atom
+        class ModellerResidue(object):
+            hetatm = False
+        class ModellerAtom(object):
+            def __init__(self, ind):
+                self.index = ind
+                self.residue = ModellerResidue()
+        atoms = [Atom(ModellerAtom(1)), Atom(ModellerAtom(2))]
+        modify_atom_func(atoms, *args)
+        r = GaussianRestraint("R 3 1 9 12 2 2 1 1 2 10.00 20.00", atoms)
+        return r
+        
+    def test_is_intrahet(self):
+        """Test Restraint.is_intrahet()"""
+        def set_hetatm(atoms, hetatm):
+            for a, h in zip(atoms, hetatm):
+                a.a.residue.hetatm = h
+        r = self.make_restraint(set_hetatm, [True, True])
+        self.assertTrue(r.is_intrahet())
+        r = self.make_restraint(set_hetatm, [True, False])
+        self.assertFalse(r.is_intrahet())
+        r = self.make_restraint(set_hetatm, [False, False])
+        self.assertFalse(r.is_intrahet())
+
+    def test_is_ca_cb_interaction(self):
+        """Test Restraint.is_ca_cb_interaction()"""
+        def modify_atoms(atoms, nuc_ca_cb):
+            for a, n in zip(atoms, nuc_ca_cb):
+                a.isNUC, a.isCA, a.isCB = n
+        # No atom is CA, CB, or a nucleotide
+        r = self.make_restraint(modify_atoms, [[False, False, False],
+                                               [True, True, True]])
+        self.assertFalse(r.is_ca_cb_interaction())
+        # nuc-nuc interaction
+        r = self.make_restraint(modify_atoms, [[True, False, False],
+                                               [True, False, False]])
+        self.assertTrue(r.is_ca_cb_interaction())
+        # CA-nuc interaction
+        r = self.make_restraint(modify_atoms, [[True, False, False],
+                                               [False, True, False]])
+        self.assertTrue(r.is_ca_cb_interaction())
+        # CA-CB interaction
+        r = self.make_restraint(modify_atoms, [[False, False, True],
+                                               [False, True, False]])
+        self.assertTrue(r.is_ca_cb_interaction())
+
+    def test_is_sidechain_sidechain_interaction(self):
+        """Test Restraint.is_sidechain_sidechain_interaction()"""
+        def modify_atoms(atoms, sc_cb):
+            for a, s in zip(atoms, sc_cb):
+                a.isSC, a.isCB = s
+        # SC-SC interaction
+        r = self.make_restraint(modify_atoms, [[True, False], [True, False]])
+        self.assertTrue(r.is_sidechain_sidechain_interaction())
+        # SC-CB interaction
+        r = self.make_restraint(modify_atoms, [[True, False], [False, True]])
+        self.assertTrue(r.is_sidechain_sidechain_interaction())
+        # BB-BB interaction
+        r = self.make_restraint(modify_atoms, [[False, False], [False, False]])
+        self.assertFalse(r.is_sidechain_sidechain_interaction())
+
+    def test_is_beta_beta_interaction(self):
+        """Test Restraint.is_beta_beta_interaction()"""
+        def modify_atoms(atoms, rind):
+            for a, r in zip(atoms, rind):
+                a.a.residue.index = r
+        beta_structure = {4: True}
+        # beta-beta interaction
+        r = self.make_restraint(modify_atoms, [4, 4])
+        self.assertTrue(r.is_beta_beta_interaction(beta_structure))
+        # beta-nonbeta interaction
+        r = self.make_restraint(modify_atoms, [4, 2])
+        self.assertFalse(r.is_beta_beta_interaction(beta_structure))
+
+    def test_is_intra_protein_interaction(self):
+        """Test Restraint.is_intra_protein_interaction()"""
+        def modify_atoms(atoms, nuc):
+            for a, n in zip(atoms, nuc):
+                a.isNUC = n
+        # protein-protein interaction
+        r = self.make_restraint(modify_atoms, [False, False])
+        self.assertTrue(r.is_intra_protein_interaction())
+        # protein-nucleotide interaction
+        r = self.make_restraint(modify_atoms, [False, True])
+        self.assertFalse(r.is_intra_protein_interaction())
+
+    def test_is_intra_dna_interaction(self):
+        """Test Restraint.is_intra_dna_interaction()"""
+        def modify_atoms(atoms, nuc_r):
+            for a, n in zip(atoms, nuc_r):
+                a.isNUC, a.torestr = n
+        # restrNUC-restrNUC interaction
+        r = self.make_restraint(modify_atoms, [[True, True], [True, True]])
+        self.assertTrue(r.is_intra_dna_interaction())
+        # restrNUC-NUC interaction
+        r = self.make_restraint(modify_atoms, [[True, True], [True, False]])
+        self.assertFalse(r.is_intra_dna_interaction())
+        # restrNUC-protein interaction
+        r = self.make_restraint(modify_atoms, [[True, True], [False, False]])
+        self.assertFalse(r.is_intra_dna_interaction())
+
+    def test_is_protein_dna_interaction(self):
+        """Test Restraint.is_protein_dna_interaction()"""
+        def modify_atoms(atoms, nuc_r):
+            for a, n in zip(atoms, nuc_r):
+                a.isNUC, a.torestr = n
+        # protein-restrNUC interaction
+        r = self.make_restraint(modify_atoms, [[False, False], [True, True]])
+        self.assertTrue(r.is_protein_dna_interaction())
+        # protein-unrestrNUC interaction
+        r = self.make_restraint(modify_atoms, [[False, False], [True, False]])
+        self.assertFalse(r.is_protein_dna_interaction())
+        # protein-protein interaction
+        r = self.make_restraint(modify_atoms, [[False, False], [False, False]])
+        self.assertFalse(r.is_protein_dna_interaction())
+        # restrNUC-restrNUC interaction
+        r = self.make_restraint(modify_atoms, [[True, True], [True, True]])
+        self.assertFalse(r.is_protein_dna_interaction())
+
+    def test_is_allosteric_interaction(self):
+        """Test Restraint.is_allosteric_interaction()"""
+        def modify_atoms(atoms, allos):
+            for a, n in zip(atoms, allos):
+                a.isAS = n
+        # AS-AS interaction
+        r = self.make_restraint(modify_atoms, [True, True])
+        self.assertTrue(r.is_allosteric_interaction())
+        # AS-RS interaction
+        r = self.make_restraint(modify_atoms, [True, False])
+        self.assertFalse(r.is_allosteric_interaction())
+        # RS-RS interaction
+        r = self.make_restraint(modify_atoms, [False, False])
+        self.assertFalse(r.is_allosteric_interaction())
+
     def test_gaussian_restraint(self):
         """Test GaussianRestraint class"""
         from allosmod.edit_restraints import GaussianRestraint
@@ -363,7 +509,13 @@ class Tests(unittest.TestCase):
 
     def test_contact_map(self):
         """Test ContactMap class"""
-        from allosmod.edit_restraints import ContactMap
+        from allosmod.edit_restraints import ContactMap, Atom
+        class ModellerResidue(object):
+            pass
+        class ModellerAtom(object):
+            def __init__(self, ind):
+                self.residue = ModellerResidue()
+                self.residue.index = ind
         c = ContactMap()
         self.assertEqual(c.keys(), [])
         self.assertFalse(c[(1,4)])
@@ -373,6 +525,8 @@ class Tests(unittest.TestCase):
         self.assertTrue(c[(4,1)])
         self.assertTrue(c[(2,5)])
         self.assertTrue(c[(5,2)])
+        self.assertTrue(c[(Atom(ModellerAtom(5)),2)])
+        self.assertTrue(c[(5, Atom(ModellerAtom(2)))])
         self.assertEqual(len(c.keys()), 2)
 
 if __name__ == '__main__':

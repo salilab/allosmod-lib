@@ -29,7 +29,7 @@ class TestRestraintEditor(allosmod.edit_restraints.RestraintEditor):
         self.contacts = allosmod.edit_restraints.ContactMap()
         self.beta_structure = {}
 
-    def check_parse_restraint(self, r):
+    def check_parse_restraint(self, r, delEmax=10.0):
         from allosmod.edit_restraints import TruncatedGaussianParameters
         r_from_form = {3: allosmod.edit_restraints.GaussianRestraint,
                        4: allosmod.edit_restraints.MultiGaussianRestraint,
@@ -38,7 +38,7 @@ class TestRestraintEditor(allosmod.edit_restraints.RestraintEditor):
                        10: allosmod.edit_restraints.SplineRestraint,
                        50: TruncatedGaussianRestraint}
 
-        tgparams = TruncatedGaussianParameters(delEmax=10.0, delEmaxNUC=20.0,
+        tgparams = TruncatedGaussianParameters(delEmax, delEmaxNUC=20.0,
                                                slope=3.0, scl_delx=4.0,
                                                breaks={})
         fh = BytesIO()
@@ -211,6 +211,20 @@ class Tests(unittest.TestCase):
         atoms = [Atom(ModellerAtom(1)), Atom(ModellerAtom(2))]
         modify_atom_func(atoms, *args)
         r = GaussianRestraint("R 3 1 9 12 2 2 1 1 2 10.00 20.00", atoms)
+        return r
+
+    def make_multi_gaussian_restraint(self, modify_atom_func, *args):
+        from allosmod.edit_restraints import MultiGaussianRestraint, Atom
+        class ModellerResidue(object):
+            hetatm = False
+        class ModellerAtom(object):
+            def __init__(self, ind):
+                self.index = ind
+                self.residue = ModellerResidue()
+        atoms = [Atom(ModellerAtom(1)), Atom(ModellerAtom(2))]
+        modify_atom_func(atoms, *args)
+        r = MultiGaussianRestraint("R 4 2 9 12 2 2 6 1 2 0.8 0.2 10.00 "
+                                   "20.00 5.0 8.0", atoms)
         return r
         
     def test_is_intrahet(self):
@@ -632,6 +646,31 @@ class Tests(unittest.TestCase):
         r = self.make_gaussian_restraint(modify_atoms)
         r2 = list(e.check_parse_restraint(r))
         self.assertEqual(len(r2), 0)
+
+    def test_parse_ca_ca_multi_intra_protein(self):
+        """Test parse of CA-CA multigauss intra-protein restraint"""
+        e = TestRestraintEditor()
+        e.contacts[(1,2)] = True # non-local interaction
+        def modify_atoms(atoms):
+            atoms[0].isAS = atoms[1].isAS = True # intra-protein
+            atoms[0].isCA = atoms[1].isCA = True # CA-CA
+            atoms[0].a.residue.index = 1
+            atoms[1].a.residue.index = 2
+        r = self.make_multi_gaussian_restraint(modify_atoms)
+        r2 = list(e.check_parse_restraint(r))
+        self.assertEqual(len(r2), 1)
+        self.assertEqual(type(r2[0]), TruncatedGaussianRestraint)
+        self.assertAlmostEqual(r2[0].delE, 10.0, places=1)
+        self.assertAlmostEqual(r2[0].slope, 3.0, places=1)
+        self.assertAlmostEqual(r2[0].scl_delx, 4.0, places=1)
+        self.assertEqual(len(r2[0].stdevs), 2)
+        self.assertAlmostEqual(r2[0].stdevs[0], 2.0, places=1)
+        # with delEmax = 0
+        r2 = list(e.check_parse_restraint(r, delEmax=0.))
+        self.assertEqual(type(r2[0]),
+                         allosmod.edit_restraints.MultiGaussianRestraint)
+        self.assertEqual(len(r2[0].stdevs), 2)
+        self.assertAlmostEqual(r2[0].stdevs[0], 2.0, places=1)
 
 if __name__ == '__main__':
     unittest.main()

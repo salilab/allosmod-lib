@@ -478,7 +478,7 @@ class RestraintEditor(object):
                 r.transform(tgparams, local=True, modal=2, stdev=2.0, fh=fh)
             elif self.locrigid and 6 <= seqdst <= 12 \
                and r.is_ca_cb_interaction() and r.any_mean_below(6.0):
-                r.transform(tgparams, modal=2, stdev=2.0, fh=fh)
+                r.transform(tgparams, local=True, modal=2, stdev=2.0, fh=fh)
             elif 2 <= seqdst and r.any_mean_below(6.0) \
                and r.is_ca_cb_interaction() \
                and r.is_beta_beta_interaction(self.beta_structure):

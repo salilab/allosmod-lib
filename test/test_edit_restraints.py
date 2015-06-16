@@ -1,6 +1,7 @@
 import unittest
 import subprocess
 import os
+from io import BytesIO
 import sys
 from test_pdb2ali import check_output
 from test_modeller import mock_method
@@ -147,6 +148,89 @@ class Tests(unittest.TestCase):
         for local in True, False:
             e = tgparams.get_dele((Atom(1), Atom(2)), local=local, nuc=False)
             self.assertAlmostEqual(e, 40.0, places=1)
+
+    def test_gaussian_restraint(self):
+        """Test GaussianRestraint class"""
+        from allosmod.edit_restraints import GaussianRestraint
+        from allosmod.edit_restraints import TruncatedGaussianParameters
+        class Atom(object):
+            def __init__(self, ind):
+                self.index = ind
+                self.a = self
+        r = GaussianRestraint("R 3 1 9 12 2 2 1 3 2 10.00 20.00",
+                              [Atom(i) for i in range(1,10)])
+        self.assertEqual([a.a.index for a in r.atoms], [3, 2])
+        self.assertEqual(r.modal, 1)
+        self.assertEqual(r.feat, 9)
+        self.assertEqual(r.group, 12)
+        self.assertAlmostEqual(r.mean, 10.0, places=1)
+        self.assertAlmostEqual(r.firstmean, 10.0, places=1)
+        self.assertAlmostEqual(r.stdev, 20.0, places=1)
+        self.assertTrue(r.any_mean_below(15.0))
+        self.assertFalse(r.any_mean_below(5.0))
+        self.assertFalse(r.any_mean_below(10.0))
+        s = BytesIO()
+        r.write(s)
+        self.assertEqual(s.getvalue(), 'R    3   1   9  12   2   2   1     '
+                                       '3     2      10.0000   20.0000\n')
+        # transform to multigaussian
+        s = BytesIO()
+        r.transform(None, 2, 30.0, truncated=False, fh=s)
+        self.assertEqual(s.getvalue(),
+                         'R    4   2   9  12   2   6   1     3     2       '
+                         '0.5000    0.5000   10.0000   10.0000   '
+                         '30.0000   30.0000\n')
+        # transform to truncated gaussian
+        s = BytesIO()
+        tgparams = TruncatedGaussianParameters(delEmax=2.0, delEmaxNUC=3.0,
+                                           slope=4.0, scl_delx=5.0, breaks={})
+        r.transform(tgparams, 2, 30.0, truncated=True, nuc=True, fh=s)
+        self.assertEqual(s.getvalue(),
+               'R   50   2   9  12   2   9   1     3     2       '
+               '3.0000    4.0000    5.0000    0.5000    0.5000   '
+               '10.0000   10.0000   30.0000   30.0000\n')
+
+    def test_multi_gaussian_restraint(self):
+        """Test MultiGaussianRestraint class"""
+        from allosmod.edit_restraints import MultiGaussianRestraint
+        from allosmod.edit_restraints import TruncatedGaussianParameters
+        class Atom(object):
+            def __init__(self, ind):
+                self.index = ind
+                self.a = self
+        r = MultiGaussianRestraint("R 4 2 9 12 2 6 1 3 2 0.8 0.2 "
+                                   "10.00 20.00 30.00 40.00",
+                                   [Atom(i) for i in range(1,10)])
+        self.assertEqual([a.a.index for a in r.atoms], [3, 2])
+        self.assertEqual(r.modal, 2)
+        self.assertEqual(r.feat, 9)
+        self.assertEqual(r.group, 12)
+        self.assertEqual(len(r.means), 2)
+        self.assertEqual(len(r.stdevs), 2)
+        self.assertAlmostEqual(r.means[0], 10.0, places=1)
+        self.assertAlmostEqual(r.means[1], 20.0, places=1)
+        self.assertAlmostEqual(r.firstmean, 10.0, places=1)
+        self.assertAlmostEqual(r.stdevs[0], 30.0, places=1)
+        self.assertAlmostEqual(r.stdevs[1], 40.0, places=1)
+        self.assertTrue(r.any_mean_below(15.0))
+        self.assertFalse(r.any_mean_below(5.0))
+        self.assertFalse(r.any_mean_below(10.0))
+        # transform to multigaussian
+        s = BytesIO()
+        r.transform(None, 8, 70.0, truncated=False, fh=s)
+        self.assertEqual(s.getvalue(),
+                         'R    4   2   9  12   2   6   1     3     2       '
+                         '0.5000    0.5000   10.0000   20.0000   '
+                         '70.0000   70.0000\n')
+        # transform to truncated gaussian
+        s = BytesIO()
+        tgparams = TruncatedGaussianParameters(delEmax=2.0, delEmaxNUC=3.0,
+                                           slope=4.0, scl_delx=5.0, breaks={})
+        r.transform(tgparams, 8, 70.0, truncated=True, nuc=True, fh=s)
+        self.assertEqual(s.getvalue(),
+               'R   50   2   9  12   2   9   1     3     2       '
+               '3.0000    4.0000    5.0000    0.5000    0.5000   '
+               '10.0000   20.0000   70.0000   70.0000\n')
 
 if __name__ == '__main__':
     unittest.main()

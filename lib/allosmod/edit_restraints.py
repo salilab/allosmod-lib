@@ -171,10 +171,10 @@ class GaussianRestraint(Restraint):
 
 class MultiGaussianRestraint(Restraint):
     def handle_parameters(self, params):
-        self.weights = float(params[:self.modal])
-        self.means = float(params[self.modal:self.modal*2])
+        self.weights = [float(x) for x in params[:self.modal]]
+        self.means = [float(x) for x in params[self.modal:self.modal*2]]
         self.firstmean = self.means[0]
-        self.stdevs = float(params[self.model*2:self.modal*3])
+        self.stdevs = [float(x) for x in params[self.modal*2:self.modal*3]]
     def write_parameters(self, fh):
         fh.write(' '.join('%9.4f' % x for x in
                                      self.weights + self.means + self.stdevs))
@@ -196,11 +196,11 @@ class MultiGaussianRestraint(Restraint):
         else:
             parameters = []
         parameters.extend([1.0/modal]*modal + self.means + [stdev]*modal)
-        fh.write('R %4d %4d %4d %4d %4d %4d %4d '
+        fh.write('R %4d%4d%4d%4d%4d%4d%4d'
                  % (50 if truncated else 4, modal, self.feat, self.group,
-                    len(self.atoms), len(parameters), 0))
-        fh.write(' '.join('%6d' % x.a.index for x in self.atoms))
-        fh.write(' ')
+                    len(self.atoms), len(parameters), 1))
+        fh.write(''.join('%6d' % x.a.index for x in self.atoms))
+        fh.write('    ')
         fh.write(' '.join('%9.4f' % x for x in parameters))
         fh.write('\n')
 

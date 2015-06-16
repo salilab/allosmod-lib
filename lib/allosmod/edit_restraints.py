@@ -485,7 +485,7 @@ class RestraintEditor(object):
                 r.transform(tgparams, local=True, modal=2, stdev=2.0, fh=fh)
             elif self.contacts[(r.atoms[0], r.atoms[1])]:
                 if isinstance(r, MultiGaussianRestraint):
-                    sig = self.sigmas.get_scaled(r.atoms)
+                    sig = self.sigmas.get_scaled(r.atoms) / r.modal / r.modal
                     r.transform(tgparams, modal=r.modal,
                                 stdev=sig, truncated=tgparams.delEmax != 0.,
                                 fh=fh)

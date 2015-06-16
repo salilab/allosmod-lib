@@ -487,7 +487,8 @@ class RestraintEditor(object):
                 if isinstance(r, MultiGaussianRestraint):
                     sig = self.sigmas.get_scaled(r.atoms)
                     r.transform(tgparams, modal=r.modal,
-                                stdev=sig, truncated=delEmax != 0., fh=fh)
+                                stdev=sig, truncated=tgparams.delEmax != 0.,
+                                fh=fh)
                 elif r.is_intra_protein_interaction():
                     sig = self.sigmas.get_scaled(r.atoms)
                     if r.is_allosteric_interaction():

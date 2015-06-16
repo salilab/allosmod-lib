@@ -70,5 +70,51 @@ class Tests(unittest.TestCase):
         os.unlink('break.dat')
         os.unlink('atomlistASRS')
 
+    def test_sigmas(self):
+        """Test Sigmas class"""
+        from allosmod.edit_restraints import RestraintEditor, Sigmas
+        class Atom(object):
+            def __init__(self, isAS, isSC):
+                self.isAS, self.isSC = isAS, isSC
+        # Test one template, allosteric site, BB-BB
+        sigmas = allosmod.edit_restraints.Sigmas(1, 1.0, 2.0, 3.0)
+        g = sigmas.get((Atom(isAS=True, isSC=False),
+                        Atom(isAS=True, isSC=False)))
+        self.assertAlmostEqual(g, 1.0 * 1.0, places=1)
+        # Test one template, allosteric site, SC-BB
+        sigmas = allosmod.edit_restraints.Sigmas(1, 1.0, 2.0, 3.0)
+        g = sigmas.get((Atom(isAS=True, isSC=True),
+                        Atom(isAS=True, isSC=False)))
+        self.assertAlmostEqual(g, 1.5 * 1.0, places=1)
+        g = sigmas.get((Atom(isAS=True, isSC=False),
+                        Atom(isAS=True, isSC=True)))
+        self.assertAlmostEqual(g, 1.5 * 1.0, places=1)
+        # Test one template, allosteric site, SC-SC
+        sigmas = allosmod.edit_restraints.Sigmas(1, 1.0, 2.0, 3.0)
+        g = sigmas.get((Atom(isAS=True, isSC=True),
+                        Atom(isAS=True, isSC=True)))
+        self.assertAlmostEqual(g, 1.5 * 1.5 * 1.0, places=1)
+        # Test two templates, allosteric site, SC-SC
+        sigmas = allosmod.edit_restraints.Sigmas(2, 1.0, 2.0, 3.0)
+        g = sigmas.get((Atom(isAS=True, isSC=True),
+                        Atom(isAS=True, isSC=True)))
+        self.assertAlmostEqual(g, 1.0, places=1)
+        g = sigmas.get_scaled((Atom(isAS=True, isSC=True),
+                               Atom(isAS=True, isSC=True)))
+        self.assertAlmostEqual(g, 4.0, places=1)
+        # Test one template, regulated site, SC-SC
+        sigmas = allosmod.edit_restraints.Sigmas(1, 1.0, 2.0, 3.0)
+        g = sigmas.get((Atom(isAS=False, isSC=True),
+                        Atom(isAS=False, isSC=True)))
+        self.assertAlmostEqual(g, 1.5 * 1.5 * 2.0, places=1)
+        # Test one template, interface, SC-SC
+        sigmas = allosmod.edit_restraints.Sigmas(1, 1.0, 2.0, 3.0)
+        g = sigmas.get((Atom(isAS=True, isSC=True),
+                        Atom(isAS=False, isSC=True)))
+        self.assertAlmostEqual(g, 1.5 * 1.5 * 3.0, places=1)
+        g = sigmas.get((Atom(isAS=False, isSC=True),
+                        Atom(isAS=True, isSC=True)))
+        self.assertAlmostEqual(g, 1.5 * 1.5 * 3.0, places=1)
+
 if __name__ == '__main__':
     unittest.main()

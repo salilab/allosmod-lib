@@ -215,6 +215,11 @@ class Tests(unittest.TestCase):
         self.assertTrue(r.any_mean_below(15.0))
         self.assertFalse(r.any_mean_below(5.0))
         self.assertFalse(r.any_mean_below(10.0))
+        s = BytesIO()
+        r.write(s)
+        self.assertEqual(s.getvalue(), 
+                   'R    4   2   9  12   2   6   1     3     2       '
+                   '0.8000    0.2000   10.0000   20.0000   30.0000   40.0000\n')
         # transform to multigaussian
         s = BytesIO()
         r.transform(None, 8, 70.0, truncated=False, fh=s)
@@ -231,6 +236,144 @@ class Tests(unittest.TestCase):
                'R   50   2   9  12   2   9   1     3     2       '
                '3.0000    4.0000    5.0000    0.5000    0.5000   '
                '10.0000   20.0000   70.0000   70.0000\n')
+
+    def test_cosine_restraint(self):
+        """Test CosineRestraint class"""
+        from allosmod.edit_restraints import CosineRestraint
+        class Atom(object):
+            def __init__(self, ind):
+                self.index = ind
+                self.a = self
+        r = CosineRestraint("R 7 2 9 12 2 2 1 3 2 2.0 4.0",
+                            [Atom(i) for i in range(1,10)])
+        self.assertEqual([a.a.index for a in r.atoms], [3, 2])
+        self.assertEqual(r.modal, 2)
+        self.assertEqual(r.feat, 9)
+        self.assertEqual(r.group, 12)
+        self.assertAlmostEqual(r.phase, 2.0, places=1)
+        self.assertAlmostEqual(r.force, 4.0, places=1)
+        s = BytesIO()
+        r.write(s)
+        self.assertEqual(s.getvalue(),
+                      'R    7   2   9  12   2   2   1     3     '
+                      '2       2.0000    4.0000\n')
+
+    def test_binormal_restraint(self):
+        """Test BinormalRestraint class"""
+        from allosmod.edit_restraints import BinormalRestraint
+        class Atom(object):
+            def __init__(self, ind):
+                self.index = ind
+                self.a = self
+        r = BinormalRestraint("R 9 2 9 12 2 2 1 3 2 x y z",
+                              [Atom(i) for i in range(1,10)])
+        self.assertEqual([a.a.index for a in r.atoms], [3, 2])
+        s = BytesIO()
+        r.write(s)
+        self.assertEqual(s.getvalue(),
+                         'R    9   2   9  12   2   2   1     '
+                         '3     2            x         y         z\n')
+
+    def test_spline_restraint(self):
+        """Test SplineRestraint class"""
+        from allosmod.edit_restraints import SplineRestraint
+        class Atom(object):
+            def __init__(self, ind):
+                self.index = ind
+                self.a = self
+        r = SplineRestraint("R 10 2 9 12 2 2 1 3 2 x y z",
+                            [Atom(i) for i in range(1,10)])
+        self.assertEqual([a.a.index for a in r.atoms], [3, 2])
+        s = BytesIO()
+        r.write(s)
+        self.assertEqual(s.getvalue(),
+                         'R   10   2   9  12   2   2   1     '
+                         '3     2            x         y         z\n')
+
+    def test_restraint_filters(self):
+        """Test restraint filters"""
+        from allosmod.edit_restraints import filter_rs_rs, filter_not_rs_rs
+        class Atom(object):
+            def __init__(self, isAS):
+                self.isAS = isAS
+        as_as = (Atom(True), Atom(True))
+        as_rs = (Atom(True), Atom(False))
+        rs_as = (Atom(False), Atom(True))
+        rs_rs = (Atom(False), Atom(False))
+
+        self.assertTrue(filter_rs_rs(rs_rs))
+        self.assertFalse(filter_rs_rs(rs_as))
+        self.assertFalse(filter_rs_rs(as_rs))
+        self.assertFalse(filter_rs_rs(as_as))
+
+        self.assertFalse(filter_not_rs_rs(rs_rs))
+        self.assertTrue(filter_not_rs_rs(rs_as))
+        self.assertTrue(filter_not_rs_rs(as_rs))
+        self.assertTrue(filter_not_rs_rs(as_as))
+
+    def test_add_ca_boundary_restraints(self):
+        """Test add_ca_boundary_restraints()"""
+        from allosmod.edit_restraints import add_ca_boundary_restraints
+        class Atom(object):
+            def __init__(self, ind, isCA):
+                self.isCA = isCA
+                self.index = ind
+                self.a = self
+        atoms = [Atom(5, False), Atom(7, True)]
+        s = BytesIO()
+        add_ca_boundary_restraints(atoms, s)
+        restraints = s.getvalue().rstrip('\n').split('\n')
+        self.assertEqual(len(restraints), 6)
+        # Only atom #7 should be restrained
+        for r in restraints:
+            self.assertEqual(r[34:37], " 7 ")
+
+    def test_parse_restraints_file(self):
+        """Test parse_restraints_file()"""
+        from allosmod.edit_restraints import parse_restraints_file
+        from allosmod.edit_restraints import filter_rs_rs
+        class Atom(object):
+            def __init__(self, ind, isAS):
+                self.index = ind
+                self.a = self
+                self.isAS = isAS
+        atoms = [Atom(i, True) for i in range(1,10)]
+        # no filter
+        s = BytesIO("R 3 1 9 12 2 2 1 3 2 10.00 20.00\n\n")
+        rs = list(parse_restraints_file(s, atoms))
+        self.assertEqual(len(rs), 1)
+        self.assertEqual([a.a.index for a in rs[0].atoms], [3, 2])
+
+        # rs-rs filter
+        s = BytesIO("R 3 1 9 12 2 2 1 3 2 10.00 20.00\n\n")
+        rs = list(parse_restraints_file(s, atoms, filter_rs_rs))
+        self.assertEqual(len(rs), 0)
+
+    def test_atom(self):
+        """Test Atom class"""
+        from allosmod.edit_restraints import Atom
+        a = Atom('foo')
+        self.assertEqual(a.isAS, False)
+        self.assertEqual(a.isNUC, False)
+        self.assertEqual(a.isSC, False)
+        self.assertEqual(a.isCA, False)
+        self.assertEqual(a.isCB, False)
+        self.assertEqual(a.torestr, False)
+        self.assertEqual(a.a, 'foo')
+
+    def test_contact_map(self):
+        """Test ContactMap class"""
+        from allosmod.edit_restraints import ContactMap
+        c = ContactMap()
+        self.assertEqual(c.keys(), [])
+        self.assertFalse(c[(1,4)])
+        c[(1,4)] = True
+        c[(5,2)] = True
+        self.assertTrue(c[(1,4)])
+        self.assertTrue(c[(4,1)])
+        self.assertTrue(c[(2,5)])
+        self.assertTrue(c[(5,2)])
+        self.assertEqual(len(c.keys()), 2)
 
 if __name__ == '__main__':
     unittest.main()

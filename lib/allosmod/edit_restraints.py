@@ -312,7 +312,7 @@ def get_beta(pdb_file):
     helix_fraction = dssp.count('H') / len(dssp) if len(dssp) > 0 else 0
     beta_structure = beta_fraction > 0.20 and helix_fraction < 0.05
     if beta_structure:
-        for n,x in dssp:
+        for n,x in enumerate(dssp):
             if x == 'E':
                 # Residue indices start at 1
                 beta[n+1] = True

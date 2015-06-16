@@ -529,5 +529,35 @@ class Tests(unittest.TestCase):
         self.assertTrue(c[(5, Atom(ModellerAtom(2)))])
         self.assertEqual(len(c.keys()), 2)
 
+    def test_get_beta(self):
+        """Test get_beta()"""
+        from allosmod.edit_restraints import get_beta
+        def mock_get_ss(pdb_file):
+            if pdb_file == 'empty':
+                return []
+            elif pdb_file == 'all_beta':
+                return ['E']*3
+            elif pdb_file == 'all_helix':
+                return ['H']*10
+            elif pdb_file == 'some_beta':
+                return ['', 'E', '']
+        with mock_method(allosmod.get_ss, 'get_ss', mock_get_ss):
+            self.assertEqual(get_beta('empty'), {})
+            self.assertEqual(get_beta('all_beta'), {1:True, 2:True, 3:True})
+            self.assertEqual(get_beta('all_helix'), {})
+            self.assertEqual(get_beta('some_beta'), {2: True})
+
+    def test_get_nuc_restrained(self):
+        """Test get_nuc_restrained()"""
+        from allosmod.edit_restraints import get_nuc_restrained
+        self.assertTrue(get_nuc_restrained('OP1', 'any residue'))
+        self.assertTrue(get_nuc_restrained('N1', 'ADE'))
+        self.assertTrue(get_nuc_restrained('C2', 'DT'))
+        self.assertTrue(get_nuc_restrained('O2', 'U'))
+        self.assertTrue(get_nuc_restrained('O6', 'G'))
+        self.assertTrue(get_nuc_restrained('N1', 'CYT'))
+        self.assertFalse(get_nuc_restrained('N2', 'CYT'))
+        self.assertFalse(get_nuc_restrained('N2', 'URA'))
+
 if __name__ == '__main__':
     unittest.main()

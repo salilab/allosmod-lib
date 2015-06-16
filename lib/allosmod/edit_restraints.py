@@ -42,11 +42,13 @@ class Sigmas(object):
             return self.sig_inter*sig_scale
 
 class TruncatedGaussianParameters(object):
-    def __init__(self, delEmax, slope, scl_delx, breaks):
-        self.delEmax, self.slope, self.scl_delx = delEmax, slope, scl_delx
-        self.breaks = breaks
+    def __init__(self, delEmax, delEmaxNUC, slope, scl_delx, breaks):
+        self.delEmax, delEmaxNUC, self.slope = delEmax, delEmaxNUC, slope
+        self.scl_delx, self.breaks = scl_delx, breaks
 
-    def get_dele(self, atoms):
+    def get_dele(self, atoms, local, nuc):
+        if nuc:
+            return delEmaxNUC
         bscale = 1.0
         is_break = False
         for a in atoms:
@@ -55,9 +57,9 @@ class TruncatedGaussianParameters(object):
                 is_break = True
                 bscale *= self.breaks[ri]
         if is_break:
-            return bscale * self.delEmax, bscale * self.delEmax
+            return bscale * self.delEmax
         else:
-            return self.delEmax, self.delEmax * 10.0
+            return self.delEmax * 10.0 if local else self.delEmax
 
 class Restraint(object):
     def __init__(self, line, atoms):
@@ -150,11 +152,11 @@ class GaussianRestraint(Restraint):
         return self.mean < threshold
 
     def transform(self, tgparams, modal, stdev, truncated=True,
-                  fh=sys.stdout):
+                  local=False, nuc=False, fh=sys.stdout):
         """Convert this restraint into a multigaussian, and write out"""
         if truncated:
-            delE, delEmaxLOC = tgparams.get_dele(self.atoms)
-            parameters = [delEmaxLOC, tgparams.slope, tgparams.scl_delx]
+            delE = tgparams.get_dele(self.atoms, local, nuc)
+            parameters = [delE, tgparams.slope, tgparams.scl_delx]
         else:
             parameters = []
         parameters.extend([1.0/modal]*modal + [self.mean] * modal
@@ -184,13 +186,13 @@ class MultiGaussianRestraint(Restraint):
         return False
 
     def transform(self, tgparams, modal, stdev, truncated=True,
-                  fh=sys.stdout):
+                  local=False, nuc=False, fh=sys.stdout):
         """Convert this restraint into a multigaussian, and write out"""
         # Note that modal is ignored
         modal = self.modal
         if truncated:
-            delE, delEmaxLOC = tgparams.get_dele(self.atoms)
-            parameters = [delEmaxLOC, tgparams.slope, tgparams.scl_delx]
+            delE = tgparams.get_dele(self.atoms, local, nuc)
+            parameters = [delE, tgparams.slope, tgparams.scl_delx]
         else:
             parameters = []
         parameters.extend([1.0/modal]*modal + self.means + [stdev]*modal)
@@ -420,8 +422,10 @@ class RestraintEditor(object):
     def edit(self, env):
         self.setup_atoms(env)
         self.setup_delEmax()
-        tgparams = TruncatedGaussianParameters(delEmax=self.delEmax, slope=4.0,
-                                               scl_delx=0.7, breaks=self.breaks)
+        tgparams = TruncatedGaussianParameters(delEmax=self.delEmax,
+                                               delEmaxNUC=self.delEmaxNUC,
+                                               slope=4.0, scl_delx=0.7,
+                                               breaks=self.breaks)
         self.parse_restraints(tgparams)
 
     def parse_restraints(self, tgparams, fh=sys.stdout):
@@ -471,14 +475,14 @@ class RestraintEditor(object):
             seqdst = abs(r.atoms[0].a.residue.index
                          - r.atoms[1].a.residue.index)
             if self.locrigid and 2 <= seqdst <= 5 and r.is_ca_cb_interaction():
-                r.transform(tgparams, modal=2, stdev=2.0, fh=fh)
+                r.transform(tgparams, local=True, modal=2, stdev=2.0, fh=fh)
             elif self.locrigid and 6 <= seqdst <= 12 \
                and r.is_ca_cb_interaction() and r.any_mean_below(6.0):
                 r.transform(tgparams, modal=2, stdev=2.0, fh=fh)
             elif 2 <= seqdst and r.any_mean_below(6.0) \
                and r.is_ca_cb_interaction() \
                and r.is_beta_beta_interaction(self.beta_structure):
-                r.transform(tgparams, modal=2, stdev=2.0, fh=fh)
+                r.transform(tgparams, local=True, modal=2, stdev=2.0, fh=fh)
             elif self.contacts[(r.atoms[0], r.atoms[1])]:
                 if isinstance(r, MultiGaussianRestraint):
                     sig = self.sigmas.get_scaled(r.atoms)
@@ -504,7 +508,7 @@ class RestraintEditor(object):
                 elif r.is_protein_dna_interaction() \
                      and r.any_mean_below(self.rcutNUC):
                     sig = self.sigmas.get(r.atoms)
-                    r.transform(tgparams, modal=2, stdev=sig, fh=fh)
+                    r.transform(tgparams, nuc=True, modal=2, stdev=sig, fh=fh)
                 elif r.is_intra_dna_interaction() \
                      and r.any_mean_below(self.rcutNUC):
                     r.stdev = 1.0

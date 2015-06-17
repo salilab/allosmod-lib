@@ -151,6 +151,9 @@ class GaussianRestraint(Restraint):
     def any_mean_below(self, threshold):
         return self.mean < threshold
 
+    def rescale(self, scale):
+        self.stdev /= scale
+
     def transform(self, tgparams, modal, stdev, truncated=True,
                   local=False, nuc=False, fh=sys.stdout):
         """Convert this restraint into a multigaussian, and write out"""
@@ -185,6 +188,9 @@ class MultiGaussianRestraint(Restraint):
                 return True
         return False
 
+    def rescale(self, scale):
+        self.stdevs = [x / scale for x in self.stdevs]
+
     def transform(self, tgparams, modal, stdev, truncated=True,
                   local=False, nuc=False, fh=sys.stdout):
         """Convert this restraint into a multigaussian, and write out"""
@@ -209,6 +215,9 @@ class CosineRestraint(Restraint):
         self.phase, self.force = [float(x) for x in params]
     def write_parameters(self, fh):
         fh.write(' '.join('%9.4f' % x for x in (self.phase, self.force)))
+
+    def rescale(self, scale):
+        self.force *= scale
 
 class BinormalRestraint(Restraint):
     def handle_parameters(self, params):
@@ -439,25 +448,16 @@ class RestraintEditor(object):
 
     def parse_restraint(self, tgparams, r, fh):
         # gaussian; bond, angle or torsion
-        # keep as is for prot, scale for HET
-        if isinstance(r, GaussianRestraint) and \
-           ((len(r.atoms) == 2 and r.group == 1) \
-            or len(r.atoms) == 3 or len(r.atoms) == 4):
-            if r.is_intrahet():
-                r.stdev *= HETscale
-            r.write(fh)
         # multigaussian; angle or torsion
+        # cosine; some dihedrals
         # keep as is for prot, scale for HET
-        elif isinstance(r, MultiGaussianRestraint) and \
-            len(r.atoms) >= 3:
+        if (isinstance(r, GaussianRestraint) and \
+            ((len(r.atoms) == 2 and r.group == 1) \
+             or len(r.atoms) == 3 or len(r.atoms) == 4)) \
+           or (isinstance(r, MultiGaussianRestraint) and len(r.atoms) >= 3) \
+           or isinstance(r, CosineRestraint):
             if r.is_intrahet():
-                r.stdevs = [x * HETscale for x in r.stdevs]
-            r.write(fh)
-        # cosine dihedrals for backbone dihedrals and 
-        # side chain dihedrals with few alignments
-        elif isinstance(r, CosineRestraint):
-            if r.is_intrahet():
-                r.force *= HETscale
+                r.rescale(HETscale)
             r.write(fh)
         # Keep as is
         elif isinstance(r, SplineRestraint):

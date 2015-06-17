@@ -389,6 +389,8 @@ class Tests(unittest.TestCase):
                'R   50   2   9  12   2   9   1     3     2       '
                '3.0000    4.0000    5.0000    0.5000    0.5000   '
                '10.0000   10.0000   30.0000   30.0000\n')
+        r.rescale(4.0)
+        self.assertAlmostEqual(r.stdev, 5.0, places=1)
 
     def test_multi_gaussian_restraint(self):
         """Test MultiGaussianRestraint class"""
@@ -436,6 +438,9 @@ class Tests(unittest.TestCase):
                'R   50   2   9  12   2   9   1     3     2       '
                '3.0000    4.0000    5.0000    0.5000    0.5000   '
                '10.0000   20.0000   70.0000   70.0000\n')
+        r.rescale(5.0)
+        self.assertAlmostEqual(r.stdevs[0], 6.0, places=1)
+        self.assertAlmostEqual(r.stdevs[1], 8.0, places=1)
 
     def test_cosine_restraint(self):
         """Test CosineRestraint class"""
@@ -457,6 +462,8 @@ class Tests(unittest.TestCase):
         self.assertEqual(s.getvalue(),
                       'R    7   2   9  12   2   2   1     3     '
                       '2       2.0000    4.0000\n')
+        r.rescale(2.5)
+        self.assertAlmostEqual(r.force, 10.0, places=1)
 
     def test_binormal_restraint(self):
         """Test BinormalRestraint class"""

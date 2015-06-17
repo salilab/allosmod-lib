@@ -828,5 +828,76 @@ class Tests(unittest.TestCase):
         # Restraint should be omitted
         self.assertEqual(len(r2), 0)
 
+    def test_local_2to5_ca_cb(self):
+        """Test locrigid CA-CB restraint with res range 2-5"""
+        e = TestRestraintEditor()
+        e.locrigid = True
+        def modify_atoms(atoms, seqdst):
+            atoms[0].isCA = atoms[1].isCA = True # CA-CA
+            atoms[0].a.residue.index = 30
+            atoms[1].a.residue.index = 30 + seqdst
+        for seqdst in 2, 5, -2, -5:
+            r = self.make_gaussian_restraint(modify_atoms, seqdst)
+            r2 = list(e.check_parse_restraint(r))
+            # sigma should be set to 2.0
+            self.assertEqual(len(r2), 1)
+            self.assertEqual(type(r2[0]), TruncatedGaussianRestraint)
+            self.assertEqual(len(r2[0].stdevs), 2)
+            self.assertAlmostEqual(r2[0].stdevs[0], 2.0, places=1)
+            self.assertAlmostEqual(r2[0].stdevs[1], 2.0, places=1)
+
+    def test_local_6to12_ca_cb(self):
+        """Test locrigid CA-CB restraint with res range 6-12"""
+        e = TestRestraintEditor()
+        e.locrigid = True
+        def modify_atoms(atoms, seqdst):
+            atoms[0].isCA = atoms[1].isCA = True # CA-CA
+            atoms[0].a.residue.index = 30
+            atoms[1].a.residue.index = 30 + seqdst
+        for seqdst in 6, 12, -6, -12:
+            r = self.make_gaussian_restraint(modify_atoms, seqdst)
+            r.mean = 5.9
+            r2 = list(e.check_parse_restraint(r))
+            # sigma should be set to 2.0
+            self.assertEqual(len(r2), 1)
+            self.assertEqual(type(r2[0]), TruncatedGaussianRestraint)
+            self.assertEqual(len(r2[0].stdevs), 2)
+            self.assertAlmostEqual(r2[0].stdevs[0], 2.0, places=1)
+            self.assertAlmostEqual(r2[0].stdevs[1], 2.0, places=1)
+            # If mean >= 6.0, restraint is omitted
+            r = self.make_gaussian_restraint(modify_atoms, seqdst)
+            r.mean = 6.1
+            r2 = list(e.check_parse_restraint(r))
+            self.assertEqual(len(r2), 0)
+
+    def test_under3_ca_cb(self):
+        """Test CA-CB restraint with res range <= 2"""
+        e = TestRestraintEditor()
+        def modify_atoms(atoms, arg):
+            atoms[0].isCA = atoms[1].isCA = True # CA-CA
+            atoms[0].a.residue.index = 30
+            atoms[1].a.residue.index = 32
+        r = self.make_gaussian_restraint(modify_atoms)
+        e.beta_structure = {30:True, 32:True}
+        r.mean = 5.9
+        r2 = list(e.check_parse_restraint(r))
+        # sigma should be set to 2.0
+        self.assertEqual(len(r2), 1)
+        self.assertEqual(type(r2[0]), TruncatedGaussianRestraint)
+        self.assertEqual(len(r2[0].stdevs), 2)
+        self.assertAlmostEqual(r2[0].stdevs[0], 2.0, places=1)
+        self.assertAlmostEqual(r2[0].stdevs[1], 2.0, places=1)
+        # If mean >= 6.0, restraint is omitted
+        r = self.make_gaussian_restraint(modify_atoms)
+        r.mean = 6.1
+        r2 = list(e.check_parse_restraint(r))
+        self.assertEqual(len(r2), 0)
+        # If not beta structure, restraint is omitted
+        r = self.make_gaussian_restraint(modify_atoms)
+        r.mean = 5.9
+        e.beta_structure = {}
+        r2 = list(e.check_parse_restraint(r))
+        self.assertEqual(len(r2), 0)
+
 if __name__ == '__main__':
     unittest.main()

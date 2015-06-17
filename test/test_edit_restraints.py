@@ -815,5 +815,18 @@ class Tests(unittest.TestCase):
         # Restraint should be omitted
         self.assertEqual(len(r2), 0)
 
+    def test_parse_sidechain_too_long(self):
+        """Test parse of sidechain-sidechain restraint, mean too big"""
+        e = TestRestraintEditor()
+        def modify_atoms(atoms, arg):
+            atoms[0].isSC = atoms[1].isSC = True
+            atoms[0].a.residue.index = 1
+            atoms[1].a.residue.index = 2
+        r = self.make_gaussian_restraint(modify_atoms)
+        r.mean = 5.1
+        r2 = list(e.check_parse_restraint(r))
+        # Restraint should be omitted
+        self.assertEqual(len(r2), 0)
+
 if __name__ == '__main__':
     unittest.main()

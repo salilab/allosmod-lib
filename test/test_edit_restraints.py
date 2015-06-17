@@ -227,7 +227,7 @@ class Tests(unittest.TestCase):
                 self.residue = ModellerResidue()
         atoms = [Atom(ModellerAtom(1)), Atom(ModellerAtom(2))]
         modify_atom_func(atoms, args)
-        r = MultiGaussianRestraint("R 4 2 9 12 2 2 6 1 2 0.8 0.2 10.00 "
+        r = MultiGaussianRestraint("R 4 2 9 12 2 6 1 1 2 0.8 0.2 10.00 "
                                    "20.00 5.0 8.0", atoms)
         return r
         

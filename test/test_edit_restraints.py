@@ -233,7 +233,39 @@ class Tests(unittest.TestCase):
                   % (len(atoms), ' '.join('%d' % (x+1) for x in range(natom))),
                   atoms)
         return r
-        
+
+    def make_cosine_restraint(self, modify_atom_func, args=None, natom=2):
+        from allosmod.edit_restraints import CosineRestraint, Atom
+        class ModellerResidue(object):
+            hetatm = False
+        class ModellerAtom(object):
+            def __init__(self, ind):
+                self.index = ind
+                self.residue = ModellerResidue()
+        atoms = [Atom(ModellerAtom(i+1)) for i in range(natom)]
+        modify_atom_func(atoms, args)
+        r = CosineRestraint(
+                  "R 7 2 9 12 %d 2 1 %s 20.0 30.0"
+                  % (len(atoms), ' '.join('%d' % (x+1) for x in range(natom))),
+                  atoms)
+        return r
+
+    def make_spline_restraint(self, modify_atom_func=None, args=None, natom=2):
+        from allosmod.edit_restraints import SplineRestraint, Atom
+        class ModellerResidue(object):
+            hetatm = False
+        class ModellerAtom(object):
+            def __init__(self, ind):
+                self.index = ind
+                self.residue = ModellerResidue()
+        atoms = [Atom(ModellerAtom(i+1)) for i in range(natom)]
+        if modify_atom_func:
+            modify_atom_func(atoms, args)
+        r = SplineRestraint("R 10 22 3 13 %d 3 1 %s x y z"
+                  % (len(atoms), ' '.join('%d' % (x+1) for x in range(natom))),
+                  atoms)
+        return r
+
     def test_is_intrahet(self):
         """Test Restraint.is_intrahet()"""
         def set_hetatm(atoms, hetatm):
@@ -768,6 +800,32 @@ class Tests(unittest.TestCase):
                 self.assertAlmostEqual(r2[0].means[1], 20.0, places=1)
                 self.assertAlmostEqual(r2[0].stdevs[0], 5.0 / scale, places=1)
                 self.assertAlmostEqual(r2[0].stdevs[1], 8.0 / scale, places=1)
+
+    def test_parse_cosine_restraint(self):
+        """Test parse of cosine restraint"""
+        e = TestRestraintEditor()
+        def modify_atoms(atoms, arg):
+            for a, h in zip(atoms, arg):
+                a.a.residue.hetatm = h
+        for het, scale in (False, 1.0), (True, 4.0):
+            r = self.make_cosine_restraint(modify_atoms, [het, het])
+            r2 = list(e.check_parse_restraint(r))
+            self.assertEqual(len(r2), 1)
+            self.assertEqual(type(r2[0]),
+                             allosmod.edit_restraints.CosineRestraint)
+            self.assertAlmostEqual(r2[0].phase, 20.0, places=1)
+            self.assertAlmostEqual(r2[0].force, 30.0 * scale, places=1)
+
+    def test_parse_spline_restraint(self):
+        """Test parse of spline restraint"""
+        # should pass through as-is
+        e = TestRestraintEditor()
+        r = self.make_spline_restraint()
+        r2 = list(e.check_parse_restraint(r))
+        self.assertEqual(len(r2), 1)
+        self.assertEqual(type(r2[0]),
+                         allosmod.edit_restraints.SplineRestraint)
+        self.assertEqual(r2[0]._params, ['x', 'y', 'z'])
 
 if __name__ == '__main__':
     unittest.main()

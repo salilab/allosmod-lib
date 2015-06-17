@@ -959,5 +959,76 @@ class Tests(unittest.TestCase):
         r2 = list(e.check_parse_restraint(r))
         self.assertEqual(len(r2), 0)
 
+    def test_setup_delEmax_no_coarse(self):
+        """Test setup_delEmax(), coarse=False"""
+        e = TestRestraintEditor()
+        # coarse=False; delE* should be unchanged
+        e.setup_delEmax()
+        self.assertAlmostEqual(e.delEmax, 0.2, places=1)
+        self.assertAlmostEqual(e.delEmaxNUC, 0.12, places=2)
+
+    def test_setup_delEmax_no_rsr(self):
+        """Test setup_delEmax(), no restraints"""
+        e = TestRestraintEditor()
+        # empty file; delE* should be unchanged
+        e.coarse = True
+        e.atoms = []
+        open('dummyas.rsr', 'w').close()
+        def mock_parse(fh, atoms):
+            return []
+        with mock_method(allosmod.edit_restraints, 'parse_restraints_file',
+                         mock_parse):
+            e.setup_delEmax()
+        self.assertAlmostEqual(e.delEmax, 0.2, places=1)
+        self.assertAlmostEqual(e.delEmaxNUC, 0.12, places=2)
+        os.unlink('dummyas.rsr')
+
+    def test_setup_delEmax_rsr(self):
+        """Test setup_delEmax(), with some restraints"""
+        e = TestRestraintEditor()
+        e.contacts[(1,2)] = True
+        e.coarse = True
+        e.atoms = []
+        open('dummyas.rsr', 'w').close()
+        def mock_parse(fh, atoms):
+            def set_resind(atoms):
+                atoms[0].a.residue.index = 1
+                atoms[1].a.residue.index = 2
+            def make_ca_ca(atoms, arg):
+                set_resind(atoms)
+                atoms[0].isCA = atoms[1].isCA = True # CA-CA
+            def make_cb_cb(atoms, arg):
+                set_resind(atoms)
+                atoms[0].isCB = atoms[1].isCB = True # CB-CB
+            def make_sc_sc(atoms, arg):
+                set_resind(atoms)
+                atoms[0].isSC = atoms[1].isSC = True # SC-SC
+            # CA-CA restraint
+            r = self.make_gaussian_restraint(make_ca_ca)
+            yield r
+            # CB-CB restraint
+            r = self.make_gaussian_restraint(make_cb_cb)
+            yield r
+            # SC-SC restraint, but short (<distco_scsc)
+            r = self.make_gaussian_restraint(make_sc_sc)
+            r.mean = 4.9
+            yield r
+            # Restraint with natoms!=2
+            r = self.make_gaussian_restraint(make_ca_ca, natom=3)
+            yield r
+            # Restraint not in contacts
+            r = self.make_gaussian_restraint(make_ca_ca)
+            r.atoms[0].a.residue.index = 3
+            yield r
+            # Restraint of wrong type
+            r = self.make_cosine_restraint(make_ca_ca)
+            yield r
+        with mock_method(allosmod.edit_restraints, 'parse_restraints_file',
+                         mock_parse):
+            e.setup_delEmax()
+        self.assertAlmostEqual(e.delEmax, 0.08, places=2)
+        self.assertAlmostEqual(e.delEmaxNUC, 0.05, places=2)
+        os.unlink('dummyas.rsr')
+
 if __name__ == '__main__':
     unittest.main()

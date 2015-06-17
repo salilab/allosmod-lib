@@ -201,7 +201,7 @@ class Tests(unittest.TestCase):
                           "R 3 1 9 12 2 2 1 3 2 10.00 20.00",
                           [Atom(i) for i in range(1,10)])
 
-    def make_gaussian_restraint(self, modify_atom_func, *args):
+    def make_gaussian_restraint(self, modify_atom_func, args=None, natom=2):
         from allosmod.edit_restraints import GaussianRestraint, Atom
         class ModellerResidue(object):
             hetatm = False
@@ -209,12 +209,15 @@ class Tests(unittest.TestCase):
             def __init__(self, ind):
                 self.index = ind
                 self.residue = ModellerResidue()
-        atoms = [Atom(ModellerAtom(1)), Atom(ModellerAtom(2))]
-        modify_atom_func(atoms, *args)
-        r = GaussianRestraint("R 3 1 9 12 2 2 1 1 2 10.00 20.00", atoms)
+        atoms = [Atom(ModellerAtom(i+1)) for i in range(natom)]
+        modify_atom_func(atoms, args)
+        r = GaussianRestraint("R 3 1 9 12 %d 2 1 %s 10.00 20.00"
+                              % (len(atoms),
+                                 ' '.join('%d' % (x+1) for x in range(natom))),
+                              atoms)
         return r
 
-    def make_multi_gaussian_restraint(self, modify_atom_func, *args):
+    def make_multi_gaussian_restraint(self, modify_atom_func, args=None):
         from allosmod.edit_restraints import MultiGaussianRestraint, Atom
         class ModellerResidue(object):
             hetatm = False
@@ -223,7 +226,7 @@ class Tests(unittest.TestCase):
                 self.index = ind
                 self.residue = ModellerResidue()
         atoms = [Atom(ModellerAtom(1)), Atom(ModellerAtom(2))]
-        modify_atom_func(atoms, *args)
+        modify_atom_func(atoms, args)
         r = MultiGaussianRestraint("R 4 2 9 12 2 2 6 1 2 0.8 0.2 10.00 "
                                    "20.00 5.0 8.0", atoms)
         return r
@@ -626,7 +629,7 @@ class Tests(unittest.TestCase):
         e = TestRestraintEditor()
         e.coarse = True
         e.contacts[(1,2)] = True # non-local interaction
-        def modify_atoms(atoms):
+        def modify_atoms(atoms, arg):
             atoms[0].isAS = atoms[1].isAS = True # AS-AS
             atoms[0].isCA = atoms[1].isCA = True # CA-CA
             atoms[0].a.residue.index = 1
@@ -659,7 +662,7 @@ class Tests(unittest.TestCase):
         """Test parse of CA-CA multigauss intra-protein restraint"""
         e = TestRestraintEditor()
         e.contacts[(1,2)] = True # non-local interaction
-        def modify_atoms(atoms):
+        def modify_atoms(atoms, arg):
             atoms[0].isAS = atoms[1].isAS = True # AS-AS
             atoms[0].isCA = atoms[1].isCA = True # CA-CA
             atoms[0].a.residue.index = 1
@@ -685,7 +688,7 @@ class Tests(unittest.TestCase):
         e = TestRestraintEditor()
         e.coarse = True
         e.contacts[(1,2)] = True # non-local interaction
-        def modify_atoms(atoms):
+        def modify_atoms(atoms, arg):
             atoms[0].isAS = atoms[1].isAS = False # RS-RS
             atoms[0].isCA = atoms[1].isCA = True # CA-CA
             atoms[0].a.residue.index = 1
@@ -722,6 +725,24 @@ class Tests(unittest.TestCase):
                              allosmod.edit_restraints.GaussianRestraint)
             self.assertAlmostEqual(r2[0].mean, 10.0, places=1)
             self.assertAlmostEqual(r2[0].stdev, 20.0 / scale, places=1)
+
+    def test_parse_angle_restraint(self):
+        """Test parse of angle/dihedral restraint"""
+        e = TestRestraintEditor()
+        def modify_atoms(atoms, arg):
+            for a, h in zip(atoms, arg):
+                a.a.residue.hetatm = h
+        for natom in (3,4):
+            for het, scale in (False, 1.0), (True, 4.0):
+                r = self.make_gaussian_restraint(modify_atoms, [het]*natom,
+                                                 natom=natom)
+                r.group = 1
+                r2 = list(e.check_parse_restraint(r))
+                self.assertEqual(len(r2), 1)
+                self.assertEqual(type(r2[0]),
+                                 allosmod.edit_restraints.GaussianRestraint)
+                self.assertAlmostEqual(r2[0].mean, 10.0, places=1)
+                self.assertAlmostEqual(r2[0].stdev, 20.0 / scale, places=1)
 
 if __name__ == '__main__':
     unittest.main()

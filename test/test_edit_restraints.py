@@ -217,7 +217,8 @@ class Tests(unittest.TestCase):
                               atoms)
         return r
 
-    def make_multi_gaussian_restraint(self, modify_atom_func, args=None):
+    def make_multi_gaussian_restraint(self, modify_atom_func, args=None,
+                                      natom=2):
         from allosmod.edit_restraints import MultiGaussianRestraint, Atom
         class ModellerResidue(object):
             hetatm = False
@@ -225,10 +226,12 @@ class Tests(unittest.TestCase):
             def __init__(self, ind):
                 self.index = ind
                 self.residue = ModellerResidue()
-        atoms = [Atom(ModellerAtom(1)), Atom(ModellerAtom(2))]
+        atoms = [Atom(ModellerAtom(i+1)) for i in range(natom)]
         modify_atom_func(atoms, args)
-        r = MultiGaussianRestraint("R 4 2 9 12 2 6 1 1 2 0.8 0.2 10.00 "
-                                   "20.00 5.0 8.0", atoms)
+        r = MultiGaussianRestraint(
+                  "R 4 2 9 12 %d 6 1 %s 0.8 0.2 10.00 20.00 5.0 8.0"
+                  % (len(atoms), ' '.join('%d' % (x+1) for x in range(natom))),
+                  atoms)
         return r
         
     def test_is_intrahet(self):
@@ -743,6 +746,28 @@ class Tests(unittest.TestCase):
                                  allosmod.edit_restraints.GaussianRestraint)
                 self.assertAlmostEqual(r2[0].mean, 10.0, places=1)
                 self.assertAlmostEqual(r2[0].stdev, 20.0 / scale, places=1)
+
+    def test_parse_multi_angle_restraint(self):
+        """Test parse of multigauss angle/dihedral restraint"""
+        e = TestRestraintEditor()
+        def modify_atoms(atoms, arg):
+            for a, h in zip(atoms, arg):
+                a.a.residue.hetatm = h
+        for natom in (3,4):
+            for het, scale in (False, 1.0), (True, 4.0):
+                r = self.make_multi_gaussian_restraint(
+                            modify_atoms, [het]*natom, natom=natom)
+                r2 = list(e.check_parse_restraint(r))
+                self.assertEqual(len(r2), 1)
+                self.assertEqual(type(r2[0]),
+                              allosmod.edit_restraints.MultiGaussianRestraint)
+                self.assertEqual(len(r2[0].means), 2)
+                self.assertAlmostEqual(r2[0].weights[0], 0.8, places=1)
+                self.assertAlmostEqual(r2[0].weights[1], 0.2, places=1)
+                self.assertAlmostEqual(r2[0].means[0], 10.0, places=1)
+                self.assertAlmostEqual(r2[0].means[1], 20.0, places=1)
+                self.assertAlmostEqual(r2[0].stdevs[0], 5.0 / scale, places=1)
+                self.assertAlmostEqual(r2[0].stdevs[1], 8.0 / scale, places=1)
 
 if __name__ == '__main__':
     unittest.main()

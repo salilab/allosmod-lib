@@ -500,7 +500,7 @@ class RestraintEditor(object):
                                 r.stdev = sig
                                 r.write(fh)
                     else: # RS or interface
-                        if self.delEmax == 0.:
+                        if tgparams.delEmax == 0.:
                             r.transform(tgparams, modal=1,
                                         stdev=sig, truncated=False, fh=fh)
                         else:

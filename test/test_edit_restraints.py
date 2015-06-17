@@ -614,12 +614,12 @@ class Tests(unittest.TestCase):
         self.assertFalse(get_nuc_restrained('N2', 'URA'))
 
     def test_parse_coarse_ca_ca_intra_protein(self):
-        """Test parse of coarse CA-CA intra-protein restraint"""
+        """Test parse of coarse AS-AS CA-CA intra-protein restraint"""
         e = TestRestraintEditor()
         e.coarse = True
         e.contacts[(1,2)] = True # non-local interaction
         def modify_atoms(atoms):
-            atoms[0].isAS = atoms[1].isAS = True # intra-protein
+            atoms[0].isAS = atoms[1].isAS = True # AS-AS
             atoms[0].isCA = atoms[1].isCA = True # CA-CA
             atoms[0].a.residue.index = 1
             atoms[1].a.residue.index = 2
@@ -652,7 +652,7 @@ class Tests(unittest.TestCase):
         e = TestRestraintEditor()
         e.contacts[(1,2)] = True # non-local interaction
         def modify_atoms(atoms):
-            atoms[0].isAS = atoms[1].isAS = True # intra-protein
+            atoms[0].isAS = atoms[1].isAS = True # AS-AS
             atoms[0].isCA = atoms[1].isCA = True # CA-CA
             atoms[0].a.residue.index = 1
             atoms[1].a.residue.index = 2
@@ -671,6 +671,33 @@ class Tests(unittest.TestCase):
                          allosmod.edit_restraints.MultiGaussianRestraint)
         self.assertEqual(len(r2[0].stdevs), 2)
         self.assertAlmostEqual(r2[0].stdevs[0], 2.0, places=1)
+
+    def test_parse_rs_ca_ca_intra_protein(self):
+        """Test parse of RS-RS CA-CA intra-protein restraint"""
+        e = TestRestraintEditor()
+        e.coarse = True
+        e.contacts[(1,2)] = True # non-local interaction
+        def modify_atoms(atoms):
+            atoms[0].isAS = atoms[1].isAS = False # RS-RS
+            atoms[0].isCA = atoms[1].isCA = True # CA-CA
+            atoms[0].a.residue.index = 1
+            atoms[1].a.residue.index = 2
+        r = self.make_gaussian_restraint(modify_atoms)
+        r2 = list(e.check_parse_restraint(r))
+        self.assertEqual(len(r2), 1)
+        self.assertEqual(type(r2[0]), TruncatedGaussianRestraint)
+        self.assertAlmostEqual(r2[0].delE, 10.0, places=1)
+        self.assertAlmostEqual(r2[0].slope, 3.0, places=1)
+        self.assertAlmostEqual(r2[0].scl_delx, 4.0, places=1)
+        self.assertEqual(len(r2[0].stdevs), 2)
+        self.assertAlmostEqual(r2[0].stdevs[0], 12.0, places=1)
+        # with delEmax = 0
+        r2 = list(e.check_parse_restraint(r, delEmax=0.))
+        self.assertEqual(len(r2), 1)
+        self.assertEqual(type(r2[0]),
+                         allosmod.edit_restraints.MultiGaussianRestraint)
+        self.assertEqual(len(r2[0].stdevs), 1)
+        self.assertAlmostEqual(r2[0].stdevs[0], 12.0, places=1)
 
 if __name__ == '__main__':
     unittest.main()

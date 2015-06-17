@@ -457,7 +457,7 @@ class RestraintEditor(object):
            or (isinstance(r, MultiGaussianRestraint) and len(r.atoms) >= 3) \
            or isinstance(r, CosineRestraint):
             if r.is_intrahet():
-                r.rescale(HETscale)
+                r.rescale(self.HETscale)
             r.write(fh)
         # Keep as is
         elif isinstance(r, SplineRestraint):
@@ -517,11 +517,9 @@ class RestraintEditor(object):
         # add intra heme contacts to maintain geometry (not included
         # above due to contmap), keep all as is
         elif r.is_intrahet() and len(r.atoms) == 2:
-            if isinstance(r, GaussianRestraint) and r.group != 1:
-                r.stdev *= HETscale
-                r.write(fh)
-            elif isinstance(r, MultiGaussianRestraint):
-                r.stdevs = [x * HETscale for x in r.stdevs]
+            if (isinstance(r, GaussianRestraint) and r.group != 1) \
+               or isinstance(r, MultiGaussianRestraint):
+                r.rescale(self.HETscale)
                 r.write(fh)
 
 def parse_args():

@@ -936,5 +936,28 @@ class Tests(unittest.TestCase):
         r2 = list(e.check_parse_restraint(r))
         self.assertEqual(len(r2), 0)
 
+    def test_intra_dna_restraint(self):
+        """Test parse of intra-dna restraint"""
+        e = TestRestraintEditor()
+        e.contacts[(1,2)] = True # non-local interaction
+        def modify_atoms(atoms, arg):
+            atoms[0].isNUC = atoms[0].torestr = True # DNA-DNA, RS-RS
+            atoms[1].isNUC = atoms[1].torestr = True
+            atoms[0].a.residue.index = 1
+            atoms[1].a.residue.index = 2
+        r = self.make_gaussian_restraint(modify_atoms)
+        r.mean = 7.9
+        # stdev should be forced to 1.0, mean not changed
+        r2 = list(e.check_parse_restraint(r))
+        self.assertEqual(len(r2), 1)
+        self.assertEqual(type(r2[0]),
+                         allosmod.edit_restraints.GaussianRestraint)
+        self.assertAlmostEqual(r2[0].mean, 7.9, places=1)
+        self.assertAlmostEqual(r2[0].stdev, 1.0, places=1)
+        # If mean > rcutNUC (8.0), restraint should be omitted
+        r.mean = 8.1
+        r2 = list(e.check_parse_restraint(r))
+        self.assertEqual(len(r2), 0)
+
 if __name__ == '__main__':
     unittest.main()

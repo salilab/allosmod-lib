@@ -461,6 +461,12 @@ class RestraintEditor(object):
             if r.is_intrahet():
                 r.rescale(self.HETscale)
             r.write(fh)
+        # add intra heme contacts to maintain geometry; keep all as is
+        elif r.is_intrahet() and len(r.atoms) == 2 and \
+            ((isinstance(r, GaussianRestraint) and r.group != 1) \
+             or isinstance(r, MultiGaussianRestraint)):
+                r.rescale(self.HETscale)
+                r.write(fh)
         # Keep as is
         elif isinstance(r, SplineRestraint):
             r.write(fh)
@@ -516,13 +522,6 @@ class RestraintEditor(object):
                      and r.any_mean_below(self.rcutNUC):
                     r.stdev = 1.0
                     r.write(fh)
-        # add intra heme contacts to maintain geometry (not included
-        # above due to contmap), keep all as is
-        elif r.is_intrahet() and len(r.atoms) == 2:
-            if (isinstance(r, GaussianRestraint) and r.group != 1) \
-               or isinstance(r, MultiGaussianRestraint):
-                r.rescale(self.HETscale)
-                r.write(fh)
 
 def parse_args():
     usage = """%prog [opts] <RS-RS restraints> <AS-RS restraints>

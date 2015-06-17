@@ -899,5 +899,20 @@ class Tests(unittest.TestCase):
         r2 = list(e.check_parse_restraint(r))
         self.assertEqual(len(r2), 0)
 
+    def test_parse_het_het(self):
+        """Test parse of het-het restraint"""
+        e = TestRestraintEditor()
+        def modify_atoms(atoms, arg):
+            atoms[0].a.residue.hetatm = True
+            atoms[1].a.residue.hetatm = True
+        r = self.make_gaussian_restraint(modify_atoms)
+        r2 = list(e.check_parse_restraint(r))
+        # keep as is (but scaled by HETscale, 4.0)
+        self.assertEqual(len(r2), 1)
+        self.assertEqual(type(r2[0]),
+                         allosmod.edit_restraints.GaussianRestraint)
+        self.assertAlmostEqual(r2[0].mean, 10.0, places=1)
+        self.assertAlmostEqual(r2[0].stdev, 20.0 / 4.0, places=1)
+
 if __name__ == '__main__':
     unittest.main()

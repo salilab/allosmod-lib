@@ -425,8 +425,10 @@ class RestraintEditor(object):
                     if (r.atoms[0].isCA or r.atoms[0].isCB) \
                        and (r.atoms[1].isCA or r.atoms[1].isCB):
                         ndistCACB += 1
-        self.delEmax = (6.5 / 7.8) * (ndist / ndistCACB) * self.delEmax
-        self.delEmaxNUC = (6.5 / 7.8) * (ndist / ndistCACB) * self.delEmaxNUC
+        if ndistCACB > 0:
+            self.delEmax = (6.5 / 7.8) * (ndist / ndistCACB) * self.delEmax
+            self.delEmaxNUC = (6.5 / 7.8) * (ndist / ndistCACB) \
+                                          * self.delEmaxNUC
 
     def edit(self, env):
         self.setup_atoms(env)

@@ -803,5 +803,17 @@ class Tests(unittest.TestCase):
                          allosmod.edit_restraints.SplineRestraint)
         self.assertEqual(r2[0]._params, ['x', 'y', 'z'])
 
+    def test_parse_coarse_not_ca_cb(self):
+        """Test parse of coarse restraint, not CA-CB"""
+        e = TestRestraintEditor()
+        e.coarse = True
+        def modify_atoms(atoms, arg):
+            atoms[0].a.residue.index = 1
+            atoms[1].a.residue.index = 2
+        r = self.make_gaussian_restraint(modify_atoms)
+        r2 = list(e.check_parse_restraint(r))
+        # Restraint should be omitted
+        self.assertEqual(len(r2), 0)
+
 if __name__ == '__main__':
     unittest.main()

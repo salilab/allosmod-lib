@@ -201,57 +201,8 @@ class Tests(unittest.TestCase):
                           "R 3 1 9 12 2 2 1 3 2 10.00 20.00",
                           [Atom(i) for i in range(1,10)])
 
-    def make_gaussian_restraint(self, modify_atom_func, args=None, natom=2):
-        from allosmod.edit_restraints import GaussianRestraint, Atom
-        class ModellerResidue(object):
-            hetatm = False
-        class ModellerAtom(object):
-            def __init__(self, ind):
-                self.index = ind
-                self.residue = ModellerResidue()
-        atoms = [Atom(ModellerAtom(i+1)) for i in range(natom)]
-        modify_atom_func(atoms, args)
-        r = GaussianRestraint("R 3 1 9 12 %d 2 1 %s 10.00 20.00"
-                              % (len(atoms),
-                                 ' '.join('%d' % (x+1) for x in range(natom))),
-                              atoms)
-        return r
-
-    def make_multi_gaussian_restraint(self, modify_atom_func, args=None,
-                                      natom=2):
-        from allosmod.edit_restraints import MultiGaussianRestraint, Atom
-        class ModellerResidue(object):
-            hetatm = False
-        class ModellerAtom(object):
-            def __init__(self, ind):
-                self.index = ind
-                self.residue = ModellerResidue()
-        atoms = [Atom(ModellerAtom(i+1)) for i in range(natom)]
-        modify_atom_func(atoms, args)
-        r = MultiGaussianRestraint(
-                  "R 4 2 9 12 %d 6 1 %s 0.8 0.2 10.00 20.00 5.0 8.0"
-                  % (len(atoms), ' '.join('%d' % (x+1) for x in range(natom))),
-                  atoms)
-        return r
-
-    def make_cosine_restraint(self, modify_atom_func, args=None, natom=2):
-        from allosmod.edit_restraints import CosineRestraint, Atom
-        class ModellerResidue(object):
-            hetatm = False
-        class ModellerAtom(object):
-            def __init__(self, ind):
-                self.index = ind
-                self.residue = ModellerResidue()
-        atoms = [Atom(ModellerAtom(i+1)) for i in range(natom)]
-        modify_atom_func(atoms, args)
-        r = CosineRestraint(
-                  "R 7 2 9 12 %d 2 1 %s 20.0 30.0"
-                  % (len(atoms), ' '.join('%d' % (x+1) for x in range(natom))),
-                  atoms)
-        return r
-
-    def make_spline_restraint(self, modify_atom_func=None, args=None, natom=2):
-        from allosmod.edit_restraints import SplineRestraint, Atom
+    def make_restraint(self, modify_atom_func, args, natom, cls, fmt):
+        from allosmod.edit_restraints import Atom
         class ModellerResidue(object):
             hetatm = False
         class ModellerAtom(object):
@@ -261,10 +212,35 @@ class Tests(unittest.TestCase):
         atoms = [Atom(ModellerAtom(i+1)) for i in range(natom)]
         if modify_atom_func:
             modify_atom_func(atoms, args)
-        r = SplineRestraint("R 10 22 3 13 %d 3 1 %s x y z"
-                  % (len(atoms), ' '.join('%d' % (x+1) for x in range(natom))),
-                  atoms)
+        r = cls(fmt % (len(atoms),
+                       ' '.join('%d' % (x+1) for x in range(natom))), atoms)
         return r
+
+    def make_gaussian_restraint(self, modify_atom_func, args=None, natom=2):
+        from allosmod.edit_restraints import GaussianRestraint
+        return self.make_restraint(modify_atom_func, args, natom,
+                                   GaussianRestraint,
+                                   "R 3 1 9 12 %d 2 1 %s 10.00 20.00")
+
+    def make_multi_gaussian_restraint(self, modify_atom_func, args=None,
+                                      natom=2):
+        from allosmod.edit_restraints import MultiGaussianRestraint
+        return self.make_restraint(modify_atom_func, args, natom,
+                                   MultiGaussianRestraint,
+                                   "R 4 2 9 12 %d 6 1 %s 0.8 0.2 10.00 "
+                                   "20.00 5.0 8.0")
+
+    def make_cosine_restraint(self, modify_atom_func, args=None, natom=2):
+        from allosmod.edit_restraints import CosineRestraint
+        return self.make_restraint(modify_atom_func, args, natom,
+                                   CosineRestraint,
+                                   "R 7 2 9 12 %d 2 1 %s 20.0 30.0")
+
+    def make_spline_restraint(self, modify_atom_func=None, args=None, natom=2):
+        from allosmod.edit_restraints import SplineRestraint
+        return self.make_restraint(modify_atom_func, args, natom,
+                                   SplineRestraint,
+                                   "R 10 22 3 13 %d 3 1 %s x y z")
 
     def test_is_intrahet(self):
         """Test Restraint.is_intrahet()"""

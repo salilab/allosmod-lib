@@ -28,6 +28,7 @@ class TestRestraintEditor(allosmod.edit_restraints.RestraintEditor):
                "dummyatomlist", sigmas, 10.0, 0.2, None, False, False)
         self.contacts = allosmod.edit_restraints.ContactMap()
         self.beta_structure = {}
+        self.HETscale *= 4.0 # fail if HETscale not in parent
 
     def check_parse_restraint(self, r, delEmax=10.0):
         from allosmod.edit_restraints import TruncatedGaussianParameters
@@ -705,6 +706,22 @@ class Tests(unittest.TestCase):
                          allosmod.edit_restraints.MultiGaussianRestraint)
         self.assertEqual(len(r2[0].stdevs), 1)
         self.assertAlmostEqual(r2[0].stdevs[0], 12.0, places=1)
+
+    def test_parse_bond_restraint(self):
+        """Test parse of bond restraint"""
+        e = TestRestraintEditor()
+        def modify_atoms(atoms, arg):
+            for a, h in zip(atoms, arg):
+                a.a.residue.hetatm = h
+        for het, scale in (False, 1.0), (True, 4.0):
+            r = self.make_gaussian_restraint(modify_atoms, [het, het])
+            r.group = 1
+            r2 = list(e.check_parse_restraint(r))
+            self.assertEqual(len(r2), 1)
+            self.assertEqual(type(r2[0]),
+                             allosmod.edit_restraints.GaussianRestraint)
+            self.assertAlmostEqual(r2[0].mean, 10.0, places=1)
+            self.assertAlmostEqual(r2[0].stdev, 20.0 / scale, places=1)
 
 if __name__ == '__main__':
     unittest.main()

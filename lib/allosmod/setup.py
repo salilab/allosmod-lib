@@ -199,8 +199,8 @@ class Setup(object):
 
     def make_script_file_header(self, fh):
         fh.write('TASK=( null \\\n'
-                 + ''.join('%d \\\n' for i in range(self.config['NRUNS']+1))
-                 + ')\n')
+              + ''.join('%d \\\n' % (i+1) for i in range(self.config['NRUNS']))
+              + ')\n')
         fh.write('jobname=${TASK[$SGE_TASK_ID]}\n\n')
 
     def substitute_script_file(self, fh_out):

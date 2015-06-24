@@ -26,6 +26,7 @@ class Tests(unittest.TestCase):
             fh.write("test\r\nbar\r\n")
         allosmod.util.fix_newlines("testnl")
         assert_content("test\nbar\n")
+        os.unlink('testnl')
 
     def test_sequence(self):
         """Test Sequence class"""

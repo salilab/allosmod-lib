@@ -2,7 +2,13 @@ import contextlib
 import optparse
 import tempfile
 import shutil
+import os
 import re
+
+def get_data_file(fname):
+    """Return the full path to a file in the data directory"""
+    import allosmod.config
+    return os.path.join(allosmod.config.datadir, fname)
 
 def fix_newlines(fname):
     """Remove any \r characters from the file, in place"""

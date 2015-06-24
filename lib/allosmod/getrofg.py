@@ -2,11 +2,13 @@
 
 from __future__ import print_function
 import optparse
-from allosmod.getcofm import getcofm
+import allosmod.util
+from allosmod.getcofm import CenterOfMassPDBParser
 import math
 
 def getrofg(pdb_file):
-    cofm_x, cofm_y, cofm_z = getcofm(pdb_file)
+    c = CenterOfMassPDBParser(allosmod.util.atom_hetatm_filter)
+    cofm_x, cofm_y, cofm_z = c.get_cofm(open(pdb_file))
     nr = 0
     r = 0
     with open(pdb_file) as fh:

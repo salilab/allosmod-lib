@@ -2,6 +2,15 @@ import contextlib
 import optparse
 import tempfile
 import shutil
+import re
+
+def fix_newlines(fname):
+    """Remove any \r characters from the file, in place"""
+    with open(fname) as fh:
+        contents = fh.read()
+    if '\r' in contents:
+        with open(fname, 'w') as fh:
+            fh.write(contents.replace('\r', ''))
 
 def read_templates(template_file):
     """Read list of templates from the given file. The AllosMod list format
@@ -33,3 +42,103 @@ class ModellerOptionParser(optparse.OptionParser):
         else:
             modeller.log.none()
         return opts, args
+
+class FileFormatError(Exception):
+    pass
+
+
+class Sequence(object):
+    """Representation of a single amino acid sequence"""
+
+    def __init__(self):
+        self.prottyp = 'sequence'
+        self.range = [['', ''], ['', '']]
+        self.atom_file = self.name = self.source = ''
+        self.resolution = self.rfactor = ''
+
+    def get_residues(self):
+        """Get residues in this sequence (same as 'primary' but without
+           gaps or chain breaks)"""
+        return self.primary.replace('-', '').replace('/', '')
+
+
+class PIRFile(object):
+    """Representation of a PIR-format file"""
+
+    def _parse_pir_header(self, num, line, seq):
+        seq.primary = ''
+        spl = line.rstrip().split(':')
+        if len(spl) != 10:
+            raise FileFormatError(
+                      "Invalid PIR header at line %d (expecting 10 fields "
+                      "split by colons): %s" % (num + 1, line))
+        (seq.prottyp, seq.atom_file, seq.range[0][0], seq.range[0][1],
+         seq.range[1][0], seq.range[1][1], seq.name, seq.source,
+         seq.resolution, seq.rfactor) = spl
+        if seq.prottyp == '':
+            seq.prottyp = 'sequence'
+
+    def read(self, fh):
+        """Read sequences from the given stream in PIR format. A list of
+           the sequences is returned, as :class:`Sequence` objects."""
+        seq = None
+        terminator = re.compile('\*\s*$')
+        for (num, line) in enumerate(fh):
+            if line.startswith('C;') or line.startswith('R;'):
+                # Skip comment lines
+                continue
+            elif line.startswith('>P1;'):
+                if seq:
+                    raise FileFormatError(
+                        "PIR sequence without terminating * at line %d: %s"
+                        % (num + 1, line))
+                seq = Sequence()
+                seq.primary = None
+                seq.code = line.rstrip()[4:]
+            elif seq and seq.primary is None:
+                self._parse_pir_header(num, line, seq)
+            else:
+                line = line.rstrip()
+                if line:
+                    if seq is None:
+                        raise FileFormatError(
+                             "PIR sequence found without a preceding header "
+                             "at line %d: %s" % (num + 1, line))
+                    (line, count) = terminator.subn("", line)
+                    seq.primary += line
+                    # See if this was the last line in the sequence
+                    if count == 1:
+                        yield seq
+                        seq = None
+        if seq:
+            raise FileFormatError(
+                     "PIR sequence without terminating * at end of file")
+
+    def write(self, fh, seq, width=70):
+        """Write a single :class:`Sequence` object to the given stream in
+           PIR format."""
+        print >> fh, ">P1;" + seq.code
+        start, end = seq.range
+        print >> fh, ":".join(str(x) for x in [seq.prottyp, seq.atom_file,
+                                               start[0], start[1], end[0],
+                                               end[1], seq.name, seq.source,
+                                               seq.resolution, seq.rfactor])
+        for pos in range(0, len(seq.primary), width):
+            print >> fh, seq.primary[pos:pos+width]
+        print >> fh, '*'
+
+
+class PDBParser(object):
+    def __init__(self, filter):
+        self.filter = filter
+
+    def parse(self, fh):
+        for line in fh:
+            if self.filter(line):
+                yield line
+
+def atom_filter(line):
+    return line.startswith('ATOM')
+
+def atom_hetatm_filter(line):
+    return line.startswith('ATOM') or line.startswith('HETATM')

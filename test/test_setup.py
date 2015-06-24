@@ -83,12 +83,14 @@ NRUNS=1
 delEmax=100.0
 SAMPLING=moderate_cm
 COARSE=false
+LOCALRIGID=yes
 """, None)
         self.assertEqual(len(errs), 0)
         self.assertEqual(c['NRUNS'], 1)
         self.assertAlmostEqual(c['delEmax'], 100.0, places=1)
         self.assertEqual(c['SAMPLING'], 'moderate_cm')
         self.assertEqual(c['COARSE'], False)
+        self.assertEqual(c['LOCALRIGID'], True)
 
     def test_parse_config_file_glyco(self):
         """Test ConfigFile.parse() with glycocsylation"""

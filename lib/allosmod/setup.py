@@ -104,7 +104,8 @@ class ConfigFile(object):
         converters = {'DELEMAX': parse_delemax, 'NRUNS': int,
                       'DEVIATION': float, 'RAS': float,
                       'SAMPLING': parse_sampling,
-                      'COARSE': parse_boolean}
+                      'COARSE': parse_boolean,
+                      'LOCALRIGID': parse_boolean}
         required_fields = ['NRUNS']
         for k in required_fields:
             if k not in self:

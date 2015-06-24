@@ -41,14 +41,26 @@ class Tests(unittest.TestCase):
         seqs = list(p.read(sio))
         self.assertEqual(len(seqs), 0)
 
-    def test_pir_file_unterminated(self):
-        """Test read of PIR file with unterminated sequence"""
+    def test_pir_file_unterminated_midfile(self):
+        """Test read of PIR file with unterminated sequence midfile"""
         sio = StringIO(""">P1;template
 structureX:::::::::
 AFVV
 >P1;seq
 sequence:::::::::
 AFVV*
+""")
+        p = allosmod.util.PIRFile()
+        self.assertRaises(allosmod.util.FileFormatError, list, p.read(sio))
+
+    def test_pir_file_unterminated_endfile(self):
+        """Test read of PIR file with unterminated sequence at end of file"""
+        sio = StringIO(""">P1;template
+structureX:::::::::
+AFVV*
+>P1;seq
+sequence:::::::::
+AFVV
 """)
         p = allosmod.util.PIRFile()
         self.assertRaises(allosmod.util.FileFormatError, list, p.read(sio))

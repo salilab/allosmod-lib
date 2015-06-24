@@ -6,3 +6,21 @@ for dir in ('.', 'util', 'modeller'):
                     Glob('%s/*.py' % dir))
     env.AddPostAction(i, 'python -m py_compile ${TARGET}')
     env.Alias('install', i)
+
+# Auto-generate allosmod.config Python module with config info
+
+def make_py_config(env, target, source):
+    with open(str(target[0]), 'w') as fh:
+        fh.write(source[0].get_contents())
+
+i = env.Command(os.path.join(env['pythondir'], 'allosmod', 'config',
+                             '__init__.py'),
+                [env.Value("datadir = r'%s/allosmod'\n"
+                           "local_scratch = r'%s'\n"
+                           "global_scratch = r'%s'\n"
+                           % (env.subst(env['datadir']),
+                              env.subst(env['local_scratch']),
+                              env.subst(env['global_scratch'])))],
+                make_py_config)
+env.AddPostAction(i, 'python -m py_compile ${TARGET}')
+env.Alias('install', i)

@@ -67,7 +67,7 @@ AFVV
 
     def test_pir_file_ok(self):
         """Test read of OK PIR file"""
-        sio = StringIO(""">P1;template
+        sio = StringIO(""">P1; template
 structureX:::::::::
 A-
 FVV*
@@ -80,6 +80,8 @@ AF/VV*
         self.assertEqual(len(seqs), 2)
         self.assertEqual(seqs[0].primary, 'A-FVV')
         self.assertEqual(seqs[1].primary, 'AF/VV')
+        # make sure whitespace is stripped from code
+        self.assertEqual(seqs[0].code, 'template')
         self.assertEqual(seqs[0].prottyp, 'structureX')
         self.assertEqual(seqs[1].prottyp, 'sequence')
 

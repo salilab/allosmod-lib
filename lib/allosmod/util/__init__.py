@@ -100,7 +100,7 @@ class PIRFile(object):
                         % (num + 1, line))
                 seq = Sequence()
                 seq.primary = None
-                seq.code = line.rstrip()[4:]
+                seq.code = line[4:].strip()
             elif seq and seq.primary is None:
                 self._parse_pir_header(num, line, seq)
             else:

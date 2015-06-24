@@ -13,14 +13,16 @@ except ImportError:
 
 e = env.Clone()
 def prepend_path(pathname, dirs):
+    dirs = ':'.join(os.path.abspath(str(env.Dir('#/' + d))) for d in dirs)
+    print dirs
     if pathname in e['ENV']:
         e['ENV'][pathname] = dirs + ':' + e['ENV'][pathname]
     else:
         e['ENV'][pathname] = dirs
 
 covdir = '.coverage'
-prepend_path('PYTHONPATH', '%s:lib' % covdir)
-prepend_path('PATH', 'bin')
+prepend_path('PYTHONPATH', [covdir, 'lib'])
+prepend_path('PATH', ['bin'])
 
 def setup_coverage():
     if os.path.exists(covdir):

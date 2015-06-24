@@ -39,7 +39,7 @@ class ConfigFile(object):
 
     def __init__(self, align_codes, glyco=False, maxres=0):
         # Set defaults
-        self._d = {'DELEMAX':'CALC', 'DEVIATION':1.0, 'RAS':1000.,
+        self._d = {'DELEMAX':'CALC', 'DEVIATION':1.0, 'RAS':1000,
                    'SAMPLING':'simulation', 'MDTEMP':300.0,
                    'REPEAT_OPTIMIZATION':1, 'ATTACH_GAPS':True,
                    'SCRAPP':False, 'BREAK':False, 'SCLBREAK':0.1,
@@ -118,8 +118,15 @@ class ConfigFile(object):
             else:
                 raise ValueError("not one of %s"
                                  % ", ".join(true_types + false_types))
+        def float_or_int(val):
+            if isinstance(val, (int, float)):
+                return val
+            if '.' in val:
+                return float(val)
+            else:
+                return int(val)
         converters = {'DELEMAX': parse_delemax, 'NRUNS': int,
-                      'DEVIATION': float, 'RAS': float,
+                      'DEVIATION': float, 'RAS': float_or_int,
                       'REPEAT_OPTIMIZATION': int, 'MDTEMP': parse_mdtemp,
                       'SAMPLING': ParseChoice(('simulation', 'moderate_cm',
                                                'moderate_am')),
@@ -146,7 +153,7 @@ class ConfigFile(object):
             self['DEVIATION'] = 0.
         # If only one structure, force rAS=1000
         if self.num_templates == 1 and self['SAMPLING'] != 'moderate_cm':
-            self['RAS'] = 1000.
+            self['RAS'] = 1000
         # If number of residues > 1500, use coarse landscape
         if self.maxres > 1500:
             self['COARSE'] = True

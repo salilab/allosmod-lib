@@ -1,6 +1,6 @@
 
 RUNDIR=`pwd`
-OUTDIR=$RUNDIR/DDD/XASPDB_${jobname}
+OUTDIR=$RUNDIR/pred_dE@dE@rAS@rAS@/@ASPDB@_${jobname}
 
 mkdir -p $OUTDIR
 echo $OUTDIR
@@ -10,7 +10,7 @@ module load allosmod
 
 # Make a temporary directory on the local scratch disk,
 # specific to the user and SGE job.
-TMPDIR="@LOCAL_SCRATCH@/XASPDB_${jobname}_$JOB_ID/"
+TMPDIR="@LOCAL_SCRATCH@/@ASPDB@_${jobname}_$JOB_ID/"
 mkdir -p $TMPDIR
 echo $TMPDIR
 
@@ -83,7 +83,7 @@ RR3=`echo "scale=0; (11*${JOB_ID}+3*${RR})%360" |bc -l | awk '{printf "%9.0f",$1
 ##########
 ### if AllosMod landscape, set up landscape here ###
 ##########
-if test XSAMP == "simulation" -o XSAMP == "moderate_am"; then
+if test @SAMP@ == "simulation" -o @SAMP@ == "moderate_am"; then
 
 ##########
 #make initial structure: 1) randomized, interpolation of pdbs if NTOT>1 or ligand binding site is modeled 2) single model wtih rotations/translations if NTOT=1
@@ -109,7 +109,7 @@ echo making input structure $s
 	fi
 echo completed input structure $s
 	#align onto ligpdb so can be visualed with ligand
-	allosmod salign0 XLPDB pm_${s}
+	allosmod salign0 @LPDB@ pm_${s}
 	PMFIT=`echo pm_${s} | awk 'BEGIN{FS=""}{if($(NF-3)$(NF-2)$(NF-1)$NF==".pdb"){for(a=1;a<=NF-4;a++){printf $a}}else{printf $0}}END{print "_fit.pdb"}'`
 	if (test -s $PMFIT); then
 	    awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"||$1$2$3$4=="HETA"){print $0}' ${PMFIT} >pm_${s}
@@ -131,7 +131,7 @@ echo completed input structure $s
 	mv * $OUTDIR; exit
     fi
 
-    @SCRIPT_DIR@/getavgpdb2.sh pm_XASPDB pm_XOTHPDB XASPDB XOTHPDB
+    @SCRIPT_DIR@/getavgpdb2.sh pm_@ASPDB@ pm_@OTHPDB@ @ASPDB@ @OTHPDB@
     cp list list4contacts
 
 else #NTOT=1
@@ -169,7 +169,7 @@ echo $iD $iVECT $DX $DY $DZ
 	#reset lig.pdb to c of m
 	awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"){{for(a=31;a<=38;a++){printf $a}}{printf " "}\
             {for(a=39;a<=46;a++){printf $a}}{printf " "}\
-            {for(a=47;a<=54;a++){printf $a}}{printf " \n"}}' XLPDB |\
+            {for(a=47;a<=54;a++){printf $a}}{printf " \n"}}' @LPDB@ |\
             awk 'BEGIN{a=0;b=0;c=0}{a+=$1;b+=$2;c+=$3}END\
             {printf "ATOM      1  XX  ALA A   1    %8.3f%8.3f%8.3f  1.00 99.99           C\n",a/NR,b/NR,c/NR}' >lig.pdb
     done
@@ -185,9 +185,9 @@ echo $iD $iVECT $DX $DY $DZ
 	mv * $OUTDIR; exit
     fi
 
-    cp avgpdb.pdb pm_XASPDB
-    cp avgpdb.pdb pm_XOTHPDB
-    echo XASPDB >list4contacts
+    cp avgpdb.pdb pm_@ASPDB@
+    cp avgpdb.pdb pm_@OTHPDB@
+    echo @ASPDB@ >list4contacts
 fi
 echo input structure completed
 
@@ -197,36 +197,36 @@ echo input structure completed
 if test `echo "${jobname}==0" |bc -l` -eq 1; then
 #generate allosteric site
 allosmod get_allosteric_site --output_pdb allostericsite.pdb \
-               --atom_list atomlistASRS XLPDB lig.pdb pm_XLPDB XrAS
+               --atom_list atomlistASRS @LPDB@ lig.pdb pm_@LPDB@ @rAS@
 
 ############
 #get restraints
 ############
-TEST_NUC=`awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"){print $18$19$20}' pm_XASPDB | sort -u | awk 'BEGIN{test=""}\
+TEST_NUC=`awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"){print $18$19$20}' pm_@ASPDB@ | sort -u | awk 'BEGIN{test=""}\
     ($1=="ADE"||$1=="CYT"||$1=="GUA"||$1=="THY"||$1=="DA"||$1=="DC"||$1=="DG"||$1=="DT"){test="--nucleic-acids"}END{print test}'` #use longer sc-sc dist for nucleotides
-if test "XrAS" != "1000"; then #use ASPDB restraints if AS defined
-    echo XASPDB >listin
+if test "@rAS@" != "1000"; then #use ASPDB restraints if AS defined
+    echo @ASPDB@ >listin
     allosmod make_mod_inputs ${TEST_NUC} -- pm.pdb listin \
-                             -3333 3 3 3 XDEV > model_ini.log
+                             -3333 3 3 3 @DEV@ > model_ini.log
     mv pm.pdb.rsr listAS.rsr
 fi
 awk '(NF>0){print $0}' list >listin
 allosmod make_mod_inputs ${TEST_NUC} -- pm.pdb listin \
-                         -3333 3 3 3 XDEV > model_ini.log
+                         -3333 3 3 3 @DEV@ > model_ini.log
 mv pm.pdb.rsr listOTH.rsr
-if test "XrAS" == "1000"; then cp listOTH.rsr listAS.rsr; fi #use all restraints if AS not defined
+if test "@rAS@" == "1000"; then cp listOTH.rsr listAS.rsr; fi #use all restraints if AS not defined
 
 #if delEmax was unspecified in input.dat, calculate here (ignore DNA/RNA because handled differently) using hypothetical E landscape
-delEmax=XdE
-if test "XdE" == "CALC"; then
+delEmax=@dE@
+if test "@dE@" == "CALC"; then
   echo "Determining delEmax" >>run.log
   awk 'BEGIN{FS=""}{a=$18$19$20}(a!="ADE"&&a!="  A"&&a!=" DA"&&a!="THY"&&a!="  T"&&a!=" DT"&&a!="URA"&&a!="  U"&&\
-       a!=" DU"&&a!="GUA"&&a!="  G"&&a!=" DG"&&a!="CYT"&&a!="  C"&&a!=" DC"&&($1$2$3$4=="ATOM"||$1$2$3$4=="HETA")){print $0}' pm_XASPDB >tempiq7781
+       a!=" DU"&&a!="GUA"&&a!="  G"&&a!=" DG"&&a!="CYT"&&a!="  C"&&a!=" DC"&&($1$2$3$4=="ATOM"||$1$2$3$4=="HETA")){print $0}' pm_@ASPDB@ >tempiq7781
   awk 'BEGIN{FS=""}{a=$18$19$20}(a!="ADE"&&a!="  A"&&a!=" DA"&&a!="THY"&&a!="  T"&&a!=" DT"&&a!="URA"&&a!="  U"&&\
-       a!=" DU"&&a!="GUA"&&a!="  G"&&a!=" DG"&&a!="CYT"&&a!="  C"&&a!=" DC"&&($1$2$3$4=="ATOM"||$1$2$3$4=="HETA")){print $0}' pm_XOTHPDB >tempiq7782
+       a!=" DU"&&a!="GUA"&&a!="  G"&&a!=" DG"&&a!="CYT"&&a!="  C"&&a!=" DC"&&($1$2$3$4=="ATOM"||$1$2$3$4=="HETA")){print $0}' pm_@OTHPDB@ >tempiq7782
 
   if (test -s tempiq7781); then
-    NATOM1=`awk 'END{print NR}' pm_XASPDB`
+    NATOM1=`awk 'END{print NR}' pm_@ASPDB@`
     NATOM2=`awk 'END{print NR}' tempiq7781`
     if test `echo "${NATOM1}==${NATOM2}" |bc -l` -eq 1; then 
 	NTOT=`allosmod count_alignments align.ali list pm.pdb`
@@ -237,17 +237,17 @@ if test "XdE" == "CALC"; then
     else #redo steps without nucleotides
 	echo redo restraints without nucleotides
         allosmod get_allosteric_site --atom_list atomlistASRS2 \
-                                  XLPDB lig.pdb tempiq7781 XrAS
+                                  @LPDB@ lig.pdb tempiq7781 @rAS@
 	cp align.ali align.ali.bak
 	allosmod pdb2ali tempiq7781 >>align.ali
 	echo tempiq7781 >listin
 	allosmod make_mod_inputs -- tempiq7781 listin \
-                                 -3333 3 3 3 XDEV > model_ini.log
+                                 -3333 3 3 3 @DEV@ > model_ini.log
 	mv tempiq7781.rsr listAS2.rsr
 	allosmod pdb2ali tempiq7782 >>align.ali
 	echo tempiq7782 >listin
 	allosmod make_mod_inputs -- tempiq7782 listin \
-                                 -3333 3 3 3 XDEV > model_ini.log
+                                 -3333 3 3 3 @DEV@ > model_ini.log
 	mv tempiq7782.rsr listOTH2.rsr #will this make sense in all cases?
 
 	NTOT=`allosmod count_alignments align.ali list pm.pdb`
@@ -282,20 +282,20 @@ if test "XdE" == "CALC"; then
 fi
 
 #handle break.dat options
-if test "XBREAK" == "true"; then
+if test "@BREAK@" == "true"; then
     awk '(NF>0){print $0}' list >listin
     #redo here because nucleotides change max_sc_sc_distance
     allosmod make_mod_inputs -- pm.pdb listin \
-                       -3333 3 3 3 XDEV > model_ini.log
-    if [ "XCHEMFR" = "cdensity" ]; then
-      allosmod contpres --cdensity_cutoff XZCUTOFF pm.pdb.rsr pm_XASPDB XSCLBREAK
+                       -3333 3 3 3 @DEV@ > model_ini.log
+    if [ "@CHEMFR@" = "cdensity" ]; then
+      allosmod contpres --cdensity_cutoff @ZCUTOFF@ pm.pdb.rsr pm_@ASPDB@ @SCLBREAK@
     else
-      allosmod contpres pm.pdb.rsr pm_XASPDB XSCLBREAK
+      allosmod contpres pm.pdb.rsr pm_@ASPDB@ @SCLBREAK@
     fi
-    echo "Chemical frustration is implemented: contacts with buried acidic/basic residues are scaled by XSCLBREAK, z-score cutoff is XZCUTOFF" >>run.log
-    echo "Chemical frustration type is XCHEMFR" >>run.log
+    echo "Chemical frustration is implemented: contacts with buried acidic/basic residues are scaled by @SCLBREAK@, z-score cutoff is @ZCUTOFF@" >>run.log
+    echo "Chemical frustration type is @CHEMFR@" >>run.log
 fi
-if test "XLOCRIGID" == "true"; then
+if test "@LOCRIGID@" == "true"; then
     @SCRIPT_DIR@/get_loopadjres.sh #strengthen residues adjacent to loops
 fi
 if (test -e break.dat); then
@@ -311,17 +311,17 @@ if (test ! -e ${OUTDIR}/error.log); then
     NTOT=`allosmod count_alignments align.ali list pm.pdb`
     allosmod edit_restraints --sigma_AS=2.0 --sigma_RS=2.0 \
              --sigma_inter=2.0 --cutoff=11.0 --ntotal=$NTOT \
-             --delEmax=${delEmax} XCOARSE XLOCRIGID ${break} \
-             listOTH.rsr listAS.rsr pm_XASPDB list4contacts \
+             --delEmax=${delEmax} @COARSE@ @LOCRIGID@ ${break} \
+             listOTH.rsr listAS.rsr pm_@ASPDB@ list4contacts \
              atomlistASRS > edited.rsr
     #add restraints between protein and sugar
-    if test `echo "XGLYC2==1" |bc -l` -eq 1; then 
-	@SCRIPT_DIR@/get_glyc_restraint.sh pm_XASPDB allosmod.py >>edited.rsr
+    if test `echo "@GLYC2@==1" |bc -l` -eq 1; then 
+	@SCRIPT_DIR@/get_glyc_restraint.sh pm_@ASPDB@ allosmod.py >>edited.rsr
     fi
     #add restraints for bonds and distance upper/lower bounds
-    allosmod get_add_restraint ${RUNDIR}/input.dat pm_XASPDB HARM >tempaddrestr
-    allosmod get_add_restraint ${RUNDIR}/input.dat pm_XASPDB UPBD >>tempaddrestr
-    allosmod get_add_restraint ${RUNDIR}/input.dat pm_XASPDB LOBD >>tempaddrestr
+    allosmod get_add_restraint ${RUNDIR}/input.dat pm_@ASPDB@ HARM >tempaddrestr
+    allosmod get_add_restraint ${RUNDIR}/input.dat pm_@ASPDB@ UPBD >>tempaddrestr
+    allosmod get_add_restraint ${RUNDIR}/input.dat pm_@ASPDB@ LOBD >>tempaddrestr
     if (test -s tempaddrestr); then
 	cat tempaddrestr >>edited.rsr
 	echo "" >>run.log; echo "additional restraints: " >>run.log; cat tempaddrestr >>run.log; echo "" >>run.log
@@ -339,24 +339,24 @@ if (test ! -e ${OUTDIR}/error.log); then
 	    for s in `cat list`; do
 		awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"||$1$2$3$4=="HETA"){print $0}'  pred_${s}/pm.pdb.B99990001.pdb >pm_${s}
 	    done
-	    @SCRIPT_DIR@/getavgpdb2.sh pm_XASPDB pm_XOTHPDB XASPDB XOTHPDB
+	    @SCRIPT_DIR@/getavgpdb2.sh pm_@ASPDB@ pm_@OTHPDB@ @ASPDB@ @OTHPDB@
 	else
 	    s=`head -n1 list`
 	    awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"||$1$2$3$4=="HETA"){print $0}'  pred_${s}/pm.pdb.B99990001.pdb >avgpdb.pdb
-	    cp avgpdb.pdb pm_XASPDB
-	    cp avgpdb.pdb pm_XOTHPDB
+	    cp avgpdb.pdb pm_@ASPDB@
+	    cp avgpdb.pdb pm_@OTHPDB@
 	fi
     fi
     rm tempaddrestr
 fi
 
 else #notfirst: use previously calculated atomlistASRS and restraints
-delEmax=XdE
+delEmax=@dE@
 echo searching for converted.rsr
 date
 for c in `@SCRIPT_DIR@/count.pl 1 60`; do
     echo $c
-    FIRSTDIR=${RUNDIR}/pred_dEXdErASXrAS/XASPDB_0
+    FIRSTDIR=${RUNDIR}/pred_dE@dE@rAS@rAS@/@ASPDB@_0
     echo $FIRSTDIR
     ls $FIRSTDIR
     TESTF=`ls -1 ${FIRSTDIR}/converted.rsr | awk '(NR==1){print "basename "$1}' |sh`
@@ -385,21 +385,21 @@ if (test -e ${OUTDIR}/error.log); then mv * $OUTDIR; exit; fi
 
 #initialize starting structure
 allosmod make_mod_inputs -- pm.pdb list $RAND_NUM \
-                         $RR1 $RR2 $RR3 XDEV > model_ini.log
+                         $RR1 $RR2 $RR3 @DEV@ > model_ini.log
 allosmod setchain random.ini $CHAIN_PM | awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"||$1$2$3$4=="HETA"){print $0}' >tempini
 mv tempini random.ini
 if (test ! -s random.ini); then echo structure not initialized >> ${OUTDIR}/error.log; mv * $OUTDIR; exit; fi
 
 #convert restraints to splines
 if test `echo "${jobname}==0" |bc -l` -eq 1; then
-    if test `echo "XGLYC1==0" |bc -l` -eq 1; then #skip if hydrogens are needed
+    if test `echo "@GLYC1@==0" |bc -l` -eq 1; then #skip if hydrogens are needed
 	echo convert to splines 
 	allosmod spline random.ini edited.rsr converted.rsr
-	cp converted.rsr atomlistASRS allostericsite.pdb contacts.dat ${RUNDIR}/pred_dEXdErASXrAS/XASPDB_0
-	if (test -e allosmod.py); then cp allosmod.py ${RUNDIR}/pred_dEXdErASXrAS/XASPDB_0; fi
+	cp converted.rsr atomlistASRS allostericsite.pdb contacts.dat ${RUNDIR}/pred_dE@dE@rAS@rAS@/@ASPDB@_0
+	if (test -e allosmod.py); then cp allosmod.py ${RUNDIR}/pred_dE@dE@rAS@rAS@/@ASPDB@_0; fi
     fi
-    echo converted.rsr file complete, copied to ${RUNDIR}/pred_dEXdErASXrAS/XASPDB_0
-    ls ${RUNDIR}/pred_dEXdErASXrAS/XASPDB_0
+    echo converted.rsr file complete, copied to ${RUNDIR}/pred_dE@dE@rAS@rAS@/@ASPDB@_0
+    ls ${RUNDIR}/pred_dE@dE@rAS@rAS@/@ASPDB@_0
     date
 fi
 if (test ! -s converted.rsr); then echo restraints failed to be converted >> ${OUTDIR}/error.log; mv * $OUTDIR; exit; fi
@@ -411,28 +411,28 @@ if (test ! -e allosmod.py); then
     ALLOSMOD_PY=`python -c 'import allosmod.modeller, os; print(os.path.splitext(allosmod.modeller.__file__)[0])'`
     cp ${ALLOSMOD_PY}.py allosmod.py
 fi
-MDTEMP=`echo XMDTEMP | tr [A-Z] [a-z] | awk '{if($1=="scan"){print ('${jobname}'%5)*50+300.0}else{print $1}}'`
+MDTEMP=`echo @MDTEMP@ | tr [A-Z] [a-z] | awk '{if($1=="scan"){print ('${jobname}'%5)*50+300.0}else{print $1}}'`
 
 #generate scripts and structures
-if test `echo "XGLYC1==0" |bc -l` -eq 1; then
-    if test "XSAMP" == "simulation"; then
+if test `echo "@GLYC1@==0" |bc -l` -eq 1; then
+    if test "@SAMP@" == "simulation"; then
 	echo "randomized numbers: $RAND_NUM $RR1 $RR2 $RR3" >>run.log
-	@SCRIPT_DIR@/get_pm2.sh pm.pdb list $RAND_NUM XDEV script $MDTEMP
+	@SCRIPT_DIR@/get_pm2.sh pm.pdb list $RAND_NUM @DEV@ script $MDTEMP
 	cp @SCRIPT_DIR@/README_user $RUNDIR/README
-	if test "XSCRAPP" == "true"; then
+	if test "@SCRAPP@" == "true"; then
 	    python model_run.py > model_run.log
 	    JOBID=`echo $RUNDIR | awk 'BEGIN{FS="/"}{print $(NF-1)}'`
-	    OUTDIR=@GLOBAL_SCRATCH@/${JOBID}/DDD/XASPDB_${jobname}
+	    OUTDIR=@GLOBAL_SCRATCH@/${JOBID}/pred_dE@dE@rAS@rAS@/@ASPDB@_${jobname}
 	    mkdir -p $OUTDIR
-	    echo @GLOBAL_SCRATCH@/${JOBID}/DDD > $RUNDIR/DDD/XASPDB_${jobname}/OUTPUT_IS_HERE
+	    echo @GLOBAL_SCRATCH@/${JOBID}/pred_dE@dE@rAS@rAS@ > $RUNDIR/pred_dE@dE@rAS@rAS@/@ASPDB@_${jobname}/OUTPUT_IS_HERE
 	fi
-    elif test "XSAMP" == "moderate_cm" -o "XSAMP" == "moderate_am" -o "XSAMP" == "fast_cm"; then
-	@SCRIPT_DIR@/get_pm2.sh pm.pdb list $RAND_NUM XDEV XSAMP $MDTEMP
+    elif test "@SAMP@" == "moderate_cm" -o "@SAMP@" == "moderate_am" -o "@SAMP@" == "fast_cm"; then
+	@SCRIPT_DIR@/get_pm2.sh pm.pdb list $RAND_NUM @DEV@ @SAMP@ $MDTEMP
 	echo running modeller
 	python model_run.py > model_run.log
 	echo done with modeller
-#    elif test "XSAMP" == "moderate_cm_simulation"; then
-#	@SCRIPT_DIR@/get_pm2.sh pm.pdb list run $RAND_NUM $RR1 $RR2 $RR3 XDEV XSAMP
+#    elif test "@SAMP@" == "moderate_cm_simulation"; then
+#	@SCRIPT_DIR@/get_pm2.sh pm.pdb list run $RAND_NUM $RR1 $RR2 $RR3 @DEV@ @SAMP@
 #	python model_run.py > model_run.log
 #	cp pm.pdb.B99990001.pdb random.ini
 #	@SCRIPT_DIR@/get_pm2.sh pm.pdb list run $RAND_NUM $RR1 $RR2 $RR3 0.0 script $MDTEMP
@@ -442,7 +442,7 @@ if test `echo "XGLYC1==0" |bc -l` -eq 1; then
 else #glycosylation
     ls -lrt
     cp @SCRIPT_DIR@/[A-Z][A-Z][A-Z].rsr .
-    @SCRIPT_DIR@/get_pm_glyc.sh pm.pdb list $RAND_NUM XREP_OPT XATT_GAP script $MDTEMP
+    @SCRIPT_DIR@/get_pm_glyc.sh pm.pdb list $RAND_NUM @REP_OPT@ @ATT_GAP@ script $MDTEMP
     #generate protein model with correct chains
     python model_ini0.py > model_ini0.log
     CHAIN=`awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"||$1$2$3$4=="HETA"){print $22$23}' pm.pdb.B99990001.pdb | awk '{print $1}' | sort -u | head -n1`
@@ -451,13 +451,13 @@ else #glycosylation
 	allosmod setchain pm.pdb.B99990001.pdb --in-place $NC
     fi
     #generate initial glycosylation model and restraints
-    @SCRIPT_DIR@/get_pm_glyc.sh pm.pdb list $RAND_NUM XREP_OPT XATT_GAP pm.pdb.B99990001.pdb 
+    @SCRIPT_DIR@/get_pm_glyc.sh pm.pdb list $RAND_NUM @REP_OPT@ @ATT_GAP@ pm.pdb.B99990001.pdb 
     python model_ini.py > model_ini.log
     @SCRIPT_DIR@/get_rest.sh pm.pdb.B99990001.pdb >> pm.pdb.rsr
     mv pm.pdb.rsr converted.rsr
     #sample glycosylated structures
     python model_glyc.py > model_glyc.log
-#    if test "XSAMP" == "moderate_cm_simulation"; then #to run simulations with sugar
+#    if test "@SAMP@" == "moderate_cm_simulation"; then #to run simulations with sugar
 #	cp pm.pdb.B99990001.pdb random.ini
 #	cp converted.rsr tempsav.rsr
 #	cp @SCRIPT_DIR@/allosmod.py ./allosmod2.py

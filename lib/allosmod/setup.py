@@ -78,9 +78,9 @@ class ConfigFile(object):
             self._d[name.upper()] = value
 
         def parse_delemax(val):
-            val = val.upper()
-            if val == 'CALC':
-                return val
+            upval = val.upper()
+            if upval == 'CALC':
+                return upval
             else:
                 return float(val)
         def parse_sampling(val):
@@ -141,8 +141,10 @@ class Setup(object):
     target = 'pm.pdb'
     ligand = 'lig.pdb'
 
-    def do_setup(self):
+    def __init__(self):
         self.err = ErrorAccumulator()
+
+    def do_setup(self):
         self.check_input_files_exist()
         align_info = self.check_alignment()
         d = self.check_input_dat(align_info)

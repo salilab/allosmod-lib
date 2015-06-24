@@ -148,6 +148,7 @@ AFV*""")
             out = check_output(['allosmod', 'setup'],
                                stderr=subprocess.STDOUT, cwd=tempdir, retcode=0)
             os.unlink(os.path.join(tempdir, "lig.pdb"))
+            os.unlink(os.path.join(tempdir, "qsub.sh"))
         self.assertEqual(out, '')
 
     def test_simple_bad_list(self):

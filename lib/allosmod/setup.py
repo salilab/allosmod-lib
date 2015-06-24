@@ -5,6 +5,7 @@ import optparse
 import ConfigParser
 import allosmod.util
 import allosmod.getcofm
+import allosmod.config
 import collections
 import re
 import os
@@ -170,11 +171,64 @@ class Setup(object):
     def do_setup(self):
         self.check_input_files_exist()
         align_info = self.check_alignment()
-        d = self.check_input_dat(align_info)
+        self.config = self.check_input_dat(align_info)
         templates = self.check_list_file(align_info)
         self.make_ligand(templates)
-        if d:
-            d.write(self.dat_file)
+        self.templates = templates
+
+    def with_glyc2(self):
+        """Return True iff doing glycosylation option 2"""
+        if os.path.exists('allosmod.py'):
+            with open('allosmod.py') as fh:
+                for line in fh:
+                    if 'self.patch(residue_type=' in line:
+                        return True
+
+    def get_other_pdb(self):
+        """Get the first template that is not ASPDB (if any)"""
+        aspdb = self.config['ASPDB']
+        for template in self.templates:
+            if template != aspdb:
+                return template
+        return aspdb
+
+    def make_script_file(self, script_file):
+        with open(script_file, 'w') as fh_out:
+            self.make_script_file_header(fh_out)
+            self.substitute_script_file(fh_out)
+
+    def make_script_file_header(self, fh):
+        fh.write('TASK=( null \\\n'
+                 + ''.join('%d \\\n' for i in range(self.config['NRUNS']+1))
+                 + ')\n')
+        fh.write('jobname=${TASK[$SGE_TASK_ID]}\n\n')
+
+    def substitute_script_file(self, fh_out):
+        r = re.compile('@(?P<key>\w*?)@')
+        local_vars = {'LOCAL_SCRATCH':allosmod.config.local_scratch,
+                      'GLOBAL_SCRATCH':allosmod.config.global_scratch,
+                      'SCRIPT_DIR':allosmod.config.datadir,
+                      'GLYC1': '1' if self.config.glyco else '0',
+                      'GLYC2': '1' if self.with_glyc2() else '0',
+                      'COARSE': '--coarse' if self.config['COARSE'] else '',
+                      'LOCALRIGID': '--locrigid' \
+                                    if self.config['LOCALRIGID'] else '',
+                      'OTHPDB': self.get_other_pdb()}
+        def repl(match):
+            key = match.group('key')
+            if not key:
+                return "@" # Replace @@ with @
+            elif key in local_vars:
+                return local_vars[key]
+            elif key in self.config:
+                val = self.config[key]
+                return str(val).lower() if isinstance(val, bool) else str(val)
+            else:
+                raise ValueError("Unknown substitution %s" % key)
+        template = allosmod.util.get_data_file('qsub.sh.in')
+        with open(template) as fh_in:
+            for line in fh_in:
+                fh_out.write(r.sub(repl, line))
 
     def make_ligand(self, templates):
         """If no ligand provided, use center of mass of first template"""
@@ -255,6 +309,10 @@ def parse_args():
     usage = """%prog
 
 Check inputs and do initial setup.
+If all the inputs are OK, a script file qsub.sh is generated. This is designed
+to be run on an SGE cluster, and will generate MODELLER input files for the
+AllosMod protocol. If the SCRAPP option is turned on in input.dat, the files
+will automatically be run and the outputs deposited on the global scratch disk.
 """
     parser = optparse.OptionParser(usage)
     options, args = parser.parse_args()
@@ -268,6 +326,8 @@ def main():
     s.do_setup()
     if s.error():
         sys.exit(1)
+    else:
+        s.make_script_file('qsub.sh')
 
 if __name__ == '__main__':
     main()

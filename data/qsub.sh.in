@@ -61,7 +61,7 @@ awk '(NR>'${LINE2REP}'){print $0}' align.ali >>tempali0
 mv tempali0 align.ali
 #test for hetatms in pm.pdb entry, if not filter out all hetatm entries... right now looking for block and heme entries only
 isHET=`awk 'BEGIN{FS="";isHET=0}{for(a=1;a<=NF;a++){if($a==">"){tit=1}if(tit>2&&($a=="."||$a=="h")){isHET=1}if(a==NF){tit+=1}}}END{print isHET}' align.ali`
-if test `echo "${isHET}==0" |bc -l` -eq 1; then
+if test ${isHET} -eq 0; then
     for s in `cat list`; do
 	awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"){print $0}' $s > tempiq4; mv tempiq4 $s
     done
@@ -90,7 +90,7 @@ if test @SAMPLING@ == "simulation" -o @SAMPLING@ == "moderate_am"; then
 ##########
 NTOT=`allosmod count_alignments align.ali list pm.pdb`
 isLIGMOD=`awk 'BEGIN{a=1}($3=="XX"&&NR==1){a=0}END{print a}' lig.pdb`
-if test `echo "${NTOT}>1" |bc -l` -eq 1 -o `echo "${isLIGMOD}==1" |bc -l` -eq 1; then
+if test ${NTOT} -gt 1 -o ${isLIGMOD} -eq 1; then
     #generate pm's for input structures
     ctr=0
     for s in `cat list`; do
@@ -158,7 +158,7 @@ echo $RAND_NUM $RR1 $RR2 $RR3
 	COFM=(`allosmod getcofm random.ini`)
 	DIST=`echo "1.3*(${RG[0]}+${RG[${ctr}]})" | bc -l`
 	iD=`echo $ctr | awk '{if($1<7){print $1%7}else{print ($1-7)%6+1}}'`
-	if test `echo "${iD}==1" |bc -l` -eq 1; then iVECT=$((${iVECT} + 1)); fi
+	if test ${iD} -eq 1; then iVECT=$((${iVECT} + 1)); fi
 echo $iD $iVECT $DX $DY $DZ
 	DX=`echo "-1*(${COFM[0]})+(${XVECT[${iD}]}*${iVECT}*${DIST})" | bc -l`
 	DY=`echo "-1*(${COFM[1]})+(${YVECT[${iD}]}*${iVECT}*${DIST})" | bc -l`
@@ -228,7 +228,7 @@ if test "@DELEMAX@" == "CALC"; then
   if (test -s tempiq7781); then
     NATOM1=`awk 'END{print NR}' pm_@ASPDB@`
     NATOM2=`awk 'END{print NR}' tempiq7781`
-    if test `echo "${NATOM1}==${NATOM2}" |bc -l` -eq 1; then 
+    if test ${NATOM1} -eq ${NATOM2}; then
 	NTOT=`allosmod count_alignments align.ali list pm.pdb`
 	allosmod edit_restraints --sigma_AS=2.0 --sigma_RS=2.0 \
                  --sigma_inter=2.0 --cutoff=11.0 --ntotal=$NTOT --delEmax=0.1 \
@@ -307,7 +307,7 @@ fi
 ########
 #merge restraint files and add additional restraints
 ########
-if (test ! -e ${OUTDIR}/error.log); then 
+if (test ! -e ${OUTDIR}/error.log); then
     NTOT=`allosmod count_alignments align.ali list pm.pdb`
     allosmod edit_restraints --sigma_AS=2.0 --sigma_RS=2.0 \
              --sigma_inter=2.0 --cutoff=11.0 --ntotal=$NTOT \
@@ -315,7 +315,7 @@ if (test ! -e ${OUTDIR}/error.log); then
              listOTH.rsr listAS.rsr pm_@ASPDB@ list4contacts \
              atomlistASRS > edited.rsr
     #add restraints between protein and sugar
-    if test `echo "@GLYC2@==1" |bc -l` -eq 1; then 
+    if test @GLYC2@ -eq 1; then
 	@SCRIPT_DIR@/get_glyc_restraint.sh pm_@ASPDB@ allosmod.py >>edited.rsr
     fi
     #add restraints for bonds and distance upper/lower bounds
@@ -335,7 +335,7 @@ if (test ! -e ${OUTDIR}/error.log); then
 	    /salilab/diva1/home/modeller/modSVN model_ini0.py
 	    cd ..
 	done
-	if test `echo "${NTOT}>1" |bc -l` -eq 1 -o `echo "${isLIGMOD}==1" |bc -l` -eq 1; then
+	if test ${NTOT} -gt 1 -o ${isLIGMOD} -eq 1; then
 	    for s in `cat list`; do
 		awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"||$1$2$3$4=="HETA"){print $0}'  pred_${s}/pm.pdb.B99990001.pdb >pm_${s}
 	    done
@@ -374,7 +374,7 @@ for c in `@SCRIPT_DIR@/count.pl 1 60`; do
 	sleep 2m
     fi
     echo continue
-    if test `echo "${c}==60" |bc -l` -eq 1; then echo restraints not found >> ${OUTDIR}/error.log; mv * $OUTDIR; exit; fi
+    if test ${c} -eq 60; then echo restraints not found >> ${OUTDIR}/error.log; mv * $OUTDIR; exit; fi
 done
 fi #testfirst
 
@@ -392,7 +392,7 @@ if (test ! -s random.ini); then echo structure not initialized >> ${OUTDIR}/erro
 
 #convert restraints to splines
 if test `echo "${jobname}==0" |bc -l` -eq 1; then
-    if test `echo "@GLYC1@==0" |bc -l` -eq 1; then #skip if hydrogens are needed
+    if test @GLYC1@ -eq 0; then #skip if hydrogens are needed
 	echo convert to splines 
 	allosmod spline random.ini edited.rsr converted.rsr
 	cp converted.rsr atomlistASRS allostericsite.pdb contacts.dat ${RUNDIR}/pred_dE@DELEMAX@rAS@RAS@/@ASPDB@_0
@@ -407,14 +407,14 @@ if (test ! -s converted.rsr); then echo restraints failed to be converted >> ${O
 fi ### end setup AllosMod landscape ###
 
 #get AllosModel subclasses from allosmod-lib
-if (test ! -e allosmod.py); then 
+if (test ! -e allosmod.py); then
     ALLOSMOD_PY=`python -c 'import allosmod.modeller, os; print(os.path.splitext(allosmod.modeller.__file__)[0])'`
     cp ${ALLOSMOD_PY}.py allosmod.py
 fi
 MDTEMP=`echo @MDTEMP@ | tr [A-Z] [a-z] | awk '{if($1=="scan"){print ('${jobname}'%5)*50+300.0}else{print $1}}'`
 
 #generate scripts and structures
-if test `echo "@GLYC1@==0" |bc -l` -eq 1; then
+if test @GLYC1@ -eq 0; then
     if test "@SAMPLING@" == "simulation"; then
 	echo "randomized numbers: $RAND_NUM $RR1 $RR2 $RR3" >>run.log
 	@SCRIPT_DIR@/get_pm2.sh pm.pdb list $RAND_NUM @DEVIATION@ script $MDTEMP

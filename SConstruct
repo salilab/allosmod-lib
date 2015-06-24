@@ -13,6 +13,8 @@ vars.Add(PathVariable('libdir', 'Shared library installation directory',
                       '${prefix}/lib', PathVariable.PathAccept))
 vars.Add(PathVariable('bindir', 'Binary installation directory',
                       '${prefix}/bin', PathVariable.PathAccept))
+vars.Add(PathVariable('datadir', 'Data file installation directory',
+                      '${prefix}/share', PathVariable.PathAccept))
 vars.Add(PathVariable('pythondir', 'Python module installation directory',
                       '${libdir}/python%d.%d/site-packages' \
                       % sys.version_info[0:2], PathVariable.PathAccept))
@@ -55,6 +57,7 @@ Export('env')
 SConscript('bin/SConscript')
 pyso = SConscript('src/SConscript')
 test = SConscript('test/SConscript')
+SConscript('data/SConscript')
 SConscript('lib/allosmod/SConscript')
 
 # Tests need the C extension module built:

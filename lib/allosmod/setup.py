@@ -39,7 +39,11 @@ class ConfigFile(object):
     def __init__(self, align_codes, glyco=False, maxres=0):
         # Set defaults
         self._d = {'DELEMAX':'CALC', 'DEVIATION':1.0, 'RAS':1000.,
-                   'SAMPLING':'simulation'}
+                   'SAMPLING':'simulation', 'MDTEMP':300.0,
+                   'REPEAT_OPTIMIZATION':1, 'ATTACH_GAPS':True,
+                   'SCRAPP':False, 'BREAK':False, 'SCLBREAK':0.1,
+                   'ZCUTOFF':3.5, 'CHEMFR':'cdensity', 'COARSE':False,
+                   'LOCALRIGID':False, 'PW':False}
         if align_codes:
             self._d['LIGPDB'] = self._d['ASPDB'] = align_codes[0]
             self.num_templates = len(align_codes)
@@ -83,14 +87,26 @@ class ConfigFile(object):
                 return upval
             else:
                 return float(val)
-        def parse_sampling(val):
-            val = val.lower()
-            sample_types = ('simulation', 'moderate_cm', 'moderate_am')
-            if val in sample_types:
+        def parse_mdtemp(val):
+            if isinstance(val, float):
                 return val
+            lowval = val.lower()
+            if lowval == 'scan':
+                return lowval
             else:
-                raise ValueError("not one of %s" % ", ".join(sample_types))
+                return float(val)
+        class ParseChoice(object):
+            def __init__(self, choices):
+                self.choices = choices
+            def __call__(self, val):
+                val = val.lower()
+                if val in self.choices:
+                    return val
+                else:
+                    raise ValueError("not one of %s" % ", ".join(self.choices))
         def parse_boolean(val):
+            if isinstance(val, bool):
+                return val
             val = val.lower()
             true_types = ('1', 'yes', 'true', 'on')
             false_types = ('0', 'no', 'false', 'off')
@@ -103,8 +119,14 @@ class ConfigFile(object):
                                  % ", ".join(true_types + false_types))
         converters = {'DELEMAX': parse_delemax, 'NRUNS': int,
                       'DEVIATION': float, 'RAS': float,
-                      'SAMPLING': parse_sampling,
-                      'COARSE': parse_boolean,
+                      'REPEAT_OPTIMIZATION': int, 'MDTEMP': parse_mdtemp,
+                      'SAMPLING': ParseChoice(('simulation', 'moderate_cm',
+                                               'moderate_am')),
+                      'COARSE': parse_boolean, 'ATTACH_GAPS': parse_boolean,
+                      'SCRAPP': parse_boolean, 'BREAK': parse_boolean,
+                      'PW': parse_boolean, 'SCLBREAK': float,
+                      'ZCUTOFF': float,
+                      'CHEMFR': ParseChoice(('cdensity', 'charge')),
                       'LOCALRIGID': parse_boolean}
         required_fields = ['NRUNS']
         for k in required_fields:

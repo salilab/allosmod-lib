@@ -70,6 +70,12 @@ class Tests(unittest.TestCase):
         self.assertEqual(errs, ['Invalid variable in test.dat: SAMPLING: '
                            'not one of simulation, moderate_cm, moderate_am'])
 
+    def test_parse_config_file_bad_mdtemp(self):
+        """Test ConfigFile.parse() with bad mdtemp"""
+        c, errs = self.parse_config_file("NRUNS=1\nMDTEMP=garbage", None)
+        self.assertEqual(errs, ['Invalid variable in test.dat: MDTEMP: '
+                                'invalid literal for float(): garbage'])
+
     def test_parse_config_file_bad_boolean(self):
         """Test ConfigFile.parse() with bad boolean"""
         c, errs = self.parse_config_file("NRUNS=1\ncoarse=garbage", None)

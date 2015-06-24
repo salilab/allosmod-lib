@@ -14,7 +14,6 @@ except ImportError:
 e = env.Clone()
 def prepend_path(pathname, dirs):
     dirs = ':'.join(os.path.abspath(str(env.Dir('#/' + d))) for d in dirs)
-    print dirs
     if pathname in e['ENV']:
         e['ENV'][pathname] = dirs + ':' + e['ENV'][pathname]
     else:

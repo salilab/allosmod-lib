@@ -5,6 +5,23 @@ import shutil
 import os
 import re
 
+def subst_file(fh_in, fh_out, subs):
+    """Make file fh_out by substituting variables in fh_in.
+       Substitutions are of the form @FOO@, and will be replaced by
+       the value of subs['FOO']. @@ is replaced by @.
+    """
+    r = re.compile('@(?P<key>\w*?)@')
+    def repl(match):
+        key = match.group('key')
+        if not key:
+            return "@" # Replace @@ with @
+        elif key in subs:
+            return subs[key]
+        else:
+            raise ValueError("Unknown substitution %s" % key)
+    for line in fh_in:
+        fh_out.write(r.sub(repl, line))
+
 def get_data_file(fname):
     """Return the full path to a file in the data directory"""
     import allosmod.config

@@ -1,0 +1,29 @@
+from modeller import *
+from modeller.scripts import complete_pdb
+import allosmod
+
+env = environ(rand_seed=@RAND@)
+env.io.atom_files_directory = ['../atom_files']
+env.libs.topology.read(file='$(LIB)/top_heav.lib')
+env.libs.parameters.read(file='$(LIB)/par.lib')
+
+# Read in HETATM records from template PDBs
+env.io.hetatm = True
+
+a = allosmod.AllosModel(env, deviation=@DEVIATION@, alnfile='align.ali',
+                        knowns=@KNOWNS@, sequence=@TARG_SEQ@)
+
+# Very thorough VTFM optimization:
+a.library_schedule = allosmod.MDopt
+a.max_var_iterations = 500
+
+# MD optimization:
+a.md_level = allosmod.moderate
+
+# Repeat the whole cycle 1 time and do not stop unless obj.func. > 1E9
+a.repeat_optimization = 1
+a.max_molpdf = 1e9
+
+a.starting_model = 1
+a.ending_model = 1
+a.make()

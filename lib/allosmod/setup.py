@@ -68,6 +68,9 @@ class ConfigFile(object):
     def __contains__(self, key):
         return key.upper() in self._d
 
+    def keys(self):
+        return self._d.keys()
+
     def write(self, fname):
         """Write configuration to the given file."""
         with open(fname, 'w') as fh:
@@ -211,31 +214,21 @@ class Setup(object):
         fh.write('jobname=${TASK[$SGE_TASK_ID]}\n\n')
 
     def substitute_script_file(self, fh_out):
-        r = re.compile('@(?P<key>\w*?)@')
-        local_vars = {'LOCAL_SCRATCH':allosmod.config.local_scratch,
-                      'GLOBAL_SCRATCH':allosmod.config.global_scratch,
-                      'SCRIPT_DIR':allosmod.config.datadir,
-                      'GLYC1': '1' if self.config.glyco else '0',
-                      'GLYC2': '1' if self.with_glyc2() else '0',
-                      'COARSE': '--coarse' if self.config['COARSE'] else '',
-                      'LOCALRIGID': '--locrigid' \
-                                    if self.config['LOCALRIGID'] else '',
-                      'OTHPDB': self.get_other_pdb()}
-        def repl(match):
-            key = match.group('key')
-            if not key:
-                return "@" # Replace @@ with @
-            elif key in local_vars:
-                return local_vars[key]
-            elif key in self.config:
-                val = self.config[key]
-                return str(val).lower() if isinstance(val, bool) else str(val)
-            else:
-                raise ValueError("Unknown substitution %s" % key)
+        subs = {}
+        for k in self.config.keys():
+            val = self.config[k]
+            subs[k] = str(val).lower() if isinstance(val, bool) else str(val)
+        subs.update({'LOCAL_SCRATCH':allosmod.config.local_scratch,
+                     'GLOBAL_SCRATCH':allosmod.config.global_scratch,
+                     'SCRIPT_DIR':allosmod.config.datadir,
+                     'GLYC1': '1' if self.config.glyco else '0',
+                     'GLYC2': '1' if self.with_glyc2() else '0',
+                     'COARSE': '--coarse' if self.config['COARSE'] else '',
+                     'LOCALRIGID': '--locrigid' \
+                                   if self.config['LOCALRIGID'] else '',
+                     'OTHPDB': self.get_other_pdb()})
         template = allosmod.util.get_data_file('qsub.sh.in')
-        with open(template) as fh_in:
-            for line in fh_in:
-                fh_out.write(r.sub(repl, line))
+        allosmod.util.subst_file(open(template), fh_out, subs)
 
     def make_ligand(self, templates):
         """If no ligand provided, use center of mass of first template"""

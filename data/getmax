@@ -1,0 +1,6 @@
+#!/bin/bash
+
+
+
+awk '{print $"'$2'"}' $1 | cat -b | awk '($1>0){print $2}' | awk '(NR==1){a=-1000000}(a<$1&&($1>=0||$1<0)){a=$1}END{print a}' 
+

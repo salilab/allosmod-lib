@@ -20,11 +20,12 @@ vars.Add(PathVariable('pythondir', 'Python module installation directory',
                       % sys.version_info[0:2], PathVariable.PathAccept))
 vars.Add(PathVariable('local_scratch',
                       'Local disk to use as temporary storage on each '
-                      'cluster node', '/tmp'))
+                      'cluster node', '/tmp', PathVariable.PathAccept))
 vars.Add(PathVariable('global_scratch',
                       'Disk where job results are deposited if SCRAPP is '
                       'set in input.dat; must be on network storage '
-                      '(visible to all nodes)', '/scrapp'))
+                      '(visible to all nodes)', '/scrapp',
+                      PathVariable.PathAccept))
 vars.Add(PathVariable('html_coverage',
                       'Directory to output HTML coverage reports into '
                       '(requires the Python coverage module).',

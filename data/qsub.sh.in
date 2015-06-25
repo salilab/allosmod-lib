@@ -417,7 +417,7 @@ MDTEMP=`echo @MDTEMP@ | tr [A-Z] [a-z] | awk '{if($1=="scan"){print ('${jobname}
 if test @GLYC1@ -eq 0; then
     if test "@SAMPLING@" == "simulation"; then
 	echo "randomized numbers: $RAND_NUM $RR1 $RR2 $RR3" >>run.log
-	@SCRIPT_DIR@/get_pm2.sh pm.pdb list $RAND_NUM @DEVIATION@ script $MDTEMP
+	allosmod make_pm_script -- pm.pdb list $RAND_NUM @DEVIATION@ script $MDTEMP
 	cp @SCRIPT_DIR@/README_user $RUNDIR/README
 	if test "@SCRAPP@" == "true"; then
 	    python model_run.py > model_run.log
@@ -427,15 +427,10 @@ if test @GLYC1@ -eq 0; then
 	    echo @GLOBAL_SCRATCH@/${JOBID}/pred_dE@DELEMAX@rAS@RAS@ > $RUNDIR/pred_dE@DELEMAX@rAS@RAS@/@ASPDB@_${jobname}/OUTPUT_IS_HERE
 	fi
     elif test "@SAMPLING@" == "moderate_cm" -o "@SAMPLING@" == "moderate_am" -o "@SAMPLING@" == "fast_cm"; then
-	@SCRIPT_DIR@/get_pm2.sh pm.pdb list $RAND_NUM @DEVIATION@ @SAMPLING@ $MDTEMP
+	allosmod make_pm_script -- pm.pdb list $RAND_NUM @DEVIATION@ @SAMPLING@ $MDTEMP
 	echo running modeller
 	python model_run.py > model_run.log
 	echo done with modeller
-#    elif test "@SAMPLING@" == "moderate_cm_simulation"; then
-#	@SCRIPT_DIR@/get_pm2.sh pm.pdb list run $RAND_NUM $RR1 $RR2 $RR3 @DEVIATION@ @SAMPLING@
-#	python model_run.py > model_run.log
-#	cp pm.pdb.B99990001.pdb random.ini
-#	@SCRIPT_DIR@/get_pm2.sh pm.pdb list run $RAND_NUM $RR1 $RR2 $RR3 0.0 script $MDTEMP
     else
 	echo "sampling type not properly defined" >>${OUTDIR}/error.log; mv * $OUTDIR; exit
     fi
@@ -457,25 +452,6 @@ else #glycosylation
     mv pm.pdb.rsr converted.rsr
     #sample glycosylated structures
     python model_glyc.py > model_glyc.log
-#    if test "@SAMPLING@" == "moderate_cm_simulation"; then #to run simulations with sugar
-#	cp pm.pdb.B99990001.pdb random.ini
-#	cp converted.rsr tempsav.rsr
-#	cp @SCRIPT_DIR@/allosmod.py ./allosmod2.py
-#	#convert protein restraints (with hydrogens)
-#	python model_ini0.py > model_ini0.log
-#	MAX_PROT_AIND=`awk '($6>1){print $9"\n"$10}' pm.pdb.rsr | sort -nk1 | tail -n1`
-#	grep ATOM pm.pdb.B99990001.pdb >pm_rand.pdb
-#	awk '{print NR" AS"}' pm_rand.pdb >atomlistASRS
-#	@SCRIPT_DIR@/editrestraints2.sh pm.pdb.rsr pm.pdb.rsr pm_rand.pdb pm_rand.pdb atomlistASRS 2.0,2.0,2.0 11.0 XNTOT ${delEmax} >>run.log
-#	allosmod spline pm.pdb edited.rsr converted.rsr
-#	#get glyc restraints
-#	awk '($6==2&&($9>'${MAX_PROT_AIND}'||$10>'${MAX_PROT_AIND}')){print $0}' tempsav.rsr >>converted.rsr
-#	awk '($6==3&&($9>'${MAX_PROT_AIND}'||$10>'${MAX_PROT_AIND}'||$11>'${MAX_PROT_AIND}')){print $0}' tempsav.rsr >>converted.rsr
-#	awk '($6==4&&($9>'${MAX_PROT_AIND}'||$10>'${MAX_PROT_AIND}'||$11>'${MAX_PROT_AIND}'||$12>'${MAX_PROT_AIND}')){print $0}' tempsav.rsr >>converted.rsr
-#	#generate simulation script
-#	@SCRIPT_DIR@/get_pm2.sh pm.pdb list run $RAND_NUM $RR1 $RR2 $RR3 0.0 script_glyc $MDTEMP
-#	rm pm_rand.pdb atomlistASRS model_ini0.py allosmod2.py tempsav.rsr
-#    fi
     rm [A-Z][A-Z][A-Z].rsr get_rest.in
 fi
 

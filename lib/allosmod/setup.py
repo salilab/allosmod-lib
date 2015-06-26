@@ -25,7 +25,12 @@ class _FakeSectionHead(object):
             finally: 
                 self.sechead = None
         else: 
-            return self.fp.readline()
+            line = self.fp.readline()
+            # Hide custom restraints from ConfigParser
+            if len(line) > 5 and line[:5] in ('HARM ', 'LOBD ', 'UPBD '):
+                return '# ' + line
+            else:
+                return line
 
 class ConfigFile(object):
     """AllosMod config file (input.dat).

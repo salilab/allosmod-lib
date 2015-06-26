@@ -133,7 +133,8 @@ LOCALRIGID=yes
         """Simple complete ok run of setup"""
         with allosmod.util.temporary_directory() as tempdir:
             with open(os.path.join(tempdir, "input.dat"), 'w') as fh:
-                fh.write('NRUNS=1')
+                fh.write('NRUNS=1\nHARM 10.0 0.5 1,2\n'
+                          'LOBD 4.0 0.1 2,1\nUPBD 4.0 0.1 2,1')
             with open(os.path.join(tempdir, "list"), 'w') as fh:
                 fh.write('foo')
             with open(os.path.join(tempdir, "foo"), 'w') as fh:

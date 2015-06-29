@@ -296,7 +296,7 @@ if test "@BREAK@" == "true"; then
     echo "Chemical frustration type is @CHEMFR@" >>run.log
 fi
 if test "@LOCALRIGID@" == "true"; then
-    @SCRIPT_DIR@/get_loopadjres.sh #strengthen residues adjacent to loops
+    allosmod get_loopadjres #strengthen residues adjacent to loops
 fi
 if (test -e break.dat); then
     break="break.dat"

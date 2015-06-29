@@ -1,0 +1,30 @@
+# Server Output
+
+The output contains the same directories that were given to AllosMod and
+subdirectories for each simulation. Each subdirectory will contain a MODELLER
+script (model_run.py), a unique starting structure (random.ini), a restraint
+file containing interactions that will define the energy landscape
+(converted.rsr), log files, and other output files.
+
+# To run the simulation
+
+To run, navigate to a run directory. Each run directory contains a unique
+starting structure (random.ini) and a unique run script (model_run.py).
+Type: "python model_run.py > model_run.log" to run it. The script will output
+2000 snapshots by default (numbered 1001 to 3000) as well other data files.
+AllosMod implements the automodel class used in MODELLER for comparative
+modeling, although the optimization and refinement steps have been modified
+to allow for constant temperature molecular dynamics simulations. For each
+run directory, there is a file allosmod.py. This file contains the ConstTemp
+class that controls the simulation schedule and temperature (MDtemp).
+For help with script details, refer to the MODELLER help pages
+(http://salilab.org/modeller/manual/).
+
+# To analyze the simulation
+
+Download the analysis script to run on any linux/unix based machine
+(http://modbase.compbio.ucsf.edu/allosmod/html/file/analysis.zip).
+This script will check the simulations for possible errors as well as output
+several files including: 1) energies 2) Boltzmann weighted probabilities
+3) local structural similarity metrics Qi. See README file for a full
+description.

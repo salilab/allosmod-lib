@@ -21,21 +21,25 @@ class Tests(unittest.TestCase):
         """Test get_restraints() function"""
         from allosmod.get_add_restraint import get_restraints
         with open('test.dat', 'w') as fh:
-            fh.write("""HARM 10.0 0.5 1,2
+            fh.write("""HARM 10.0 0.5 1,2,3,4
 HARM 4.0 0.1 2,1
 UPBD 4.0 0.1 2,1
 OTHEROPTION foo
 """)
         r = list(get_restraints('test.dat', 'HARM'))
-        self.assertEqual(len(r), 2)
+        self.assertEqual(len(r), 3)
         self.assertAlmostEqual(r[0].distance, 10.0, places=1)
         self.assertAlmostEqual(r[0].stddev, 0.5, places=1)
         self.assertEqual(r[0].resind1, '1')
         self.assertEqual(r[0].resind2, '2')
-        self.assertAlmostEqual(r[1].distance, 4.0, places=1)
-        self.assertAlmostEqual(r[1].stddev, 0.1, places=1)
-        self.assertEqual(r[1].resind1, '2')
-        self.assertEqual(r[1].resind2, '1')
+        self.assertAlmostEqual(r[1].distance, 10.0, places=1)
+        self.assertAlmostEqual(r[1].stddev, 0.5, places=1)
+        self.assertEqual(r[1].resind1, '3')
+        self.assertEqual(r[1].resind2, '4')
+        self.assertAlmostEqual(r[2].distance, 4.0, places=1)
+        self.assertAlmostEqual(r[2].stddev, 0.1, places=1)
+        self.assertEqual(r[2].resind1, '2')
+        self.assertEqual(r[2].resind2, '1')
 
         r = list(get_restraints('test.dat', 'UPBD'))
         self.assertEqual(len(r), 1)

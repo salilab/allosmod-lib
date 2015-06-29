@@ -14,7 +14,9 @@ def get_restraints(dat_file, restr_type):
             s = line.rstrip('\n\r').split()
             if len(s) == 4 and s[0] == restr_type:
                 resind = s[3].split(',')
-                yield Restraint(float(s[1]), float(s[2]), resind[0], resind[1])
+                for i in range(0, len(resind), 2):
+                    yield Restraint(float(s[1]), float(s[2]),
+                                    resind[i], resind[i + 1])
 
 def get_atom_indexes(pdb_file):
     """Get a mapping from residue to atom indexes"""

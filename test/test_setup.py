@@ -68,7 +68,8 @@ class Tests(unittest.TestCase):
         """Test ConfigFile.parse() with bad sampling"""
         c, errs = self.parse_config_file("NRUNS=1\nsampling=garbage", None)
         self.assertEqual(errs, ['Invalid variable in test.dat: SAMPLING: '
-                           'not one of simulation, moderate_cm, moderate_am'])
+                           'not one of simulation, moderate_cm, moderate_am, '
+                           'fast_cm'])
 
     def test_parse_config_file_bad_mdtemp(self):
         """Test ConfigFile.parse() with bad mdtemp"""

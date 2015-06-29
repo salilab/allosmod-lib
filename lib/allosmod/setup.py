@@ -137,7 +137,7 @@ class ConfigFile(object):
                       'DEVIATION': float, 'RAS': float_or_int,
                       'REPEAT_OPTIMIZATION': int, 'MDTEMP': parse_mdtemp,
                       'SAMPLING': ParseChoice(('simulation', 'moderate_cm',
-                                               'moderate_am')),
+                                               'moderate_am', 'fast_cm')),
                       'COARSE': parse_boolean, 'ATTACH_GAPS': parse_boolean,
                       'SCRAPP': parse_boolean, 'BREAK': parse_boolean,
                       'PW': parse_boolean, 'SCLBREAK': float,

@@ -316,7 +316,7 @@ if (test ! -e ${OUTDIR}/error.log); then
              atomlistASRS > edited.rsr
     #add restraints between protein and sugar
     if test @GLYC2@ -eq 1; then
-	@SCRIPT_DIR@/get_glyc_restraint.sh pm_@ASPDB@ allosmod.py >>edited.rsr
+	allosmod get_glyc_restraint pm_@ASPDB@ allosmod.py >>edited.rsr
     fi
     #add restraints for bonds and distance upper/lower bounds
     allosmod get_add_restraint ${RUNDIR}/input.dat pm_@ASPDB@ HARM >tempaddrestr

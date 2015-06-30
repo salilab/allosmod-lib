@@ -77,13 +77,13 @@ AFVV*
         test_aln(orig_aln)
         os.unlink('test.aln')
 
-    def setup_inputs(self, seq='AW'):
-        with open('test.aln', 'w') as fh:
+    def setup_inputs(self, seq='AW', subdir=''):
+        with open(os.path.join(subdir, 'test.aln'), 'w') as fh:
             fh.write(get_seq('1fdx', '1fdx', 'AY'))
             fh.write(get_seq('foo', 'foo', seq))
         with open('templates', 'w') as fh:
             fh.write("1fdx\n")
-        with open('1fdx', 'w') as fh:
+        with open(os.path.join(subdir, '1fdx'), 'w') as fh:
             fh.write("""
 ATOM      2  CA  ALA     1      27.449  14.935   5.140  1.00 29.87           C
 ATOM      7  CA  TYR     2      26.593  16.867   8.258  1.00120.51           C
@@ -130,6 +130,22 @@ ATOM      7  CA  TYR     2      26.593  16.867   8.258  1.00120.51           C
         os.unlink('test.aln')
         os.unlink('templates')
         os.unlink('1fdx')
+
+    def test_nochdir(self):
+        """Complete run of get_pm_initialstruct using --no-chdir"""
+        from allosmod.get_pm_initialstruct import get_pm_initialstruct
+        if os.path.exists('pred_1fdx'):
+            shutil.rmtree('pred_1fdx')
+        os.mkdir('pred_1fdx')
+        self.setup_inputs(seq='A/W', subdir='pred_1fdx')
+
+        check_output(['allosmod', 'get_pm_initialstruct', '--target', 'foo',
+                      '--restraints-only', '--no-chdir', '--csrfile',
+                      'test.rsr', 'test.aln', '../templates', '.', '1', 'fast'],
+                     cwd='pred_1fdx')
+        for f in ('1fdx', 'family.mat', 'foo.ini', 'test.aln', 'test.aln.ali'):
+            os.unlink(os.path.join('pred_1fdx', f))
+        os.rmdir('pred_1fdx')
 
 if __name__ == '__main__':
     unittest.main()

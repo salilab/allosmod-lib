@@ -64,15 +64,16 @@ def get_pm_initialstruct(aln_file, templates, pdb_dir, nmodel,
     env = modeller.environ(rand_seed=random.randint(-40000, -2))
     target = get_target(env, opts.target, aln_file)
     dirname = 'pred_%s' % templates[0]
-    if os.path.exists(dirname):
-        print("%s exists, overwriting" % dirname)
-    else:
-        os.mkdir(dirname)
-    for template in templates:
-        shutil.copy(os.path.join(pdb_dir, template), dirname)
-    shutil.copy(aln_file, dirname)
-    os.chdir(dirname)
-    remove_hetatms_from_aln_file(aln_file, target, templates[0])
+    if opts.chdir:
+        if os.path.exists(dirname):
+            print("%s exists, overwriting" % dirname)
+        else:
+            os.mkdir(dirname)
+        for template in templates:
+            shutil.copy(os.path.join(pdb_dir, template), dirname)
+        shutil.copy(aln_file, dirname)
+        os.chdir(dirname)
+        remove_hetatms_from_aln_file(aln_file, target, templates[0])
 
     env.libs.topology.read(file='$(LIB)/top_heav.lib')
     env.libs.parameters.read(file='$(LIB)/par.lib')
@@ -89,7 +90,7 @@ def get_pm_initialstruct(aln_file, templates, pdb_dir, nmodel,
                 self.chains[0].name = chain if chain else 'A'
 
     a = MyModel(env, deviation=None, alnfile=aln_file, knowns=templates,
-                sequence=target)
+                sequence=target, csrfile=opts.csrfile)
     a.library_schedule = modeller.automodel.autosched.normal
     a.md_level = getattr(modeller.automodel.refine, refine_level)
     a.repeat_optimization = 1
@@ -125,6 +126,12 @@ Makes an initial perturbation model (PM) from a sequence.
                       help="use the alignment for modeling (by default, "
                            "Modeller will automatically align the target "
                            "with the template)")
+    parser.add_option("--no-chdir", action="store_false", dest="chdir",
+                      default=True,
+                      help="run in the current directory; don't make and "
+                           "change into a temporary one")
+    parser.add_option("--csrfile", default=None,
+                      help="use the given Modeller restraints file")
 
     opts, args = parser.parse_args()
     if len(args) != 5:

@@ -93,10 +93,10 @@ if test ${NTOT} -gt 1 -o ${isLIGMOD} -eq 1; then
     #generate pm's for input structures
     ctr=0
     for s in `cat list`; do
-	echo $s >listin
+	echo $s >listinit
 echo making input structure $s
 	allosmod get_pm_initialstruct --target pm.pdb --keep-alignment \
-                                      align.ali listin ./ 1 slow
+                                      align.ali listinit ./ 1 slow
 	awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"||$1$2$3$4=="HETA"){print $0}'  pred_${s}/pm.pdb.B99990001.pdb >pm_${s}
 	if (test ! -s pm_${s}); then
 	    echo "MODELLER has failed to create an initial model of the following structure: "${s} >>${OUTDIR}/error.log
@@ -173,10 +173,10 @@ echo $iD $iVECT $DX $DY $DZ
             {printf "ATOM      1  XX  ALA A   1    %8.3f%8.3f%8.3f  1.00 99.99           C\n",a/NR,b/NR,c/NR}' >lig.pdb
     done
     #generate input structure
-    cp list listin
+    cp list listinit
     s=`head -n1 list`
     allosmod get_pm_initialstruct --target pm.pdb --keep-alignment \
-                                  align.ali listin ./ 1 slow
+                                  align.ali listinit ./ 1 slow
     awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"||$1$2$3$4=="HETA"){print $0}'  pred_${s}/pm.pdb.B99990001.pdb >avgpdb.pdb
     if (test ! -s avgpdb.pdb); then
 	echo "MODELLER has failed to create an initial model of the following structure: avgpdb.pdb" >>${OUTDIR}/error.log
@@ -330,8 +330,9 @@ if (test ! -e ${OUTDIR}/error.log); then
 	    awk '($2==2||$2==3){print $0}' ../tempaddrestr >> pm.pdb.rsr
 	    awk '($2==1){print $0}' ../tempaddrestr | awk 'BEGIN{FS=""}{for(a=1;a<=45;a++){printf $a;if(a==45){printf "   20.0000    0.0100\n"}}}' >> pm.pdb.rsr
 	    mv pm.pdb.rsr edit.rsr
-	    cat model_ini0.py | sed "s/'align.ali',/'align.ali', csrfile = 'edit.rsr',/g" >tempiqmi5; mv tempiqmi5 model_ini0.py
-	    /salilab/diva1/home/modeller/modSVN model_ini0.py
+	    allosmod get_pm_initialstruct --target pm.pdb --keep-alignment \
+                                          --csrfile edit.rsr --no-chdir \
+                                          align.ali ../listinit ./ 1 slow
 	    cd ..
 	done
 	if test ${NTOT} -gt 1 -o ${isLIGMOD} -eq 1; then
@@ -462,7 +463,7 @@ rm get_pm.params
 if test -e targlist; then rm targlist; fi
 if test -e model_ini.log; then rm model_ini.log; fi
 rm pm.pdb.rsr crap
-rm *fit.pdb listin list4contacts
+rm *fit.pdb listin listinit list4contacts
 rm edited.rsr
 rm pm.pdb.B0*.pdb model_ini.py model_ini0.py 
 rm list*rsr avgpdb.pdb

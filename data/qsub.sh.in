@@ -458,14 +458,10 @@ date >>run.log
 date
 
 # Copy back output files from $TMPDIR here...
-rm get_pm.params
 if test -e targlist; then rm targlist; fi
 if test -e model_ini.log; then rm model_ini.log; fi
-rm pm.pdb.rsr crap
-rm *fit.pdb listin listinit list4contacts
-rm edited.rsr
-rm pm.pdb.B0*.pdb model_ini.py model_ini0.py 
-rm list*rsr avgpdb.pdb
+rm -f pm.pdb.rsr *fit.pdb listin listinit list4contacts
+rm -f edited.rsr pm.pdb.B0*.pdb list*rsr avgpdb.pdb
 
 #zip -r out.zip *
 #mv out.zip $OUTDIR

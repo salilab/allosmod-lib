@@ -225,7 +225,7 @@ class Setup(object):
             subs[k] = str(val).lower() if isinstance(val, bool) else str(val)
         subs.update({'LOCAL_SCRATCH':allosmod.config.local_scratch,
                      'GLOBAL_SCRATCH':allosmod.config.global_scratch,
-                     'SCRIPT_DIR':allosmod.config.datadir,
+                     'DATADIR':allosmod.config.datadir,
                      'GLYC1': '1' if self.config.glyco else '0',
                      'GLYC2': '1' if self.with_glyc2() else '0',
                      'COARSE': '--coarse' if self.config['COARSE'] else '',

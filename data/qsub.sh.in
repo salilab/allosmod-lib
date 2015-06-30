@@ -417,7 +417,7 @@ if test @GLYC1@ -eq 0; then
     if test "@SAMPLING@" == "simulation"; then
 	echo "randomized numbers: $RAND_NUM $RR1 $RR2 $RR3" >>run.log
 	allosmod make_pm_script -- pm.pdb list $RAND_NUM @DEVIATION@ script $MDTEMP
-	cp @SCRIPT_DIR@/README_user $RUNDIR/README
+	cp @DATADIR@/README_user $RUNDIR/README
 	if test "@SCRAPP@" == "true"; then
 	    python model_run.py > model_run.log
 	    JOBID=`echo $RUNDIR | awk 'BEGIN{FS="/"}{print $(NF-1)}'`
@@ -435,7 +435,7 @@ if test @GLYC1@ -eq 0; then
     fi
 else #glycosylation
     ls -lrt
-    cp @SCRIPT_DIR@/[A-Z][A-Z][A-Z].rsr .
+    cp @DATADIR@/[A-Z][A-Z][A-Z].rsr .
     allosmod get_pm_glyc pm.pdb list $RAND_NUM @REPEAT_OPTIMIZATION@ @ATTACH_GAPS@ script
     #generate protein model with correct chains
     python model_ini0.py > model_ini0.log

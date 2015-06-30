@@ -365,7 +365,6 @@ for c in `seq 60`; do
 	cp ${FIRSTDIR}/atomlistASRS .
 	cp ${FIRSTDIR}/converted.rsr .
 	cp ${FIRSTDIR}/allostericsite.pdb .
-	cp ${FIRSTDIR}/contacts.dat .
 	if (test -e ${FIRSTDIR}/allosmod.py); then cp ${FIRSTDIR}/allosmod.py .; fi
 	echo cp done
 	break
@@ -395,7 +394,7 @@ if test `echo "${jobname}==0" |bc -l` -eq 1; then
     if test @GLYC1@ -eq 0; then #skip if hydrogens are needed
 	echo convert to splines 
 	allosmod spline random.ini edited.rsr converted.rsr
-	cp converted.rsr atomlistASRS allostericsite.pdb contacts.dat ${RUNDIR}/pred_dE@DELEMAX@rAS@RAS@/@ASPDB@_0
+	cp converted.rsr atomlistASRS allostericsite.pdb ${RUNDIR}/pred_dE@DELEMAX@rAS@RAS@/@ASPDB@_0
 	if (test -e allosmod.py); then cp allosmod.py ${RUNDIR}/pred_dE@DELEMAX@rAS@RAS@/@ASPDB@_0; fi
     fi
     echo converted.rsr file complete, copied to ${RUNDIR}/pred_dE@DELEMAX@rAS@RAS@/@ASPDB@_0

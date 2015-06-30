@@ -1,6 +1,13 @@
 Installation
 ************
 
+In the Sali Lab
+===============
+
+If you are working in the Sali lab, you don't need to build and install
+AllosMod - it is already set up for you as a module. Just run
+``module load allosmod`` to load it.
+
 Dependencies
 ============
 

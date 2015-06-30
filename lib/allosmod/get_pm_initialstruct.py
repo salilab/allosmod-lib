@@ -1,4 +1,4 @@
-"""Makes an initial comparative model from a sequence."""
+"""Makes an initial perturbation model (PM) from a sequence."""
 
 from __future__ import print_function, absolute_import
 import optparse
@@ -105,7 +105,7 @@ def parse_args():
     usage = """%prog [opts] <alignment file> <template file>
                             <pdb dir> <nmodel> <refine level>
 
-Makes an initial comparative model from a sequence.
+Makes an initial perturbation model (PM) from a sequence.
 
 <alignment file> is a Modeller alignment file.
 <template file> is a file listing the templates to use, one per line.

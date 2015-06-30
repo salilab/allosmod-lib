@@ -6,7 +6,7 @@ from test_pdb2ali import check_output
 class Tests(unittest.TestCase):
     def test_bad(self):
         """Test wrong arguments to make_pm_script"""
-        for args in ([], ['' * 7]):
+        for args in ([], [''] * 7):
             out = check_output(['allosmod', 'make_pm_script'] + args,
                                stderr=subprocess.STDOUT, retcode=2)
             out = check_output(['python', '-m',

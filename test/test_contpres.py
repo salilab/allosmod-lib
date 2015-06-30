@@ -11,7 +11,7 @@ test_dir = os.path.dirname(sys.argv[0])
 class Tests(unittest.TestCase):
     def test_bad(self):
         """Test wrong arguments to contpres"""
-        for args in ([], ['' * 4]):
+        for args in ([], [''] * 4):
             out = check_output(['allosmod', 'contpres'] + args,
                                stderr=subprocess.STDOUT, retcode=2)
             out = check_output(['python', '-m',

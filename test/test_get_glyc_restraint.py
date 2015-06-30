@@ -6,7 +6,7 @@ from test_pdb2ali import check_output
 class Tests(unittest.TestCase):
     def test_bad(self):
         """Test wrong arguments to get_glyc_restraint"""
-        for args in ([], ['' * 3]):
+        for args in ([], [''] * 3):
             out = check_output(['allosmod', 'get_glyc_restraint'] + args,
                                stderr=subprocess.STDOUT, retcode=2)
             out = check_output(['python', '-m',

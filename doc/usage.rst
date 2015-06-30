@@ -184,3 +184,28 @@ COARSE = True/False
    line with "30 0.1". break.dat is created automatically by setting
    BREAK=True, however, the user may specify any desired residues and
    scaling factors by including break.dat in a batch run. 
+
+Set up AllosMod protocol
+========================
+
+Once all the input files are prepared, run ``allosmod setup`` in the directory
+containing them. The ``allosmod`` command line tool provides many subfunctions
+(use ``allosmod help`` to list them all). ``allosmod setup`` will check the
+input files for problems, and if they all look OK, it will generate a
+script file called ``qsub.sh``. This script can be run on any Linux machine,
+although it is intended to be run on an SGE cluster using the ``qsub -t 1-N``
+command, where ``N`` is the value of NRUNS in ``input.dat``.
+
+This script file will set up the AllosMod landscape. If SAMPLING in
+``input.dat`` is set to 'simulation' (the default) MODELLER input files are
+generated. These can then be run to perform the simulation. Otherwise, the
+sampling is performed by ``qsub.sh`` itself.
+
+#. Run ``allosmod setup`` to verify the inputs and generate a script file.
+
+#. Run the script file (typically on a Linux cluster) to set up the AllosMod
+   energy landscape and generate Modeller input files to sample it. In some
+   cases this sampling is then carried out; in others you will need to run
+   Modeller on the input files.
+
+Input files

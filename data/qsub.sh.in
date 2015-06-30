@@ -27,7 +27,6 @@ if test -e model_run.py; then awk '{print $0}' model_run.py | sed 's/\o015//g' >
 
 ########## do the actual job 
 cd $TMPDIR
-echo $TMPDIR >tempdir
 hostname
 date >>run.log
 date

@@ -463,20 +463,6 @@ if test -e model_ini.log; then rm model_ini.log; fi
 rm -f pm.pdb.rsr *fit.pdb listin listinit list4contacts
 rm -f edited.rsr pm.pdb.B0*.pdb list*rsr avgpdb.pdb
 
-#zip -r out.zip *
-#mv out.zip $OUTDIR
-
-#cd $OUTDIR
-#sleep 10s
-
-#rm -rf $TMPDIR
-#unzip out.zip
-#sleep 10s
-#rm out.zip
-#sleep 10s
-
-
-
 mv * $OUTDIR
 
 cd $OUTDIR

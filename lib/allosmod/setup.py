@@ -36,13 +36,13 @@ class ConfigFile(object):
     """AllosMod config file (input.dat).
        After calling parse(), config can be looked up like a dict, e.g.
 
-       c = ConfigFile(align_codes)
+       c = ConfigFile(templates)
        c.parse('input.dat')
        print c['delEmax']
 
        Field names are case insensitive."""
 
-    def __init__(self, align_codes, glyco=False, maxres=0):
+    def __init__(self, templates, glyco=False, maxres=0):
         # Set defaults
         self._d = {'DELEMAX':'CALC', 'DEVIATION':1.0, 'RAS':1000,
                    'SAMPLING':'simulation', 'MDTEMP':300.0,
@@ -50,9 +50,9 @@ class ConfigFile(object):
                    'SCRAPP':False, 'BREAK':False, 'SCLBREAK':0.1,
                    'ZCUTOFF':3.5, 'CHEMFR':'cdensity', 'COARSE':False,
                    'LOCALRIGID':False, 'PW':False}
-        if align_codes:
-            self._d['LIGPDB'] = self._d['ASPDB'] = align_codes[0]
-            self.num_templates = len(align_codes)
+        if templates:
+            self._d['LIGPDB'] = self._d['ASPDB'] = templates[0]
+            self.num_templates = len(templates)
         else:
             self.num_templates = 0
         self.glyco = glyco
@@ -186,8 +186,8 @@ class Setup(object):
     def do_setup(self):
         self.check_input_files_exist()
         align_info = self.check_alignment()
-        self.config = self.check_input_dat(align_info)
         templates = self.check_list_file(align_info)
+        self.config = self.check_input_dat(align_info, templates)
         self.make_ligand(templates)
         self.templates = templates
 
@@ -249,11 +249,10 @@ class Setup(object):
     def error(self):
         return self.err.error
 
-    def check_input_dat(self, align_info):
+    def check_input_dat(self, align_info, templates):
         if not os.path.exists(self.dat_file):
             return
-        d = ConfigFile(align_info.codes if align_info else None,
-                       os.path.exists('glyc.dat'),
+        d = ConfigFile(templates, os.path.exists('glyc.dat'),
                        align_info.maxres if align_info else 0)
         for e in d.parse(self.dat_file):
             self.err.report(e)

@@ -170,7 +170,9 @@ AFV*""")
             out = check_output(['allosmod', 'setup'],
                                stderr=subprocess.STDOUT, cwd=tempdir, retcode=1)
         self.assertEqual(out, 'Missing file: bar\nMissing sequence in '
-                              'align.ali for file: bar\n')
+                              'align.ali for file: bar\n'
+                              'Missing LIGPDB in align.ali for file: bar\n'
+                              'Missing ASPDB in align.ali for file: bar\n')
 
     def test_simple_bad_align(self):
         """Simple complete run of setup with bad alignment file"""
@@ -207,8 +209,8 @@ sequence:::::::::
 AFV*""")
             out = check_output(['allosmod', 'setup'],
                                stderr=subprocess.STDOUT, cwd=tempdir, retcode=1)
-        self.assertEqual(out, 'Missing ASPDB in align.ali for file: bar\n'
-                              'Missing file: foo\n')
+        self.assertEqual(out, 'Missing file: foo\n'
+                              'Missing ASPDB in align.ali for file: bar\n')
 
 if __name__ == '__main__':
     unittest.main()

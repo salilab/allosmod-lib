@@ -448,7 +448,7 @@ else #glycosylation
     #generate initial glycosylation model and restraints
     @SCRIPT_DIR@/get_pm_glyc.sh pm.pdb list $RAND_NUM @REPEAT_OPTIMIZATION@ @ATTACH_GAPS@ pm.pdb.B99990001.pdb 
     python model_ini.py > model_ini.log
-    @SCRIPT_DIR@/get_rest.sh pm.pdb.B99990001.pdb >> pm.pdb.rsr
+    allosmod get_rest pm.pdb.B99990001.pdb >> pm.pdb.rsr
     mv pm.pdb.rsr converted.rsr
     #sample glycosylated structures
     python model_glyc.py > model_glyc.log

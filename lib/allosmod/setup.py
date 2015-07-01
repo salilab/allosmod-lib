@@ -216,7 +216,6 @@ class Setup(object):
         fh.write('TASK=( null \\\n'
               + ''.join('%d \\\n' % i for i in range(self.config['NRUNS']))
               + ')\n')
-        fh.write('jobname=${TASK[$SGE_TASK_ID]}\n\n')
 
     def substitute_script_file(self, fh_out):
         subs = {}

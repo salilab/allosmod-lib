@@ -1,4 +1,14 @@
 
+# Handle the case where the script is *not* being run via SGE
+if [ -z "${SGE_TASK_ID}" ]; then
+  SGE_TASK_ID=1
+fi
+if [ -z "${JOB_ID}" ]; then
+  JOB_ID=0
+fi
+
+jobname=${TASK[$SGE_TASK_ID]}
+
 RUNDIR=`pwd`
 OUTDIR=$RUNDIR/pred_dE@DELEMAX@rAS@RAS@/@ASPDB@_${jobname}
 

@@ -446,7 +446,7 @@ if test @GLYC1@ -eq 0; then
 else #glycosylation
     ls -lrt
     cp @DATADIR@/[A-Z][A-Z][A-Z].rsr .
-    allosmod get_pm_glyc pm.pdb list $RAND_NUM @REPEAT_OPTIMIZATION@ @ATTACH_GAPS@ script
+    allosmod get_pm_glyc -- pm.pdb list $RAND_NUM @REPEAT_OPTIMIZATION@ @ATTACH_GAPS@ script
     #generate protein model with correct chains
     python model_ini0.py > model_ini0.log
     CHAIN=`awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"||$1$2$3$4=="HETA"){print $22$23}' pm.pdb.B99990001.pdb | awk '{print $1}' | sort -u | head -n1`
@@ -455,7 +455,7 @@ else #glycosylation
 	allosmod setchain pm.pdb.B99990001.pdb --in-place $NC
     fi
     #generate initial glycosylation model and restraints
-    allosmod get_pm_glyc pm.pdb list $RAND_NUM @REPEAT_OPTIMIZATION@ @ATTACH_GAPS@ pm.pdb.B99990001.pdb 
+    allosmod get_pm_glyc -- pm.pdb list $RAND_NUM @REPEAT_OPTIMIZATION@ @ATTACH_GAPS@ pm.pdb.B99990001.pdb 
     python model_ini.py > model_ini.log
     allosmod get_rest pm.pdb.B99990001.pdb >> pm.pdb.rsr
     mv pm.pdb.rsr converted.rsr

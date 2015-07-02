@@ -122,6 +122,29 @@ LOCALRIGID=yes
         self.assertEqual(len(errs), 0)
         self.assertEqual(c['COARSE'], True)
 
+    def test_with_glyc2(self):
+        """Test Setup.with_glyc2() method"""
+        s = allosmod.setup.Setup()
+        with open('allosmod.py', 'w') as fh:
+            fh.write('line1\nline2\n')
+        self.assertEqual(s.with_glyc2(), None)
+        with open('allosmod.py', 'w') as fh:
+            fh.write("self.patch(residue_type='foo')\n")
+        self.assertEqual(s.with_glyc2(), True)
+        os.unlink('allosmod.py')
+        self.assertEqual(s.with_glyc2(), None)
+
+    def test_get_other_pdb(self):
+        """Test Setup.get_other_pdb() method"""
+        s = allosmod.setup.Setup()
+        s.config = {'ASPDB': 'test_aspdb'}
+        s.templates = ['foo', 'bar', 'test_aspdb']
+        self.assertEqual(s.get_other_pdb(), 'foo')
+        s.templates = ['test_aspdb', 'bar']
+        self.assertEqual(s.get_other_pdb(), 'bar')
+        s.templates = []
+        self.assertEqual(s.get_other_pdb(), 'test_aspdb')
+
     def test_simple_fail(self):
         """Simple complete failing run of setup"""
         with allosmod.util.temporary_directory() as tempdir:
@@ -211,6 +234,69 @@ AFV*""")
                                stderr=subprocess.STDOUT, cwd=tempdir, retcode=1)
         self.assertEqual(out, 'Missing file: foo\n'
                               'Missing ASPDB in align.ali for file: bar\n')
+
+    def test_simple_bad_input_dat(self):
+        """Simple complete run of setup with bad input.dat"""
+        with allosmod.util.temporary_directory() as tempdir:
+            with open(os.path.join(tempdir, "input.dat"), 'w') as fh:
+                fh.write('NRUNS=1\nMDTEMP=garbage\n')
+            with open(os.path.join(tempdir, "list"), 'w') as fh:
+                fh.write('foo')
+            with open(os.path.join(tempdir, "foo"), 'w') as fh:
+                fh.write('ATOM     14  CA  TYR A   2      -6.696  -0.319   4.300  1.00  0.00           C\n')
+            with open(os.path.join(tempdir, "align.ali"), 'w') as fh:
+                fh.write(""">P1;foo
+structureX:::::::::
+AFV*
+>P1;pm.pdb
+sequence:::::::::
+AFV*""")
+            out = check_output(['allosmod', 'setup'],
+                               stderr=subprocess.STDOUT, cwd=tempdir, retcode=1)
+        self.assertEqual(out, 'Invalid variable in input.dat: MDTEMP: '
+                              'invalid literal for float(): garbage\n')
+
+    def test_simple_alignment_error(self):
+        """Simple complete run of setup with alignment format error"""
+        with allosmod.util.temporary_directory() as tempdir:
+            with open(os.path.join(tempdir, "input.dat"), 'w') as fh:
+                fh.write('NRUNS=1\n')
+            with open(os.path.join(tempdir, "list"), 'w') as fh:
+                fh.write('foo')
+            with open(os.path.join(tempdir, "foo"), 'w') as fh:
+                fh.write('ATOM     14  CA  TYR A   2      -6.696  -0.319   4.300  1.00  0.00           C\n')
+            with open(os.path.join(tempdir, "align.ali"), 'w') as fh:
+                fh.write(""">P1;foo
+structureX:::::::::
+AFV*
+>P1;pm.pdb
+sequence:::::::::
+AFV""")
+            out = check_output(['allosmod', 'setup'],
+                               stderr=subprocess.STDOUT, cwd=tempdir, retcode=1)
+        self.assertEqual(out, 'PIR sequence without terminating * at '
+                              'end of file\n')
+
+    def test_simple_no_target(self):
+        """Simple complete run of setup with target not in alignment"""
+        with allosmod.util.temporary_directory() as tempdir:
+            with open(os.path.join(tempdir, "input.dat"), 'w') as fh:
+                fh.write('NRUNS=1\n')
+            with open(os.path.join(tempdir, "list"), 'w') as fh:
+                fh.write('foo')
+            with open(os.path.join(tempdir, "foo"), 'w') as fh:
+                fh.write('ATOM     14  CA  TYR A   2      -6.696  -0.319   4.300  1.00  0.00           C\n')
+            with open(os.path.join(tempdir, "align.ali"), 'w') as fh:
+                fh.write(""">P1;foo
+structureX:::::::::
+AFV*
+>P1;pm2.pdb
+sequence:::::::::
+AFV*""")
+            out = check_output(['allosmod', 'setup'],
+                               stderr=subprocess.STDOUT, cwd=tempdir, retcode=1)
+        self.assertEqual(out,
+                         'Missing sequence in align.ali for file: pm.pdb\n')
 
 if __name__ == '__main__':
     unittest.main()

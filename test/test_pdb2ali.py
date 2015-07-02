@@ -1,15 +1,7 @@
 import unittest
 import subprocess
 import os
-
-def check_output(args, stderr=None, retcode=0, *other, **keys):
-    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=stderr,
-                         *other, **keys)
-    stdout, stderr = p.communicate()
-    if p.returncode != retcode:
-        raise OSError("Process %s exited with code %d, output %s"
-                      % (" ".join(args), p.returncode, stdout))
-    return stdout
+from allosmod.util import check_output
 
 test_pdb = """EXPDTA    THEORETICAL MODEL, MODELLER SVN 2015/05/15 09:37:25
 ATOM      1  N   CYS A   1       1.453   0.000   0.000  0.00  0.00           C

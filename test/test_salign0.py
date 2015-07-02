@@ -2,7 +2,7 @@ import unittest
 import subprocess
 import os
 from io import BytesIO
-from test_pdb2ali import check_output
+from allosmod.util import check_output
 
 test_pdb = """EXPDTA    THEORETICAL MODEL, MODELLER SVN 2015/05/15 09:37:25
 ATOM      1  CA  CYS A   1       1.453   2.100   3.200  0.00  0.00           C

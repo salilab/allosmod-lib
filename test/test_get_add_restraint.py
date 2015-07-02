@@ -2,7 +2,7 @@ import unittest
 import modeller
 import os
 import subprocess
-from test_pdb2ali import check_output
+from allosmod.util import check_output
 
 def get_pdb_line(attyp, resnum, typ='ATOM'):
     return "%-6s    1  %-3s TYR A%4d      24.417  18.891   8.203  1.00  0.00           C\n" % (typ, attyp, resnum)

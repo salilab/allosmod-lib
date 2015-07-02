@@ -1,7 +1,7 @@
 import unittest
 import os
 import subprocess
-from test_pdb2ali import check_output
+from allosmod.util import check_output
 import allosmod.setup
 
 class Tests(unittest.TestCase):

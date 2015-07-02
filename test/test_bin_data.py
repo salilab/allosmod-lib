@@ -2,7 +2,7 @@ import unittest
 import subprocess
 import os
 import sys
-from test_pdb2ali import check_output
+from allosmod.util import check_output
 
 test_dir = os.path.dirname(sys.argv[0])
 

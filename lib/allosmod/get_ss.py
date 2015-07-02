@@ -2,20 +2,10 @@
 
 from __future__ import print_function, absolute_import
 import optparse
-import subprocess
-
-def check_output(args, stderr=None, retcode=0, input=None, *other):
-    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=stderr,
-                         stdin=subprocess.PIPE if input else None,
-                         *other)
-    stdout, stderr = p.communicate(input)
-    if p.returncode != retcode:
-        raise OSError("Process %s exited with code %d"
-                      % (" ".join(args), p.returncode))
-    return stdout
+import allosmod.util
 
 def get_ss(pdb_file):
-    out = check_output(["dssp", pdb_file])
+    out = allosmod.util.check_output(["dssp", pdb_file])
     start = False
     for line in out.split("\n"):
         if "RESIDUE AA STRUCTURE" in line:

@@ -2,7 +2,7 @@ import unittest
 import modeller
 import os
 import subprocess
-from test_pdb2ali import check_output
+from allosmod.util import check_output
 from test_modeller import mock_method
 
 class Tests(unittest.TestCase):

@@ -4,7 +4,7 @@ import os
 import sys
 import subprocess
 import collections
-from test_pdb2ali import check_output
+from allosmod.util import check_output
 
 MockResidue = collections.namedtuple('MockResidue', ['pdb_name', 'atoms'])
 MockAtom = collections.namedtuple('MockAtom', ['name', 'x', 'y', 'z'])

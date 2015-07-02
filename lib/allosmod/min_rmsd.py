@@ -5,7 +5,6 @@ import optparse
 import subprocess
 import os
 import re
-from allosmod.get_ss import check_output
 import allosmod.util
 
 def make_profit_file(prolist):
@@ -26,8 +25,8 @@ def min_rmsd(file1, file2):
         with open(prolist_in, 'w') as fh:
             print(file1, file=fh)
             print(file2, file=fh)
-        out = check_output(["profit"],
-                           input=make_profit_file(prolist_in))
+        out = allosmod.util.check_output(["profit"],
+                                         input=make_profit_file(prolist_in))
     return re.findall('RMS: ([\d.-]+)', out)[-1]
     
 def parse_args():

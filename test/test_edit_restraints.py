@@ -3,7 +3,7 @@ import subprocess
 import os
 from io import BytesIO
 import sys
-from test_pdb2ali import check_output
+from allosmod.util import check_output
 from test_modeller import mock_method
 import allosmod.get_contacts
 import allosmod.get_ss

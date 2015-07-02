@@ -3,7 +3,7 @@ import subprocess
 import os
 import shutil
 import modeller
-from test_pdb2ali import check_output
+from allosmod.util import check_output
 from test_modeller import mock_method
 
 def get_seq(code, pdb, seq):

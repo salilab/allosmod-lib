@@ -4,6 +4,15 @@ from io import StringIO, BytesIO
 import allosmod.util
 
 class Tests(unittest.TestCase):
+    def test_check_output(self):
+        """Test check_output()"""
+        out = allosmod.util.check_output(['/bin/echo', 'foo'])
+        self.assertEqual(out, 'foo\n')
+        self.assertRaises(OSError, allosmod.util.check_output,
+                          ['/bin/echo', 'foo'], retcode=1)
+        out = allosmod.util.check_output(['/bin/cat'], input="foobar")
+        self.assertEqual(out, 'foobar')
+
     def test_subst_file(self):
         """Test subst_file"""
         s_in = StringIO("@VAR1@ @@ @VAR2@\nfoo@VAR1@bar")

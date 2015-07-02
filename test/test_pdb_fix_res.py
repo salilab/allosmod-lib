@@ -1,7 +1,7 @@
 import unittest
 import subprocess
 import os
-from test_pdb2ali import check_output
+from allosmod.util import check_output
 
 records = [ ['HETATM', ' CA', 'HID'],
             ['HETATM', ' CA', 'HIE'],

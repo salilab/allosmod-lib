@@ -1,7 +1,7 @@
 import os
 import unittest
 import subprocess
-from test_pdb2ali import check_output
+from allosmod.util import check_output
 
 class Tests(unittest.TestCase):
     def test_bad(self):

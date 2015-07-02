@@ -44,5 +44,15 @@ class Tests(unittest.TestCase):
         os.unlink('atomlistASRS')
         os.unlink('allostericsite.pdb')
 
+    def test_simple_no_outputs(self):
+        """Simple complete run of get_allosteric_site, with no outputs"""
+        out = check_output(['allosmod', 'get_allosteric_site',
+                            os.path.join(test_dir, 'input',
+                                         'asite_pdb1.pdb'),
+                            os.path.join(test_dir, 'input',
+                                         'asite_ligand.pdb'),
+                            os.path.join(test_dir, 'input',
+                                         'asite_pdb2.pdb'), '8.0'])
+
 if __name__ == '__main__':
     unittest.main()

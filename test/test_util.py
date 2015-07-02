@@ -4,6 +4,18 @@ from io import StringIO, BytesIO
 import allosmod.util
 
 class Tests(unittest.TestCase):
+    def test_subst_file(self):
+        """Test subst_file"""
+        s_in = StringIO("@VAR1@ @@ @VAR2@\nfoo@VAR1@bar")
+        s_out = StringIO()
+        allosmod.util.subst_file(s_in, s_out,
+                                 {'VAR1': 'tvar1', 'VAR2': 'tvar2'})
+        self.assertEqual(s_out.getvalue(), 'tvar1 @ tvar2\nfootvar1bar')
+        s_in = StringIO("@VAR1@")
+        s_out = StringIO()
+        self.assertRaises(ValueError, allosmod.util.subst_file, s_in, s_out,
+                          {'VAR2': 'tvar2'})
+
     def test_read_templates(self):
         """Test read_templates function"""
         with open('lst', 'w') as fh:

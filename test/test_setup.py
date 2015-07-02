@@ -87,13 +87,17 @@ class Tests(unittest.TestCase):
         """Test ConfigFile.parse() with ok file"""
         c, errs = self.parse_config_file("""
 NRUNS=1
+MDTEMP=SCAN
 delEmax=100.0
+rAS=40
 SAMPLING=moderate_cm
 COARSE=false
 LOCALRIGID=yes
 """, None)
         self.assertEqual(len(errs), 0)
         self.assertEqual(c['NRUNS'], 1)
+        self.assertEqual(c['MDTEMP'], 'scan')
+        self.assertEqual(c['RAS'], 40)
         self.assertAlmostEqual(c['delEmax'], 100.0, places=1)
         self.assertEqual(c['SAMPLING'], 'moderate_cm')
         self.assertEqual(c['COARSE'], False)

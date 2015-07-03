@@ -100,6 +100,7 @@ and connectivity: 1) monomer name, 2) O1 bond type, and
         \*entry specifies the beginning of a new chain 
 
  * O1 attachment residue index:
+ 
     For every new sugar chain, specify the amino acid index of the
     residue bound to the first O1 atom in the sugar. The amino acid
     index must correspond to the input sequence in the alignment,

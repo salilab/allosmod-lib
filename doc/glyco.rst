@@ -74,13 +74,13 @@ and connectivity: 1) monomer name, 2) O1 bond type, and
 
  * monomer name:
  
-   * NAG - b-N-Acetyl-D-Glucosamine
-   * NGA - b-N-Acetyl-D-Galactosamine
-   * GLB - b-Galactose
-   * FUC - a-Fucose
-   * MAN - a-Mannose
-   * BMA - b-Mannose
-   * NAN - a-Neuraminic acid
+   * NAG - β-N-Acetyl-D-Glucosamine
+   * NGA - β-N-Acetyl-D-Galactosamine
+   * GLB - β-Galactose
+   * FUC - α-Fucose
+   * MAN - α-Mannose
+   * BMA - β-Mannose
+   * NAN - α-Neuraminic acid
 
  * O1 bond type:
  

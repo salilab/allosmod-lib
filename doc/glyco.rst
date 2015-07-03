@@ -72,40 +72,42 @@ by all monomers within the chain. Three columns define the sugar types
 and connectivity: 1) monomer name, 2) O1 bond type, and
 3) O1 attachment residue index:
 
-        monomer name:
-            NAG - b-N-Acetyl-D-Glucosamine
-            NGA - b-N-Acetyl-D-Galactosamine
-            GLB - b-Galactose
-            FUC - a-Fucose
-            MAN - a-Mannose
-            BMA - b-Mannose
-            NAN - a-Neuraminic acid
+ * monomer name:
+ 
+   * NAG - b-N-Acetyl-D-Glucosamine
+   * NGA - b-N-Acetyl-D-Galactosamine
+   * GLB - b-Galactose
+   * FUC - a-Fucose
+   * MAN - a-Mannose
+   * BMA - b-Mannose
+   * NAN - a-Neuraminic acid
 
-        O1 bond type:
-            NGLA or NGLB - axial or equatorial bond to ASN*
-            SGPA or SGPB - bond between alpha or beta position and SER*
-            TGPA or TGPB - bond between alpha or beta position and THR*
-            16ab - (i) 1->6 (i-1) axial at C1 and equatorial at C6
-            16fu - (i) 1->6 (i-1) axial at C1 and equatorial at C6
-            14bb - (i) 1->4 (i-1) equatorial at C1 and equatorial at C4
-            13ab - (i) 1->3 (i-1) axial at C1 and equatorial at C3
-            13bb - (i) 1->4 (i-1) equatorial at C1 and equatorial at C3
-            12aa - (i) 1->2 (i-1) axial at C1 and axial at C2
-            12ba - (i) 1->2 (i-1) equatorial at C1 and axial at C2
-            sa23 - og sialic acid alpha 2->3 equatorial
-            sa26 - og sialic acid alpha 2->6 equatorial
+ * O1 bond type:
+ 
+   * NGLA or NGLB - axial or equatorial bond to ASN*
+   * SGPA or SGPB - bond between alpha or beta position and SER*
+   * TGPA or TGPB - bond between alpha or beta position and THR*
+   * 16ab - (i) 1->6 (i-1) axial at C1 and equatorial at C6
+   * 16fu - (i) 1->6 (i-1) axial at C1 and equatorial at C6
+   * 14bb - (i) 1->4 (i-1) equatorial at C1 and equatorial at C4
+   * 13ab - (i) 1->3 (i-1) axial at C1 and equatorial at C3
+   * 13bb - (i) 1->4 (i-1) equatorial at C1 and equatorial at C3
+   * 12aa - (i) 1->2 (i-1) axial at C1 and axial at C2
+   * 12ba - (i) 1->2 (i-1) equatorial at C1 and axial at C2
+   * sa23 - og sialic acid alpha 2->3 equatorial
+   * sa26 - og sialic acid alpha 2->6 equatorial
 
         \*entry specifies the beginning of a new chain 
 
-        O1 attachment residue index:
-            For every new sugar chain, specify the amino acid index of the
-            residue bound to the first O1 atom in the sugar. The amino acid
-            index must correspond to the input sequence in the alignment,
-            i.e. the first residue in the input sequence is 1 and the
-            Nth is N. For sugars within the chain, specify the index of
-            the sugar monomer bound to the O1 atom defined as such: the
-            first listed monomer in a chain has index 1, the second listed
-            monomer in a chain has index 2,...
+ * O1 attachment residue index:
+    For every new sugar chain, specify the amino acid index of the
+    residue bound to the first O1 atom in the sugar. The amino acid
+    index must correspond to the input sequence in the alignment,
+    i.e. the first residue in the input sequence is 1 and the
+    Nth is N. For sugars within the chain, specify the index of
+    the sugar monomer bound to the O1 atom defined as such: the
+    first listed monomer in a chain has index 1, the second listed
+    monomer in a chain has index 2,...
 
 Output
 ======

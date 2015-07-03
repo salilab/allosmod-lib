@@ -24,6 +24,7 @@ Contents:
 
    installation
    usage
+   glyco
 
 
 Indices and tables

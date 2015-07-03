@@ -1,5 +1,5 @@
-Usage
-*****
+Basic usage
+***********
 
 Once installed, the AllosMod protocol can be run by means of a command line
 tool (``allosmod``). Each component of the protocol is also a Python package,

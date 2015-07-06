@@ -98,21 +98,12 @@ SAMPLING = X
         Set "SAMPLING = simulation" to predict the relative populations
         of the conformations at equilibrium.
 
-    ``moderate_am_scan``
-        As above, sampling is performed using a quick, unequilibrated
-        simulation. In this case, simulations should be performed at high
-        temperature in order to access rarely populated structures. These
-        rarely populated structures are rapidly cooled using only restraints
-        from adjacent residues, which does not change the global structure
-        but allows helices to form etc. Rarely populated structures are
-        defined by their dissimilarity to the first structure in the
-        list file (SCAN_CUTOFF percent of trajectory snapshots are outputted).
-
 delEmax = X
     is the maximum energy for each pairwise atomic distance contact,
-    typically between 0.09 and 0.12 kcal/mol. If excluded, the value will
-    be assigned according to 3.6*(number of residues/number of distance
-    interactions). See paper for more details.
+    typically between 0.09 and 0.12 kcal/mol. If not given or set to the
+    special value "CALC", the value will be assigned according to
+    3.6*(number of residues/number of distance interactions).
+    See paper for more details.
 
 LIGPDB = X
     is the PDB file used to define the allosteric site. AllosMod defines
@@ -140,12 +131,6 @@ MDTEMP = X
     will have a 350 K simulation, and so on until directory 5 that will
     restart the sequence with a 300 K simulation.
 
-SCAN_CUTOFF = X
-    is the percent of trajectory snapshots outputted if sampling is
-    moderate_am_scan. The default is 10 percent, i.e. 0.1*NRUNS structures
-    will be outputted selected by differing the most from the inputted
-    PDB structure.
-
 BREAK = True/False
     is an option to include chemical frustration (Weinkam et al. 2009
     Biochemistry, p2394-2402). Chemical frustration is modeled by breaking
@@ -156,21 +141,28 @@ SCLBREAK = X
     if BREAK=True, this number is used to scale the contacts with residues
     that cause chemical frustration.
 
+CHEMFR = cdensity/charge
+    if BREAK=True, this selects the type of chemical frustration to use.
+    If set to 'cdensity' (the default) then a distribution of charged contacts per
+    residue is calculated; all residues with a z-score above ``ZCUTOFF``
+    (see below) are predicted to cause chemical frustration. If set to 'charge'
+    then all residues with a certain number of charged contacts are used.
+    
 ZCUTOFF = X
-    if BREAK=True, this number is used to select which residues cause
-    chemical frustration. ZCUTOFF is the z-score cut off of the distribution
-    involving the number of charged contacts per residue; residues with
+    if BREAK=True and CHEMFR=cdensity, this number is used to select which
+    residues cause chemical frustration. ZCUTOFF is the z-score cutoff of the
+    distribution involving the number of charged contacts per residue; residues with
     a z-score above this threshold are predicted to cause chemical frustration.
 
-LOCRIGID = True/False
+LOCALRIGID = True/False
     if set to True, secondary structure, corresponding to the input PDB
     files, will have increased stability in the simulation. Increased
     stability is maintained by increasing the energy by a factor of 10
-    for all C alpha-C alpha contacts between 2 and 5 residues apart.
+    for all Cα-Cα contacts between 2 and 5 residues apart.
 
 COARSE = True/False
     is an option to coarse grain the energy landscape by restricting the
-    nonbonded distance energy to include C alpha and C beta atoms only.
+    nonbonded distance energy to include Cα and Cβ atoms only.
     This allows very large proteins to be simulated without overwhelming
     the computer's memory. This option is automatically set to True for
     proteins over 1500 residues.

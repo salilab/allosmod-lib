@@ -29,7 +29,7 @@ Get and print the center of mass of the given PDB file.
 def main():
     pdb_file = parse_args()
     c = CenterOfMassPDBParser(allosmod.util.atom_hetatm_filter)
-    print("%8.3f%8.3f%8.3f" % c.get_cofm(open(pdb_file)))
+    print("%8.3f %8.3f %8.3f" % c.get_cofm(open(pdb_file)))
 
 if __name__ == '__main__':
     main()

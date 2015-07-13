@@ -43,20 +43,29 @@ class ConfigFile(object):
        Field names are case insensitive."""
 
     def __init__(self, templates, glyco=False, maxres=0):
-        # Set defaults
-        self._d = {'DELEMAX':'CALC', 'DEVIATION':1.0, 'RAS':1000,
-                   'SAMPLING':'simulation', 'MDTEMP':300.0,
-                   'REPEAT_OPTIMIZATION':1, 'ATTACH_GAPS':True,
-                   'SCRAPP':False, 'BREAK':False, 'SCLBREAK':0.1,
-                   'ZCUTOFF':3.5, 'CHEMFR':'cdensity', 'COARSE':False,
-                   'LOCALRIGID':False, 'PW':False}
+        self._d = {}
         if templates:
-            self._d['LIGPDB'] = self._d['ASPDB'] = templates[0]
+            self._first_template = templates[0]
             self.num_templates = len(templates)
         else:
+            self._first_template = None
             self.num_templates = 0
         self.glyco = glyco
         self.maxres = maxres
+
+    def _set_defaults(self):
+        defaults = {'DELEMAX':'CALC', 'DEVIATION':1.0, 'RAS':1000,
+                    'SAMPLING':'simulation', 'MDTEMP':300.0,
+                    'REPEAT_OPTIMIZATION':1, 'ATTACH_GAPS':True,
+                    'SCRAPP':False, 'BREAK':False, 'SCLBREAK':0.1,
+                    'ZCUTOFF':3.5, 'CHEMFR':'cdensity', 'COARSE':False,
+                    'LOCALRIGID':False, 'PW':False,
+                    'LIGPDB': self._first_template,
+                    'ASPDB': self._first_template}
+        # set default if key not present or was explicitly set to empty string
+        for k, v in defaults.items():
+            if self._d.get(k, '') == '':
+                self._d[k] = v
 
     def __getitem__(self, key):
         return self._d[key.upper()]
@@ -148,6 +157,7 @@ class ConfigFile(object):
         for k in required_fields:
             if k not in self:
                 yield "Missing variable in %s: %s" % (fname, k)
+        self._set_defaults()
         for k, converter in converters.items():
             if k in self._d:
                 try:

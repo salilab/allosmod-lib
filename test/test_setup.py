@@ -28,7 +28,6 @@ class Tests(unittest.TestCase):
     def test_access_config_file(self):
         """Test ConfigFile access"""
         c = allosmod.setup.ConfigFile(None)
-        self.assertEqual(c['delEmax'], 'CALC')
         c['deleMaX'] = 'foo'
         self.assertEqual(c['DELEMAX'], 'foo')
         self.assertTrue('DeLeMaX' in c)
@@ -102,6 +101,17 @@ LOCALRIGID=yes
         self.assertEqual(c['SAMPLING'], 'moderate_cm')
         self.assertEqual(c['COARSE'], False)
         self.assertEqual(c['LOCALRIGID'], True)
+
+    def test_parse_config_file_defaults(self):
+        """Test ConfigFile.parse() with defaults"""
+        c, errs = self.parse_config_file("""
+NRUNS=1
+ASPDB=
+""", ["temp1", "temp2"])
+        self.assertEqual(len(errs), 0)
+        self.assertEqual(c['NRUNS'], 1)
+        self.assertAlmostEqual(c['MDTEMP'], 300.0, places=1)
+        self.assertEqual(c['ASPDB'], 'temp1')
 
     def test_parse_config_file_glyco(self):
         """Test ConfigFile.parse() with glycocsylation"""

@@ -2,6 +2,7 @@
 
 from __future__ import print_function, absolute_import, division
 import optparse
+import re
 import collections
 
 Restraint = collections.namedtuple('Restraint', ['distance', 'stddev',
@@ -13,7 +14,8 @@ def get_restraints(dat_file, restr_type):
         for line in fh:
             s = line.rstrip('\n\r').split()
             if len(s) == 4 and s[0] == restr_type:
-                resind = s[3].split(',')
+                # Remove any trailing comma, then split on commas
+                resind = re.sub(',\s*$', '', s[3]).split(',')
                 for i in range(0, len(resind), 2):
                     yield Restraint(float(s[1]), float(s[2]),
                                     resind[i], resind[i + 1])

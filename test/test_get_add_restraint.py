@@ -23,7 +23,7 @@ class Tests(unittest.TestCase):
         with open('test.dat', 'w') as fh:
             fh.write("""HARM 10.0 0.5 1,2,3,4
 HARM 4.0 0.1 2,1
-UPBD 4.0 0.1 2,1
+UPBD 4.0 0.1 2,1,   
 OTHEROPTION foo
 """)
         r = list(get_restraints('test.dat', 'HARM'))

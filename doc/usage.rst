@@ -205,7 +205,8 @@ containing them. The ``allosmod`` command line tool provides many subfunctions
 input files for problems, and if they all look OK, it will generate a
 script file called ``qsub.sh``. This script can be run on any Linux machine,
 although it is intended to be run on an SGE cluster using something like
-``qsub -t 1-N qsub.sh``, where ``N`` is the value of NRUNS in ``input.dat``.
+``qsub -S /bin/sh -l arch=linux-x64 -cwd -t 1-N qsub.sh``,
+where ``N`` is the value of NRUNS in ``input.dat``.
 
 This script file will set up the AllosMod landscape. If SAMPLING in
 ``input.dat`` is set to 'simulation' (the default) MODELLER input files are

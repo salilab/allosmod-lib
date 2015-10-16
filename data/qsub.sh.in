@@ -117,7 +117,7 @@ run_actual_job() {
   	fi
   echo completed input structure $s
   	#align onto ligpdb so can be visualed with ligand
-  	allosmod salign0 @LIGPDB@ pm_${s}
+	allosmod salign0 @LIGPDB@ pm_${s} temp5773.ali
   	PMFIT=`echo pm_${s} | awk 'BEGIN{FS=""}{if($(NF-3)$(NF-2)$(NF-1)$NF==".pdb"){for(a=1;a<=NF-4;a++){printf $a}}else{printf $0}}END{print "_fit.pdb"}'`
   	if (test -s $PMFIT); then
   	    awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"||$1$2$3$4=="HETA"){print $0}' ${PMFIT} >pm_${s}

@@ -7,6 +7,7 @@ import os
 import allosmod.util
 from allosmod.salign0 import salign0
 from allosmod.get_inter_contacts import get_inter_contacts
+import sys
 
 def get_fit_filename(pdb):
     if pdb.endswith('.pdb'):
@@ -73,7 +74,12 @@ def main():
     e.io.hetatm = True
     a = AllostericSiteFinder(e, pdb1, ligand, pdb2, rcut)
     if opts.output_pdb:
-        a.find().write(file=opts.output_pdb)
+        site = a.find()
+        if len(site) == 0:
+            print("No allosteric site found", file=sys.stderr)
+            sys.exit(1)
+        else:
+            site.write(file=opts.output_pdb)
     if opts.atom_list:
         a.write_atom_list(open(opts.atom_list, 'w'))
 

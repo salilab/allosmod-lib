@@ -205,7 +205,8 @@ run_actual_job() {
   if test `echo "${jobname}==0" |bc -l` -eq 1; then
   #generate allosteric site
   allosmod get_allosteric_site --output_pdb allostericsite.pdb \
-                 --atom_list atomlistASRS @LIGPDB@ lig.pdb pm_@LIGPDB@ @RAS@
+                 --atom_list atomlistASRS @LIGPDB@ lig.pdb pm_@LIGPDB@ @RAS@ \
+                 2>> ${OUTDIR}/error.log || return 1
   
   ############
   #get restraints

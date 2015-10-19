@@ -54,5 +54,17 @@ class Tests(unittest.TestCase):
                             os.path.join(test_dir, 'input',
                                          'asite_pdb2.pdb'), '8.0'])
 
+    def test_simple_no_site(self):
+        """Simple complete run of get_allosteric_site, with no site"""
+        out = check_output(['allosmod', 'get_allosteric_site',
+                            '--output_pdb', 'allostericsite.pdb',
+                            '--atom_list', 'atomlistASRS',
+                            os.path.join(test_dir, 'input',
+                                         'asite_pdb1.pdb'),
+                            os.path.join(test_dir, 'input',
+                                         'asite_far_ligand.pdb'),
+                            os.path.join(test_dir, 'input',
+                                         'asite_pdb2.pdb'), '8.0'], retcode=1)
+
 if __name__ == '__main__':
     unittest.main()

@@ -316,7 +316,7 @@ run_actual_job() {
   ########
   #merge restraint files and add additional restraints
   ########
-  if (test ! -e ${OUTDIR}/error.log); then
+  if (test ! -s ${OUTDIR}/error.log); then
       NTOT=`allosmod count_alignments align.ali list pm.pdb`
       allosmod edit_restraints --sigma_AS=2.0 --sigma_RS=2.0 \
                --sigma_inter=2.0 --cutoff=11.0 --ntotal=$NTOT \

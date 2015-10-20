@@ -160,7 +160,7 @@ def _refineCT(write_intermediates, edat, atmsel, actions, cap, timestep, equil_i
         init_vel=False
         if write_intermediates:
             ctr=ctr+1
-            atmsel.get_model().write_int(ctr, 0001)
+            atmsel.get_model().write_int(ctr, 1)
 
 
     init_vel=False
@@ -171,7 +171,7 @@ def _refineCT(write_intermediates, edat, atmsel, actions, cap, timestep, equil_i
                     temperature=sampl_temp, init_velocities=init_vel, md_time_step=3.0)
         if write_intermediates:
             ctr=ctr+1
-            atmsel.get_model().write_int(ctr, 0001)
+            atmsel.get_model().write_int(ctr, 1)
 
 class AllosModel(automodel):
     spline_on_site = False

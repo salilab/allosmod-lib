@@ -7,6 +7,7 @@ test_pdb = """EXPDTA    THEORETICAL MODEL, MODELLER SVN 2015/05/15 09:37:25
 ATOM      1  N   CYS A   1       1.453   2.100   3.200  0.00  0.00           C
 ATOM      2  CA  CYS A   1       1.453   0.000   0.000  0.00  0.00           C
 ATOM      8  CA  MET A   2       3.735   3.100   0.000  1.00  0.00           C
+HETATM   18  CA  MET A   2     113.735   3.100   0.000  1.00  0.00           C
 """
 
 class Tests(unittest.TestCase):

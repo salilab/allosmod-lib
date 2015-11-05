@@ -33,9 +33,10 @@ def make_mod_inputs(target, templates, rand_seed, rand_ang, deviation,
         # use longer restraints for nucleic acids
         a.max_sc_sc_distance = 14.0
 
-    # Keep the original unsplined restraints for editing; we will convert
-    # them to splines later on
-    a.spline_on_site = False
+    # Would perhaps make more sense to set this to False, so we can edit the
+    # restraint later on (and restraints get splined in the last step anyway)
+    # but the original code has it True
+    a.spline_on_site = True
     a.make(exit_stage=1)
 
 def parse_args():

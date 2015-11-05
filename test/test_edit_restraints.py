@@ -108,7 +108,7 @@ class Tests(unittest.TestCase):
         self.assertEqual(len([a for a in e.atoms if a.isSC]), 5)
         self.assertTrue(e.atoms[3].isSC)
         self.assertEqual(len([a for a in e.atoms if a.isNUC]), 39)
-        self.assertEqual(len([a for a in e.atoms if a.torestr]), 22)
+        self.assertEqual(len([a for a in e.atoms if a.torestr]), 18)
         os.unlink('break.dat')
         os.unlink('atomlistASRS')
 
@@ -626,7 +626,9 @@ class Tests(unittest.TestCase):
     def test_get_nuc_restrained(self):
         """Test get_nuc_restrained()"""
         from allosmod.edit_restraints import get_nuc_restrained
-        self.assertTrue(get_nuc_restrained('OP1', 'any residue'))
+        self.assertFalse(get_nuc_restrained('OP1', 'any residue'))
+        self.assertFalse(get_nuc_restrained('OP2', 'any residue'))
+        self.assertTrue(get_nuc_restrained("O3'", 'any residue'))
         self.assertTrue(get_nuc_restrained('N1', 'ADE'))
         self.assertTrue(get_nuc_restrained('C2', 'DT'))
         self.assertTrue(get_nuc_restrained('O2', 'U'))

@@ -328,7 +328,7 @@ def get_beta(pdb_file):
     return beta
 
 def get_nuc_restrained(atm_name, res_name):
-    if atm_name in ('OP1', 'OP2', "O3'"):
+    if atm_name in ("O3'",):
         return True
     if res_name in ('ADE', 'A', 'DA'):
         return atm_name in ('N1', 'C2', 'N3', 'C4', 'C5', 'C6', 'N6', 'N7',

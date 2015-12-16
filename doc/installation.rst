@@ -19,7 +19,7 @@ Dependencies
   to facilitate this.
 
 * `DSSP <http://swift.cmbi.ru.nl/gv/dssp/>`_. It is expected that the
-  :command:`dssp` binary is in the ``PATH``.
+  :command:`mkdssp` binary is in the ``PATH``.
 
 If you will also be using SAXS profiles (e.g. for the AllosMod-FoXS web service)
 then you will need:

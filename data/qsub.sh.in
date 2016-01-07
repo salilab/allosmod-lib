@@ -105,8 +105,9 @@ run_actual_job() {
   	echo $s >listinit
   echo making input structure $s
   	allosmod get_pm_initialstruct --target pm.pdb --keep-alignment \
-                                        align.ali listinit ./ 1 slow
+                                        align.ali listinit ./ 1 slow > model_ini0.log
   	awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"||$1$2$3$4=="HETA"){print $0}'  pred_${s}/pm.pdb.B99990001.pdb >pm_${s}
+        mv model_ini0.log pred_${s}
   	if (test ! -s pm_${s}); then
   	    echo "MODELLER has failed to create an initial model of the following structure: "${s} >>${OUTDIR}/error.log
   	    echo "Perhaps there is an issue with the alignment file, check model_ini0.log in dir: "pred_${s} >>${OUTDIR}/error.log
@@ -185,7 +186,8 @@ run_actual_job() {
       cp list listinit
       s=`head -n1 list`
       allosmod get_pm_initialstruct --target pm.pdb --keep-alignment \
-                                    align.ali listinit ./ 1 slow
+                                    align.ali listinit ./ 1 slow > model_ini0.log
+      mv model_ini0.log pred_${s}
       awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"||$1$2$3$4=="HETA"){print $0}'  pred_${s}/pm.pdb.B99990001.pdb >avgpdb.pdb
       if (test ! -s avgpdb.pdb); then
   	echo "MODELLER has failed to create an initial model of the following structure: avgpdb.pdb" >>${OUTDIR}/error.log

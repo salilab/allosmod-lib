@@ -106,8 +106,7 @@ run_actual_job() {
   echo making input structure $s
   	allosmod get_pm_initialstruct --target pm.pdb --keep-alignment \
                                         align.ali listinit ./ 1 slow 2>> ${OUTDIR}/error.log
-  	awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"||$1$2$3$4=="HETA"){print $0}'  pred_${s}/pm.pdb.B99990001.pdb >pm_${s}
-  	if (test ! -s pm_${s}); then
+  	if (test ! -s pred_${s}/pm.pdb.B99990001.pdb); then
   	    echo "MODELLER has failed to create an initial model of the following structure: "${s} >>${OUTDIR}/error.log
   	    echo "Perhaps there is an issue with the alignment file, check MODELLER output above" >>${OUTDIR}/error.log
   	    echo "The alignment headers and sequence should look something like: " >>${OUTDIR}/error.log
@@ -115,6 +114,7 @@ run_actual_job() {
   	    echo "Also, double check that the alignments themselves make sense." >>${OUTDIR}/error.log
   	    break
   	fi
+  	awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"||$1$2$3$4=="HETA"){print $0}'  pred_${s}/pm.pdb.B99990001.pdb >pm_${s}
   echo completed input structure $s
   	#align onto ligpdb so can be visualed with ligand
 	allosmod salign0 @LIGPDB@ pm_${s} temp5773.ali
@@ -186,12 +186,12 @@ run_actual_job() {
       s=`head -n1 list`
       allosmod get_pm_initialstruct --target pm.pdb --keep-alignment \
                                     align.ali listinit ./ 1 slow 2>> ${OUTDIR}/error.log
-      awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"||$1$2$3$4=="HETA"){print $0}'  pred_${s}/pm.pdb.B99990001.pdb >avgpdb.pdb
-      if (test ! -s avgpdb.pdb); then
+      if (test ! -s pred_${s}/pm.pdb.B99990001.pdb); then
   	echo "MODELLER has failed to create an initial model of the following structure: avgpdb.pdb" >>${OUTDIR}/error.log
   	echo "Perhaps there is an issue with the alignment file, check for MODELLER errors above" >>${OUTDIR}/error.log
   	return 1
       fi
+      awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"||$1$2$3$4=="HETA"){print $0}'  pred_${s}/pm.pdb.B99990001.pdb >avgpdb.pdb
   
       cp avgpdb.pdb pm_@ASPDB@
       cp avgpdb.pdb pm_@OTHPDB@

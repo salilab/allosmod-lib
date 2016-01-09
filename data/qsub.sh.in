@@ -438,7 +438,7 @@ run_actual_job() {
       elif test "@SAMPLING@" == "moderate_cm" -o "@SAMPLING@" == "moderate_am" -o "@SAMPLING@" == "fast_cm"; then
   	allosmod make_pm_script -- pm.pdb list $RAND_NUM @DEVIATION@ @SAMPLING@ $MDTEMP
   	echo running modeller
-  	python model_run.py > model_run.log
+  	python model_run.py >& model_run.log
   	echo done with modeller
       else
   	echo "sampling type not properly defined" >>${OUTDIR}/error.log

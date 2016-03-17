@@ -452,7 +452,10 @@ run_actual_job() {
         return 1
       fi
       #generate protein model with correct chains
-      python model_ini0.py > model_ini0.log
+      python model_ini0.py > model_ini0.log 2>> ${OUTDIR}/error.log
+      if test -s ${OUTDIR}/error.log; then
+        return 1
+      fi
       CHAIN=`awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"||$1$2$3$4=="HETA"){print $22$23}' pm.pdb.B99990001.pdb | awk '{print $1}' | sort -u | head -n1`
       if test -z $CHAIN; then
   	NC=A #`grep pm.pdb align.ali | grep -v P1 | awk 'BEGIN{FS=":"}{print $4}' | awk 'BEGIN{a="A"}(NR==1){a=$1}{print a}'`

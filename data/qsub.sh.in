@@ -325,7 +325,10 @@ run_actual_job() {
                atomlistASRS > edited.rsr
       #add restraints between protein and sugar
       if test @GLYC2@ -eq 1; then
-  	allosmod get_glyc_restraint pm_@ASPDB@ allosmod.py >>edited.rsr
+        allosmod get_glyc_restraint pm_@ASPDB@ allosmod.py >>edited.rsr 2>> ${OUTDIR}/error.log
+        if test -s ${OUTDIR}/error.log; then
+          return 1
+        fi
       fi
       #add restraints for bonds and distance upper/lower bounds
       allosmod get_add_restraint ${RUNDIR}/input.dat pm_@ASPDB@ HARM >tempaddrestr

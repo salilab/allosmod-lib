@@ -5,9 +5,10 @@ PM=$1 #pm.pdb file
 ALLOSPY=$2 #allosmod.py with patches, to be converted to harmonic restraints
 
 handle_missing_residue() {
-  local resnum="$1"
+  local atnam="$1"
+  local resnum="$2"
   echo "Could not parse glycosylation patch in $ALLOSPY;" >&2
-  echo "residue $resnum not found in $PM." >&2
+  echo "atom $atnam in residue $resnum not found in $PM." >&2
   echo "Note that residue numbering in the model may not be the same" >&2
   echo "as that in your input structure(s), particularly if those" >&2
   echo "inputs have missing residues." >&2
@@ -31,11 +32,11 @@ for i in ${R_CA[@]}; do
     iatm1=`awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"||$1$2$3$4=="HETA"){print $23$24$25$26$27,$14$15}' $PM | awk '($1=='${i}'&&$2=="CA"){print NR}'`
     iatm2=`awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"||$1$2$3$4=="HETA"){print $23$24$25$26$27,$14$15}' $PM | awk '($1=='${j}'&&$2=="C1"){print NR}'`
     if [ "$iatm1" = "" ]; then
-      handle_missing_residue $i
+      handle_missing_residue CA $i
       exit 1
     fi
     if [ "$iatm2" = "" ]; then
-      handle_missing_residue $j
+      handle_missing_residue C1 $j
       exit 1
     fi
 

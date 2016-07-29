@@ -1,8 +1,15 @@
 import unittest
 import os
+import sys
 import subprocess
 from allosmod.util import check_output
 import allosmod.setup
+
+# Python's error for float("foo") changes wording between releases
+if sys.version_info[:2] == (2,6):
+    float_fail = "invalid literal for float()"
+else:
+    float_fail = "could not convert string to float"
 
 class Tests(unittest.TestCase):
     def test_bad(self):
@@ -55,13 +62,13 @@ class Tests(unittest.TestCase):
         c, errs = self.parse_config_file("DEVIATION=garbage", None)
         self.assertEqual(errs, ['Missing variable in test.dat: NRUNS',
                                 'Invalid variable in test.dat: DEVIATION: '
-                                'invalid literal for float(): garbage'])
+                                '%s: garbage' % float_fail])
 
     def test_parse_config_file_bad_delemax(self):
         """Test ConfigFile.parse() with bad delEmax"""
         c, errs = self.parse_config_file("NRUNS=1\ndelEmax=garbage", None)
         self.assertEqual(errs, ['Invalid variable in test.dat: DELEMAX: '
-                                'invalid literal for float(): garbage'])
+                                '%s: garbage' % float_fail])
 
     def test_parse_config_file_bad_sampling(self):
         """Test ConfigFile.parse() with bad sampling"""
@@ -74,7 +81,7 @@ class Tests(unittest.TestCase):
         """Test ConfigFile.parse() with bad mdtemp"""
         c, errs = self.parse_config_file("NRUNS=1\nMDTEMP=garbage", None)
         self.assertEqual(errs, ['Invalid variable in test.dat: MDTEMP: '
-                                'invalid literal for float(): garbage'])
+                                '%s: garbage' % float_fail])
 
     def test_parse_config_file_bad_boolean(self):
         """Test ConfigFile.parse() with bad boolean"""
@@ -268,7 +275,7 @@ AFV*""")
             out = check_output(['allosmod', 'setup'],
                                stderr=subprocess.STDOUT, cwd=tempdir, retcode=1)
         self.assertEqual(out, 'Invalid variable in input.dat: MDTEMP: '
-                              'invalid literal for float(): garbage\n')
+                              '%s: garbage\n' % float_fail)
 
     def test_simple_alignment_error(self):
         """Simple complete run of setup with alignment format error"""

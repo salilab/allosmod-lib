@@ -8,7 +8,7 @@ ergodic sampling of conformational space (such as for modeling of allostery). Th
 suitable for running on a Linux compute cluster.
 
 Web interfaces to the protocol are also available:
- - [AllosMod](http://salilab.org/allosmod/)
- - [AllosMod-FoXS](http://salilab.org/allosmod-foxs/)
+ - [AllosMod](https://salilab.org/allosmod/)
+ - [AllosMod-FoXS](https://salilab.org/allosmod-foxs/)
 
-See [the documentation](http://allosmod.readthedocs.org/) for more detail.
+See [the documentation](https://allosmod.readthedocs.org/) for more detail.

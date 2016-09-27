@@ -1,6 +1,6 @@
 [![docs](https://readthedocs.org/projects/allosmod/badge/)](http://allosmod.readthedocs.org/)
-[![nightly build](https://salilab.org/nightly/stat/?s=allosmod-lib&t=build)](https://salilab.org/nightly/allosmod-lib/)
-[![python coverage](https://salilab.org/nightly/stat/?s=allosmod-lib&t=python)](https://salilab.org/nightly/allosmod-lib/logs/coverage/python/)
+[![Build Status](https://travis-ci.org/salilab/allosmod-lib.svg?branch=master)](https://travis-ci.org/salilab/allosmod-lib)
+[![codecov](https://codecov.io/gh/salilab/allosmod-lib/branch/master/graph/badge.svg)](https://codecov.io/gh/salilab/allosmod-lib)
 
 AllosMod is a protocol to set up and run simulations based on a modeled energy landscape that you create. Carefully
 designed energy landscapes allow efficient molecular dynamics sampling at constant temperatures, thereby providing

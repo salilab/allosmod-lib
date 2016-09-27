@@ -30,6 +30,7 @@ vars.Add(PathVariable('html_coverage',
                       'Directory to output HTML coverage reports into '
                       '(requires the Python coverage module).',
                       None, PathVariable.PathIsDirCreate))
+vars.Add(BoolVariable('coverage', 'Preserve coverage output files', False))
 
 env = Environment(variables=vars)
 # Inherit setup from environment (so we can do "module load modeller")

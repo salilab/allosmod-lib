@@ -19,7 +19,7 @@ def prepend_path(pathname, dirs):
     else:
         e['ENV'][pathname] = dirs
 
-covdir = '.coverage'
+covdir = 'coverage'
 prepend_path('PYTHONPATH', [covdir, 'lib'])
 prepend_path('PATH', ['bin'])
 
@@ -45,7 +45,7 @@ def _coverage_cleanup(c):
 atexit.register(_coverage_cleanup, _cov)
 """ % os.path.abspath(os.path.join(covdir, '.coverage')))
 
-def report_coverage(html_coverage):
+def report_coverage(html_coverage, preserve_coverage):
     if coverage is None:
         return
     topdir = os.path.abspath('.')
@@ -66,7 +66,8 @@ def report_coverage(html_coverage):
     cov.report(mods, file=sys.stderr)
     if html_coverage:
         cov.html_report(mods, directory=html_coverage)
-    shutil.rmtree(covdir)
+    if not preserve_coverage:
+        shutil.rmtree(covdir)
 
 # Custom builder to run unit tests:
 def builder_unit_test(target, source, env):
@@ -74,7 +75,8 @@ def builder_unit_test(target, source, env):
     setup_coverage()
     app = "python %s %s-v > /dev/null" % (source[0], opts)
     if e.Execute(app) == 0:
-        report_coverage(env.get('html_coverage', None))
+        report_coverage(env.get('html_coverage', None),
+                        env.get('coverage', None))
         file(str(target[0]), 'w').write('PASSED\n')
     else:
         print "unit tests FAILED"

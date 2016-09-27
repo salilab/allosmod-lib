@@ -59,7 +59,10 @@ def report_coverage(html_coverage):
     cov.save()
     print >> sys.stderr, "\nPython coverage report\n"
 
-    cov.file_locator.relative_dir = topdir + '/'
+    if hasattr(coverage.files, 'RELATIVE_DIR'):
+        coverage.files.RELATIVE_DIR = topdir + '/'
+    else:
+        cov.file_locator.relative_dir = topdir + '/'
     cov.report(mods, file=sys.stderr)
     if html_coverage:
         cov.html_report(mods, directory=html_coverage)

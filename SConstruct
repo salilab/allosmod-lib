@@ -60,6 +60,8 @@ if not env.GetOption('clean') and not env.GetOption('help'):
     env.ParseConfig("%s --cflags --libs" % modeller_path)
     env.ParseConfig("pkg-config --cflags glib-2.0")
     import distutils.sysconfig
+    print sys.executable, sys.version_info, sys.argv
+    print distutils.sysconfig.get_python_inc()
     env.Append(CPPPATH=[distutils.sysconfig.get_python_inc()])
 
 Export('env')

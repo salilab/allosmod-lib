@@ -73,7 +73,7 @@ def report_coverage(html_coverage, preserve_coverage):
 def builder_unit_test(target, source, env):
     opts = ""
     setup_coverage()
-    app = "python %s %s-v > /dev/null" % (source[0], opts)
+    app = "%s %s %s-v > /dev/null" % (sys.executable, source[0], opts)
     if e.Execute(app) == 0:
         report_coverage(env.get('html_coverage', None),
                         env.get('coverage', None))

@@ -1,0 +1,29 @@
+sudo: required
+dist: trusty
+language: python
+python:
+  - 2.6
+  - 2.7
+install:
+  - wget -q $LICENSE_URL -O mod-license >& /dev/null
+  - sudo apt-get -qq update
+  - sudo apt-get install -y swig
+  - wget http://salilab.org/modeller/9.17/modeller_9.17-1_amd64.deb
+  - KEY_MODELLER=`cat mod-license` sudo dpkg -i modeller_9.17-1_amd64.deb
+  - ln -sf /usr/lib/python$TRAVIS_PYTHON_VERSION/dist-packages/_modeller.so $(dirname $(which python))/../lib/*/site-packages/
+  - ln -sf /usr/lib/python$TRAVIS_PYTHON_VERSION/dist-packages/modeller $(dirname $(which python))/../lib/*/site-packages/
+  - sudo ln -sf /usr/lib/libmodeller.so.11 /usr/lib/modeller9.17/lib/x86_64-intel8/
+  - wget ftp://ftp.cmbi.ru.nl/pub/software/dssp/dssp-2.0.4-linux-amd64
+  - sudo mv dssp-2.0.4-linux-amd64 /usr/bin/mkdssp
+  - sudo chmod a+x /usr/bin/mkdssp
+  - wget http://acrmwww.biochem.ucl.ac.uk/software/profit/235216/profit.tar.gz
+  - tar -xzf profit.tar.gz
+  - (cd ProFitV3.1/src && make -j2 && sudo cp profit /usr/bin)
+  - pip install coverage
+script:
+  - scons coverage=true test
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+env:
+  global:
+    secure: "YTu4g4KA2B0jNxZF6d4PB7N+ByHFwFTDwE7amauoEgoMLzA1tVK/PbgC+ETUbrDyDEmcDUKJigXaRsNo1G+Mvj4Vq0bX9mpjQw41OYkBZ/BSvyutlwwK6VR3UI/4vWbFvpIgL4H9fDtKf1B1l9nR6iuGqS14gI106Y2FGCihR3kJEBw0DLqqKDeEwxWnP7KN3j1QFAw7LWkk8ipLmBjrDsqKOMJ4K7UhT0jalaRVgUjY8sSL8hGtO/Hd+Wiw2KPQiNo6QLTQQuJSqCeA603i3zikWwNnRYxnppZGiOFGB+ttFA1sptu+MYrP50bAVZKiyeBQ1/jpI3slreUdynAq1BcSuDTuyjQh/xfqLpt3gcH/6NE2260vOryjYV381jSBKrpAPIupWNuB+aqFnW4OfiRs2+3x6s21y0l46AOkdADCkIrp9b+E2xtr0hZIBsbQO/gy+/QOdDGIn5F3Wjq49SZra+0vVrl27OP2kl0Q323hCjZEJM9VlOIEmc4unfeezdeyneDfD1r38E4AmySVsHHxOx2FpZNdEctyjbs4R0tYNI+E459JzBJIbVDP56vt7JJc/woBuy3/dr8A81FuqZnfVaPtpnltugbOSTX3ythJxq07SEC9RFFde/tL6JCwc1iLqvO37TBQf+OcJy2EpuON02LehYyZdxqg00+wtX8="

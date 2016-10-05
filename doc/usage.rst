@@ -43,7 +43,7 @@ be simulated. This alignment file should be generated after an alignment
 procedure, as this alignment will be used to generate restraints for
 the simulation. Multiple chains can be specified by using a "/" as a
 separator, the same specifications used in MODELLER. There are many ways
-to create an alignment file including `MODELLER <http://salilab.org/modeller/tutorial/basic.html>`_ and `ClustalW <https://www.ebi.ac.uk/Tools/msa/clustalw2/>`_.
+to create an alignment file including `MODELLER <https://salilab.org/modeller/tutorial/basic.html>`_ and `ClustalW <https://www.ebi.ac.uk/Tools/msa/clustalw2/>`_.
 
 *WARNING* Small errors in the alignment can cause big errors during a
 simulation due to energy conservation problems. Make sure there are no

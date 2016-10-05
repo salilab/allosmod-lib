@@ -2,7 +2,7 @@ Modeling protein glycosylation
 ******************************
 
 AllosMod can also be used to model protein glycosylation. For full details,
-see `Guttman et al. 2013 Structure <http://www.ncbi.nlm.nih.gov/pubmed/23473666>`_.
+see `Guttman et al. 2013 Structure <https://www.ncbi.nlm.nih.gov/pubmed/23473666>`_.
 This tool is meant to sample the range of conformations accessible to sugars.
 There are a few ways to run the protocol depending on the desired
 conformational flexibility of the protein and/or sugars:

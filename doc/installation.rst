@@ -11,7 +11,7 @@ AllosMod - it is already set up for you as a module. Just run
 Dependencies
 ============
 
-* `MODELLER <http://salilab.org/modeller/>`_. This library expects to be able
+* `MODELLER <https://salilab.org/modeller/>`_. This library expects to be able
   to directly import the Modeller Python package (via ``import modeller``)
   and to run the Modeller binary (e.g. :command:`mod9.15`). If you installed
   Modeller from the ``.tar.gz`` package, you will need to set the

@@ -46,7 +46,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'AllosMod'
-copyright = u'2015, Patrick Weinkam, Ben Webb'
+copyright = u'2015-16, Patrick Weinkam, Ben Webb'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

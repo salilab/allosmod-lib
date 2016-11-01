@@ -1,4 +1,4 @@
-[![docs](https://readthedocs.org/projects/allosmod/badge/)](http://allosmod.readthedocs.org/)
+[![docs](https://readthedocs.org/projects/allosmod/badge/)](https://allosmod.readthedocs.org/)
 [![Build Status](https://travis-ci.org/salilab/allosmod-lib.svg?branch=master)](https://travis-ci.org/salilab/allosmod-lib)
 [![codecov](https://codecov.io/gh/salilab/allosmod-lib/branch/master/graph/badge.svg)](https://codecov.io/gh/salilab/allosmod-lib)
 

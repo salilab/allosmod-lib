@@ -1,4 +1,8 @@
-"""Calculate qiavg for CA atoms."""
+"""Calculate qiavg for CA atoms.
+
+Qi is a distance similarity metric in which a score of 1 implies identity
+to a reference structure and a score of 0 implies all contacts are different.
+"""
 
 from __future__ import print_function, absolute_import
 import optparse

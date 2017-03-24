@@ -10,20 +10,6 @@ REP_OPT=$4 #option to allow repeat optimization
 ATT_GAP=`echo $5 | tr [A-Z] [a-z]` #inserts gaps to allow flexibility at glycosylation sites
 GLYCPM=$6
 
-get_array_index()
-{
-    #first arg is search_query, followed by expanded array. prints index of search_query in array, or nothing if not in array
-    R_INP=(`echo $@`)
-    search_query=${R_INP[0]}
-    ctr=-2
-    for i in ${R_INP[@]}; do
-	ctr=$((${ctr} + 1))
-	if test `echo "${ctr}>-1" |bc -l` -eq 1; then
-	    if test $search_query == $i; then echo $ctr; break; fi
-	fi
-    done
-}
-
 # get pdb file names/chains
 NFIL=`cat ${LIST_KNOWNS} |awk 'END{print NR-1}'`
 F=(`cat ${LIST_KNOWNS}`)
@@ -174,10 +160,8 @@ for ap in ${ATTACH_PNTS[@]}; do
 
     INP1=${ATTACH_IND[$ctr]}
     INP2=$((${ATTACH_IND[$(($ctr + 1))]} - 1))
-#    INP_CHAIN=`awk '{if(NR=='${INP1}'){if(NF==4){print $4}else{print ""}}}' glyc.dat`
-#    PROT_CHAIN=${R_CHAIN[`get_array_index $INP_CHAIN ${R_C_PDB[@]}`]}
     PROT_CHAIN=`awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"){print $23$24$25$26$27,$22}' ${GLYCPM} | awk '($1=='${ap}'){print $2; exit}'`
-    GCHAIN=${R_CHAIN[$((${iOFFSET}))]} #${R_CHAIN[$((${ctr} + ${iOFFSET}))]} #use same chain for all sugars, this allows >26 chains
+    GCHAIN=${R_CHAIN[$((${iOFFSET}))]} #use same chain for all sugars, this allows >26 chains
 
     R_TYPE=(`awk '(NR>='${INP1}'&&NR<='${INP2}'&&NF>0){print $1}' glyc.dat | \
              awk '($1=="NAG"){print 1}($1=="MAN"){print 2}($1=="BMA"){print 3}($1=="GLB"){print 4}($1=="FUC"){print 5}($1=="NAN"){print 8}($1=="NGA"){print 9}'`)
@@ -205,7 +189,6 @@ for ap in ${ATTACH_PNTS[@]}; do
 	fi
     done
     echo >>allosmod.py
-#    GLYC_STRING=(${GLYC_STRING[@]} "?/" ${R_TYPE[@]})
     GLYC_STRING=(${GLYC_STRING[@]}${R_TYPE[@]})
     LI=$i
 done

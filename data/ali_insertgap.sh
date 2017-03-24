@@ -3,6 +3,8 @@
 #IGAP is the ith sequence in alignment file used to define the residue index
 #insert 4 residue gap for sugars
 
+# todo: replace this with allosmod.util.align.insert_gap()
+
 FIL=$1 #alignment file
 IGAP=$2
 LRES=$3

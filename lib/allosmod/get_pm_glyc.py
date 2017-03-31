@@ -270,7 +270,7 @@ def get_pm_glyc(target, template_file, rand, rep_opt, att_gap, glycpm):
         return
     sugar_chains = read_glyc_file('glyc.dat')
     with open('allosmod.py', 'a') as py:
-        py.write(' define bonds between sugar monomers\n')
+        py.write('    # define bonds between sugar monomers\n')
         py.write('    def special_patches(self, aln):\n')
         with open('get_rest.in', 'w') as rest:
             for conn in add_glycosidic_bonds(target, glycpm, sugar_chains):

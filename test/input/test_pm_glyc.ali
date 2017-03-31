@@ -1,0 +1,8 @@
+
+>P1;pm.pdb
+sequence:pm.pdb:   1 :A:30  :A:::-1.00:-1.00
+AFVVTDNCIKCKYTDCVEVCPVDCFYEGPN*
+
+>P1;test_pm_glyc.pdb
+structureX:test_pm_glyc.pdb:   1 :A:+30  :A:::-1.00:-1.00
+AFVVTDNCIKCKYTDCVEVCPVDCFYEGPN*

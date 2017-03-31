@@ -134,7 +134,11 @@ def read_glyc_file(fname):
     chain = None
     with open(fname) as fh:
         for line in fh:
-            monomer, bond_type, attach_res = line.rstrip('\r\n').split()
+            line = line.rstrip('\r\n ')
+            # Skip empty lines
+            if len(line) == 0:
+                continue
+            monomer, bond_type, attach_res = line.split()
             if bond_type in ('NGLA', 'NGLB', 'SGPA', 'SGPB', 'TGPA', 'TGPB'):
                 chain = SugarChain()
                 s.append(chain)

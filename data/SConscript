@@ -1,7 +1,0 @@
-Import('env')
-import os
-
-files = [g for g in Glob('*') if 'SConscript' not in str(g)]
-
-i = env.Install(os.path.join(env['datadir'], 'allosmod'), files)
-env.Alias('install', i)

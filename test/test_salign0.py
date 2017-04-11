@@ -2,6 +2,10 @@ import unittest
 import subprocess
 import os
 from io import BytesIO
+import utils
+TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+utils.set_search_paths(TOPDIR)
+
 from allosmod.util import check_output
 
 test_pdb = """EXPDTA    THEORETICAL MODEL, MODELLER SVN 2015/05/15 09:37:25

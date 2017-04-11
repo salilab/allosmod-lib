@@ -4,11 +4,13 @@ import string
 import shutil
 import unittest
 import subprocess
+import utils
+TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+test_dir = utils.set_search_paths(TOPDIR)
+
 import allosmod.util
 import allosmod.get_pm_glyc
 from allosmod.util import check_output
-
-test_dir = os.path.dirname(sys.argv[0])
 
 class Tests(unittest.TestCase):
     def test_bad(self):

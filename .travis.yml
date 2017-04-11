@@ -20,9 +20,9 @@ install:
   - (cd ProFitV3.1/src && make -j2 && sudo cp profit /usr/bin)
   - pip install coverage
 script:
-  - scons coverage=true test
+  - make
+  - nosetests --with-coverage --cover-branches
 after_success:
-  - (cd coverage && mv .coverage ..)
   - bash <(curl -s https://codecov.io/bash)
 env:
   global:

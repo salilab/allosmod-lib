@@ -1,4 +1,0 @@
-Import('env')
-
-i = env.Install(env['bindir'], 'allosmod')
-env.Alias('install', i)

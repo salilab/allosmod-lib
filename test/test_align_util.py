@@ -1,6 +1,10 @@
 import unittest
 import os
 from io import BytesIO
+import utils
+TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+utils.set_search_paths(TOPDIR)
+
 import allosmod.util.align
 
 TEST_ALIGNMENT = """

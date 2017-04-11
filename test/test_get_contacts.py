@@ -4,6 +4,10 @@ import os
 import sys
 import subprocess
 import collections
+import utils
+TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+test_dir = utils.set_search_paths(TOPDIR)
+
 from allosmod.util import check_output
 
 MockResidue = collections.namedtuple('MockResidue', ['pdb_name', 'atoms'])
@@ -22,8 +26,6 @@ class AtomList(object):
             return self.atoms[key]
         else:
             return self.atom_map[key]
-
-test_dir = os.path.dirname(sys.argv[0])
 
 class Tests(unittest.TestCase):
     def test_bad(self):

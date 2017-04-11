@@ -1,0 +1,18 @@
+PREFIX=/usr/local
+DATADIR=${PREFIX}/share/data/allosmod
+BINDIR=${PREFIX}/bin
+PYTHONDIR=${PREFIX}/python
+LOCAL_SCRATCH=/tmp
+GLOBAL_SCRATCH=/scrapp
+
+CC=gcc
+SWIG=swig
+PYTHON_CFLAGS=-I`echo "import distutils.sysconfig; print(distutils.sysconfig.get_python_inc())" | python`
+GLIB2_CFLAGS=`pkg-config --cflags glib-2.0`
+MODELLER_CFLAGS=`pkg-config --cflags modeller`
+MODELLER_LIBS=`pkg-config --libs modeller`
+
+SHFLAGS=-fPIC
+LDFLAGS=-shared
+CFLAGS=${PYTHON_CFLAGS} ${MODELLER_CFLAGS} ${GLIB2_CFLAGS}
+LIBS=${MODELLER_LIBS}

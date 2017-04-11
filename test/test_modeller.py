@@ -1,9 +1,13 @@
 import unittest
 import modeller.automodel.randomize
-import allosmod.modeller
 import contextlib
 from io import BytesIO
 import os
+import utils
+TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+utils.set_search_paths(TOPDIR)
+
+import allosmod.modeller
 
 @contextlib.contextmanager
 def mock_method(cls, method_name, replacement=None):

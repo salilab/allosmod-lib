@@ -2,9 +2,11 @@ import unittest
 import subprocess
 import os
 import sys
-from allosmod.util import check_output
+import utils
+TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+test_dir = utils.set_search_paths(TOPDIR)
 
-test_dir = os.path.dirname(sys.argv[0])
+from allosmod.util import check_output
 
 class Tests(unittest.TestCase):
     def test_bad(self):

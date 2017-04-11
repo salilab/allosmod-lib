@@ -1,1 +1,4 @@
+truncated_gaussian.o
+truncated_gaussian_wrap.c
+truncated_gaussian_wrap.o
 _truncated_gaussian.so

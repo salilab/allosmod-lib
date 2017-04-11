@@ -3,13 +3,15 @@ import subprocess
 import os
 from io import BytesIO
 import sys
+import utils
+TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+test_dir = utils.set_search_paths(TOPDIR)
+
 from allosmod.util import check_output
 from test_modeller import mock_method
 import allosmod.get_contacts
 import allosmod.get_ss
 import allosmod.edit_restraints
-
-test_dir = os.path.dirname(sys.argv[0])
 
 class TruncatedGaussianRestraint(allosmod.edit_restraints.Restraint):
     def handle_parameters(self, params):

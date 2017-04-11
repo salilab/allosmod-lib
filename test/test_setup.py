@@ -2,6 +2,10 @@ import unittest
 import os
 import sys
 import subprocess
+import utils
+
+TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+utils.set_search_paths(TOPDIR)
 from allosmod.util import check_output
 import allosmod.setup
 

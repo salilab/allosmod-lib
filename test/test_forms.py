@@ -1,6 +1,9 @@
 from __future__ import print_function
 import os
 import unittest
+import utils
+TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+utils.set_search_paths(TOPDIR)
 
 class Tests(unittest.TestCase):
 

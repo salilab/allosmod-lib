@@ -34,5 +34,12 @@ of these dependencies.
 Building
 ========
 
-Use ``scons test`` to test the library, and ``scons install`` to install it.
-See ``scons -h`` for options to control the build.
+Use ``make test`` to test the library, and ``make install`` to install it.
+In most cases you will need to tell ``make`` where to install (if running on
+a Linux cluster, AllosMod will need to be installed on a network-accessible
+filesystem) and where any temporary/scratch disks usable by AllosMod are.
+(AllosMod needs a 'local' scratch disk, accessible by individual jobs on each
+node, as well as a 'global' scratch disk, on a network-accessible filesystem.)
+Do this with something like
+``make PREFIX=/shared/allosmod GLOBAL_SCRATCH=/scratch install``. See
+``Makefile.include`` for all make variables that can be configured.

@@ -2,7 +2,10 @@
 
 from __future__ import print_function
 import optparse
-import ConfigParser
+try:
+    from configparser import ConfigParser
+except ImportError:
+    from ConfigParser import SafeConfigParser as ConfigParser
 import allosmod.util
 import allosmod.getcofm
 import allosmod.config
@@ -94,7 +97,7 @@ class ConfigFile(object):
     def parse(self, fname):
         """Read in configuration from the given file.
            Yields any parsing errors."""
-        cp = ConfigParser.SafeConfigParser()
+        cp = ConfigParser()
         cp.readfp(_FakeSectionHead(open(fname)))
         for name, value in cp.items('main'):
             self._d[name.upper()] = value
@@ -162,7 +165,7 @@ class ConfigFile(object):
             if k in self._d:
                 try:
                     self._d[k] = converter(self._d[k])
-                except ValueError, err:
+                except ValueError as err:
                     yield "Invalid variable in %s: %s: %s" \
                           % (fname, k, str(err))
         # If doing glycosylation, force sampling and no deviation

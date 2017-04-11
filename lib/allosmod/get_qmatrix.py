@@ -48,7 +48,7 @@ def make_matrix_from_dists(templates, dists, numres, rcut2):
                         delta = (math.sqrt(ditg) - math.sqrt(djtg)) \
                                 / (abs(j-i) ** 0.15)
                         q_cut.add(math.exp(-delta * delta * 0.5))
-    for k in q_cuts.iterkeys():
+    for k in q_cuts.keys():
         q_cuts[k] = q_cuts[k].average()
     return q_cuts
 

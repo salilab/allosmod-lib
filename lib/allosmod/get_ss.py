@@ -5,7 +5,8 @@ import optparse
 import allosmod.util
 
 def get_ss(pdb_file):
-    out = allosmod.util.check_output(["mkdssp", pdb_file])
+    out = allosmod.util.check_output(["mkdssp", pdb_file],
+                                     universal_newlines=True)
     start = False
     for line in out.split("\n"):
         if "RESIDUE AA STRUCTURE" in line:

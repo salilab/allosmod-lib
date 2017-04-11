@@ -8,11 +8,11 @@ install:
   - wget -q $LICENSE_URL -O mod-license >& /dev/null
   - sudo apt-get -qq update
   - sudo apt-get install -y swig
-  - wget http://salilab.org/modeller/9.17/modeller_9.17-1_amd64.deb
-  - KEY_MODELLER=`cat mod-license` sudo dpkg -i modeller_9.17-1_amd64.deb
+  - wget https://salilab.org/modeller/9.18/modeller_9.18-1_amd64.deb
+  - KEY_MODELLER=`cat mod-license` sudo dpkg -i modeller_9.18-1_amd64.deb
   - ln -sf /usr/lib/python$TRAVIS_PYTHON_VERSION/dist-packages/_modeller.so $(dirname $(which python))/../lib/*/site-packages/
   - ln -sf /usr/lib/python$TRAVIS_PYTHON_VERSION/dist-packages/modeller $(dirname $(which python))/../lib/*/site-packages/
-  - sudo ln -sf /usr/lib/libmodeller.so.11 /usr/lib/modeller9.17/lib/x86_64-intel8/
+  - sudo ln -sf /usr/lib/libmodeller.so.11 /usr/lib/modeller9.18/lib/x86_64-intel8/
   - wget ftp://ftp.cmbi.ru.nl/pub/software/dssp/dssp-2.0.4-linux-amd64
   - sudo mv dssp-2.0.4-linux-amd64 /usr/bin/mkdssp
   - sudo chmod a+x /usr/bin/mkdssp

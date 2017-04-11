@@ -1,3 +1,4 @@
+from __future__ import print_function
 import contextlib
 import optparse
 import tempfile
@@ -158,15 +159,15 @@ class PIRFile(object):
     def write(self, fh, seq, width=70):
         """Write a single :class:`Sequence` object to the given stream in
            PIR format."""
-        print >> fh, ">P1;" + seq.code
+        print(">P1;" + seq.code, file=fh)
         start, end = seq.range
-        print >> fh, ":".join(str(x) for x in [seq.prottyp, seq.atom_file,
-                                               start[0], start[1], end[0],
-                                               end[1], seq.name, seq.source,
-                                               seq.resolution, seq.rfactor])
+        print(":".join(str(x) for x in [seq.prottyp, seq.atom_file,
+                                        start[0], start[1], end[0],
+                                        end[1], seq.name, seq.source,
+                                        seq.resolution, seq.rfactor]), file=fh)
         for pos in range(0, len(seq.primary), width):
-            print >> fh, seq.primary[pos:pos+width]
-        print >> fh, '*'
+            print(seq.primary[pos:pos+width], file=fh)
+        print('*', file=fh)
 
 
 class PDBParser(object):

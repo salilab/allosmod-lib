@@ -1,6 +1,10 @@
 import unittest
 import os
-from io import StringIO, BytesIO
+import sys
+if sys.version_info[0] >= 3:
+    from io import StringIO
+else:
+    from io import BytesIO as StringIO
 import utils
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 utils.set_search_paths(TOPDIR)
@@ -10,21 +14,23 @@ import allosmod.util
 class Tests(unittest.TestCase):
     def test_check_output(self):
         """Test check_output()"""
-        out = allosmod.util.check_output(['/bin/echo', 'foo'])
+        out = allosmod.util.check_output(['/bin/echo', 'foo'],
+                                         universal_newlines=True)
         self.assertEqual(out, 'foo\n')
         self.assertRaises(OSError, allosmod.util.check_output,
                           ['/bin/echo', 'foo'], retcode=1)
-        out = allosmod.util.check_output(['/bin/cat'], input="foobar")
+        out = allosmod.util.check_output(['/bin/cat'], input="foobar",
+                                         universal_newlines=True)
         self.assertEqual(out, 'foobar')
 
     def test_subst_file(self):
         """Test subst_file"""
-        s_in = BytesIO(b"@VAR1@ @@ @VAR2@\nfoo@VAR1@bar")
-        s_out = BytesIO()
+        s_in = StringIO("@VAR1@ @@ @VAR2@\nfoo@VAR1@bar")
+        s_out = StringIO()
         allosmod.util.subst_file(s_in, s_out,
                                  {'VAR1': 'tvar1', 'VAR2': 'tvar2'})
         self.assertEqual(s_out.getvalue(), 'tvar1 @ tvar2\nfootvar1bar')
-        s_in = BytesIO(b"@VAR1@")
+        s_in = StringIO("@VAR1@")
         s_out = StringIO()
         self.assertRaises(ValueError, allosmod.util.subst_file, s_in, s_out,
                           {'VAR2': 'tvar2'})
@@ -61,14 +67,14 @@ class Tests(unittest.TestCase):
 
     def test_pir_file_empty(self):
         """Test read of empty PIR file"""
-        sio = BytesIO(b"C; comment\nR; comment\n\n")
+        sio = StringIO("C; comment\nR; comment\n\n")
         p = allosmod.util.PIRFile()
         seqs = list(p.read(sio))
         self.assertEqual(len(seqs), 0)
 
     def test_pir_file_unterminated_midfile(self):
         """Test read of PIR file with unterminated sequence midfile"""
-        sio = BytesIO(b""">P1;template
+        sio = StringIO(""">P1;template
 structureX:::::::::
 AFVV
 >P1;seq
@@ -80,7 +86,7 @@ AFVV*
 
     def test_pir_file_unterminated_endfile(self):
         """Test read of PIR file with unterminated sequence at end of file"""
-        sio = BytesIO(b""">P1;template
+        sio = StringIO(""">P1;template
 structureX:::::::::
 AFVV*
 >P1;seq
@@ -92,7 +98,7 @@ AFVV
 
     def test_pir_file_ok(self):
         """Test read of OK PIR file"""
-        sio = BytesIO(b""">P1; template
+        sio = StringIO(""">P1; template
 structureX:::::::::
 A-
 FVV*
@@ -112,7 +118,7 @@ AF/VV*
 
     def test_pir_file_bad_header(self):
         """Test read of PIR file with bad header"""
-        sio = BytesIO(b""">P1;template
+        sio = StringIO(""">P1;template
 garbage
 A-FVV*
 """)
@@ -121,13 +127,13 @@ A-FVV*
 
     def test_pir_file_no_header(self):
         """Test read of PIR file with no header"""
-        sio = BytesIO(b"AFVV*")
+        sio = StringIO("AFVV*")
         p = allosmod.util.PIRFile()
         self.assertRaises(allosmod.util.FileFormatError, list, p.read(sio))
 
     def test_pir_file_write(self):
         """Test write of PIR file"""
-        sio = BytesIO()
+        sio = StringIO()
         s = allosmod.util.Sequence()
         s.code = "testcode"
         s.primary = 'AFV'

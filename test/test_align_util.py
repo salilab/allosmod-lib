@@ -1,6 +1,10 @@
 import unittest
 import os
-from io import BytesIO
+import sys
+if sys.version_info[0] >= 3:
+    from io import StringIO
+else:
+    from io import BytesIO as StringIO
 import utils
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 utils.set_search_paths(TOPDIR)
@@ -24,7 +28,7 @@ class Tests(unittest.TestCase):
         """Test align.insert_gap()"""
         with open('test_insert.ali', 'w') as fh:
             fh.write(TEST_ALIGNMENT)
-        s_out = BytesIO()
+        s_out = StringIO()
         allosmod.util.align.insert_gap('test_insert.ali', 1, 7, 9, s_out)
         out_lines = s_out.getvalue().split('\n')
         self.assertEqual(out_lines[2], 'N/T--TVFQG---VAGQSLQ')

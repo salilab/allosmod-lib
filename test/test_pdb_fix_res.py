@@ -55,9 +55,10 @@ class Tests(unittest.TestCase):
             check_output(['allosmod', 'pdb_fix_res', '--in-place', 'test.pdb'])
             with open('test.pdb') as fh:
                 return fh.read()
-        for out in (check_output(['allosmod', 'pdb_fix_res', 'test.pdb']),
+        for out in (check_output(['allosmod', 'pdb_fix_res', 'test.pdb'],
+                                 universal_newlines=True),
                     check_output(['python', '-m', 'allosmod.pdb_fix_res',
-                                  'test.pdb']),
+                                  'test.pdb'], universal_newlines=True),
                     check_inplace()):
             lines = out.split('\n')
             del lines[-1]

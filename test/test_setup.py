@@ -11,19 +11,26 @@ import allosmod.setup
 
 # Python's error for float("foo") changes wording between releases
 if sys.version_info[:2] == (2,6):
-    float_fail = "invalid literal for float()"
+    def float_fail(val):
+        return "invalid literal for float(): %s" % val
+elif sys.version_info[0] >= 3:
+    def float_fail(val):
+        return "could not convert string to float: '%s'" % val
 else:
-    float_fail = "could not convert string to float"
+    def float_fail(val):
+        return "could not convert string to float: %s" % val
 
 class Tests(unittest.TestCase):
     def test_bad(self):
         """Test wrong arguments to setup"""
         for args in ([''],):
             out = check_output(['allosmod', 'setup'] + args,
-                               stderr=subprocess.STDOUT, retcode=2)
+                               stderr=subprocess.STDOUT, retcode=2,
+                               universal_newlines=True)
             out = check_output(['python', '-m',
                                 'allosmod.setup'] + args,
-                               stderr=subprocess.STDOUT, retcode=2)
+                               stderr=subprocess.STDOUT, retcode=2,
+                               universal_newlines=True)
 
     def test_make_config_file(self):
         """Test ConfigFile constructor"""
@@ -66,13 +73,13 @@ class Tests(unittest.TestCase):
         c, errs = self.parse_config_file("DEVIATION=garbage", None)
         self.assertEqual(errs, ['Missing variable in test.dat: NRUNS',
                                 'Invalid variable in test.dat: DEVIATION: '
-                                '%s: garbage' % float_fail])
+                                '%s' % float_fail('garbage')])
 
     def test_parse_config_file_bad_delemax(self):
         """Test ConfigFile.parse() with bad delEmax"""
         c, errs = self.parse_config_file("NRUNS=1\ndelEmax=garbage", None)
         self.assertEqual(errs, ['Invalid variable in test.dat: DELEMAX: '
-                                '%s: garbage' % float_fail])
+                                '%s' % float_fail('garbage')])
 
     def test_parse_config_file_bad_sampling(self):
         """Test ConfigFile.parse() with bad sampling"""
@@ -85,7 +92,7 @@ class Tests(unittest.TestCase):
         """Test ConfigFile.parse() with bad mdtemp"""
         c, errs = self.parse_config_file("NRUNS=1\nMDTEMP=garbage", None)
         self.assertEqual(errs, ['Invalid variable in test.dat: MDTEMP: '
-                                '%s: garbage' % float_fail])
+                                '%s' % float_fail('garbage')])
 
     def test_parse_config_file_bad_boolean(self):
         """Test ConfigFile.parse() with bad boolean"""
@@ -174,7 +181,8 @@ ASPDB=
         """Simple complete failing run of setup"""
         with allosmod.util.temporary_directory() as tempdir:
             out = check_output(['allosmod', 'setup'],
-                               stderr=subprocess.STDOUT, cwd=tempdir, retcode=1)
+                               stderr=subprocess.STDOUT, cwd=tempdir, retcode=1,
+                               universal_newlines=True)
         self.assertEqual(out, 'Missing file: input.dat\n'
                          'Missing file: align.ali\nMissing file: list\n')
 
@@ -196,7 +204,8 @@ AFV*
 sequence:::::::::
 AFV*""")
             out = check_output(['allosmod', 'setup'],
-                               stderr=subprocess.STDOUT, cwd=tempdir, retcode=0)
+                               stderr=subprocess.STDOUT, cwd=tempdir, retcode=0,
+                               universal_newlines=True)
             os.unlink(os.path.join(tempdir, "lig.pdb"))
             os.unlink(os.path.join(tempdir, "qsub.sh"))
         self.assertEqual(out, '')
@@ -216,7 +225,8 @@ AFV*
 sequence:::::::::
 AFV*""")
             out = check_output(['allosmod', 'setup'],
-                               stderr=subprocess.STDOUT, cwd=tempdir, retcode=1)
+                               stderr=subprocess.STDOUT, cwd=tempdir, retcode=1,
+                               universal_newlines=True)
         self.assertEqual(out, 'Missing file: bar\nMissing sequence in '
                               'align.ali for file: bar\n'
                               'Missing LIGPDB in align.ali for file: bar\n'
@@ -237,7 +247,8 @@ AFVAFV*
 sequence:::::::::
 AFV*""")
             out = check_output(['allosmod', 'setup'],
-                               stderr=subprocess.STDOUT, cwd=tempdir, retcode=1)
+                               stderr=subprocess.STDOUT, cwd=tempdir, retcode=1,
+                               universal_newlines=True)
         self.assertEqual(out, 'Sequences in align.ali are not properly '
                               'aligned\nMissing file: foo\n')
 
@@ -256,7 +267,8 @@ AFV*
 sequence:::::::::
 AFV*""")
             out = check_output(['allosmod', 'setup'],
-                               stderr=subprocess.STDOUT, cwd=tempdir, retcode=1)
+                               stderr=subprocess.STDOUT, cwd=tempdir, retcode=1,
+                               universal_newlines=True)
         self.assertEqual(out, 'Missing file: foo\n'
                               'Missing ASPDB in align.ali for file: bar\n')
 
@@ -277,9 +289,10 @@ AFV*
 sequence:::::::::
 AFV*""")
             out = check_output(['allosmod', 'setup'],
-                               stderr=subprocess.STDOUT, cwd=tempdir, retcode=1)
+                               stderr=subprocess.STDOUT, cwd=tempdir, retcode=1,
+                               universal_newlines=True)
         self.assertEqual(out, 'Invalid variable in input.dat: MDTEMP: '
-                              '%s: garbage\n' % float_fail)
+                              '%s\n' % float_fail('garbage'))
 
     def test_simple_alignment_error(self):
         """Simple complete run of setup with alignment format error"""
@@ -298,7 +311,8 @@ AFV*
 sequence:::::::::
 AFV""")
             out = check_output(['allosmod', 'setup'],
-                               stderr=subprocess.STDOUT, cwd=tempdir, retcode=1)
+                               stderr=subprocess.STDOUT, cwd=tempdir, retcode=1,
+                               universal_newlines=True)
         self.assertEqual(out, 'PIR sequence without terminating * at '
                               'end of file\n')
 
@@ -319,7 +333,8 @@ AFV*
 sequence:::::::::
 AFV*""")
             out = check_output(['allosmod', 'setup'],
-                               stderr=subprocess.STDOUT, cwd=tempdir, retcode=1)
+                               stderr=subprocess.STDOUT, cwd=tempdir, retcode=1,
+                               universal_newlines=True)
         self.assertEqual(out,
                          'Missing sequence in align.ali for file: pm.pdb\n')
 

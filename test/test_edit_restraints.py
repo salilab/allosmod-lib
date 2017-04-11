@@ -1,8 +1,11 @@
 import unittest
 import subprocess
 import os
-from io import BytesIO
 import sys
+if sys.version_info[0] >= 3:
+    from io import StringIO
+else:
+    from io import BytesIO as StringIO
 import utils
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 test_dir = utils.set_search_paths(TOPDIR)
@@ -44,7 +47,7 @@ class TestRestraintEditor(allosmod.edit_restraints.RestraintEditor):
         tgparams = TruncatedGaussianParameters(delEmax, delEmaxNUC=20.0,
                                                slope=3.0, scl_delx=4.0,
                                                breaks={})
-        fh = BytesIO()
+        fh = StringIO()
         self.parse_restraint(tgparams, r, fh)
         fh.seek(0)
         for line in fh:
@@ -386,19 +389,19 @@ class Tests(unittest.TestCase):
         self.assertTrue(r.any_mean_below(15.0))
         self.assertFalse(r.any_mean_below(5.0))
         self.assertFalse(r.any_mean_below(10.0))
-        s = BytesIO()
+        s = StringIO()
         r.write(s)
         self.assertEqual(s.getvalue(), 'R    3   1   9  12   2   2   1     '
                                        '3     2      10.0000   20.0000\n')
         # transform to multigaussian
-        s = BytesIO()
+        s = StringIO()
         r.transform(None, 2, 30.0, truncated=False, fh=s)
         self.assertEqual(s.getvalue(),
                          'R    4   2   9  12   2   6   1     3     2       '
                          '0.5000    0.5000   10.0000   10.0000   '
                          '30.0000   30.0000\n')
         # transform to truncated gaussian
-        s = BytesIO()
+        s = StringIO()
         tgparams = TruncatedGaussianParameters(delEmax=2.0, delEmaxNUC=3.0,
                                            slope=4.0, scl_delx=5.0, breaks={})
         r.transform(tgparams, 2, 30.0, truncated=True, nuc=True, fh=s)
@@ -434,20 +437,20 @@ class Tests(unittest.TestCase):
         self.assertTrue(r.any_mean_below(15.0))
         self.assertFalse(r.any_mean_below(5.0))
         self.assertFalse(r.any_mean_below(10.0))
-        s = BytesIO()
+        s = StringIO()
         r.write(s)
         self.assertEqual(s.getvalue(), 
                    'R    4   2   9  12   2   6   1     3     2       '
                    '0.8000    0.2000   10.0000   20.0000   30.0000   40.0000\n')
         # transform to multigaussian
-        s = BytesIO()
+        s = StringIO()
         r.transform(None, 8, 70.0, truncated=False, fh=s)
         self.assertEqual(s.getvalue(),
                          'R    4   2   9  12   2   6   1     3     2       '
                          '0.5000    0.5000   10.0000   20.0000   '
                          '70.0000   70.0000\n')
         # transform to truncated gaussian
-        s = BytesIO()
+        s = StringIO()
         tgparams = TruncatedGaussianParameters(delEmax=2.0, delEmaxNUC=3.0,
                                            slope=4.0, scl_delx=5.0, breaks={})
         r.transform(tgparams, 8, 70.0, truncated=True, nuc=True, fh=s)
@@ -474,7 +477,7 @@ class Tests(unittest.TestCase):
         self.assertEqual(r.group, 12)
         self.assertAlmostEqual(r.phase, 2.0, places=1)
         self.assertAlmostEqual(r.force, 4.0, places=1)
-        s = BytesIO()
+        s = StringIO()
         r.write(s)
         self.assertEqual(s.getvalue(),
                       'R    7   2   9  12   2   2   1     3     '
@@ -492,7 +495,7 @@ class Tests(unittest.TestCase):
         r = BinormalRestraint("R 9 2 9 12 2 2 1 3 2 x y z",
                               [Atom(i) for i in range(1,10)])
         self.assertEqual([a.a.index for a in r.atoms], [3, 2])
-        s = BytesIO()
+        s = StringIO()
         r.write(s)
         self.assertEqual(s.getvalue(),
                          'R    9   2   9  12   2   2   1     '
@@ -508,7 +511,7 @@ class Tests(unittest.TestCase):
         r = SplineRestraint("R 10 2 9 12 2 2 1 3 2 x y z",
                             [Atom(i) for i in range(1,10)])
         self.assertEqual([a.a.index for a in r.atoms], [3, 2])
-        s = BytesIO()
+        s = StringIO()
         r.write(s)
         self.assertEqual(s.getvalue(),
                          'R   10   2   9  12   2   2   1     '
@@ -544,7 +547,7 @@ class Tests(unittest.TestCase):
                 self.index = ind
                 self.a = self
         atoms = [Atom(5, False), Atom(7, True)]
-        s = BytesIO()
+        s = StringIO()
         add_ca_boundary_restraints(atoms, s)
         restraints = s.getvalue().rstrip('\n').split('\n')
         self.assertEqual(len(restraints), 6)
@@ -563,13 +566,13 @@ class Tests(unittest.TestCase):
                 self.isAS = isAS
         atoms = [Atom(i, True) for i in range(1,10)]
         # no filter
-        s = BytesIO("R 3 1 9 12 2 2 1 3 2 10.00 20.00\n\n")
+        s = StringIO("R 3 1 9 12 2 2 1 3 2 10.00 20.00\n\n")
         rs = list(parse_restraints_file(s, atoms))
         self.assertEqual(len(rs), 1)
         self.assertEqual([a.a.index for a in rs[0].atoms], [3, 2])
 
         # rs-rs filter
-        s = BytesIO("R 3 1 9 12 2 2 1 3 2 10.00 20.00\n\n")
+        s = StringIO("R 3 1 9 12 2 2 1 3 2 10.00 20.00\n\n")
         rs = list(parse_restraints_file(s, atoms, filter_rs_rs))
         self.assertEqual(len(rs), 0)
 
@@ -595,7 +598,7 @@ class Tests(unittest.TestCase):
                 self.residue = ModellerResidue()
                 self.residue.index = ind
         c = ContactMap()
-        self.assertEqual(c.keys(), [])
+        self.assertEqual(list(c.keys()), [])
         self.assertFalse(c[(1,4)])
         c[(1,4)] = True
         c[(5,2)] = True

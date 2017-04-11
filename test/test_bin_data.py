@@ -32,7 +32,7 @@ class Tests(unittest.TestCase):
 6.0 60
 """)
         out = check_output(['allosmod', 'bin_data', 'test.data', '0', 'm1',
-                            '10', '20'])
+                            '10', '20'], universal_newlines=True)
         self.assertEqual(out, """0.92500 0.00000 4.00000
 2.02500 0.00000 1.00000
 3.12500 0.00000 1.00000
@@ -41,7 +41,7 @@ class Tests(unittest.TestCase):
 5.87500 0.00000 1.00000
 """)
         out = check_output(['allosmod', 'bin_data', 'test.data', '1', 'm1',
-                            '10', '20'])
+                            '10', '20'], universal_newlines=True)
         self.assertEqual(out, "9.72500 1.00000 4.00000\n")
         os.unlink('test.data')
 

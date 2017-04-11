@@ -165,7 +165,7 @@ def get_residue_chains(pdbfile):
 def get_first_unused_chain(chain_for_res):
     """Return a chain ID that's not already used"""
     all_chains = set(chain_for_res.values())
-    for chain_id in string.uppercase:
+    for chain_id in string.ascii_uppercase:
         if chain_id not in all_chains:
             return chain_id
     raise ValueError("Cannot find an unused chain ID")

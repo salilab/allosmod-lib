@@ -25,9 +25,10 @@ class Tests(unittest.TestCase):
         with open('test.pdb', 'w') as fh:
             fh.write(test_pdb)
         for out in (check_output(['allosmod', 'rotatepdb', '--', 'test.pdb',
-                                  '10', '-20', '30']),
+                                  '10', '-20', '30'], universal_newlines=True),
                     check_output(['python', '-m', 'allosmod.rotatepdb',
-                                  '--', 'test.pdb', '10', '-20', '30'])):
+                                  '--', 'test.pdb', '10', '-20', '30'],
+                                 universal_newlines=True)):
             lines = out.split('\n')
             self.assertEqual(len(lines), 4)
             x = float(lines[0][30:38])

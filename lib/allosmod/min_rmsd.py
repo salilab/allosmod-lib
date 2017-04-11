@@ -26,7 +26,8 @@ def min_rmsd(file1, file2):
             print(file1, file=fh)
             print(file2, file=fh)
         out = allosmod.util.check_output(["profit"],
-                                         input=make_profit_file(prolist_in))
+                                         input=make_profit_file(prolist_in),
+                                         universal_newlines=True)
     return re.findall('RMS: ([\d.-]+)', out)[-1]
     
 def parse_args():

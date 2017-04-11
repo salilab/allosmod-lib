@@ -24,7 +24,8 @@ class Tests(unittest.TestCase):
         """Simple complete run of get_ss"""
         out = check_output(['allosmod', 'get_ss',
                            os.path.join(test_dir, 'input',
-                                        'test_get_contacts.pdb')])
+                                        'test_get_contacts.pdb')],
+                           universal_newlines=True)
         self.assertEqual(out, '-\n-\n-\n-\n-\nS\nT\nT\n-\n-\n')
 
 if __name__ == '__main__':

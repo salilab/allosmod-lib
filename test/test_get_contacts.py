@@ -83,7 +83,8 @@ class Tests(unittest.TestCase):
         """Simple complete run of get_contacts"""
         out = check_output(['allosmod', 'get_contacts',
                            os.path.join(test_dir, 'input',
-                                        'test_get_contacts.pdb'), '11.0'])
+                                        'test_get_contacts.pdb'), '11.0'],
+                           universal_newlines=True)
         lines = out.split('\n')
         self.assertEqual(len(lines), 12)
         self.assertEqual(lines[0][43:48], "9.955")

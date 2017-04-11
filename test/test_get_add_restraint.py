@@ -87,7 +87,7 @@ HARM 4.0 0.1 2,1
 HARM 4.0 0.1 4,8
 """)
         out = check_output(['allosmod', 'get_add_restraint', 'input.dat',
-                            'test.pdb', 'HARM'])
+                            'test.pdb', 'HARM'], universal_newlines=True)
         self.assertEqual(out, 'R    3   1   1  27   2   2   1     2     5      10.0000    0.5000\n')
         os.unlink('input.dat')
         os.unlink('test.pdb')

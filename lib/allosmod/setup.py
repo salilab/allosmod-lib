@@ -21,6 +21,16 @@ class _FakeSectionHead(object):
         self.fp = fp
         self.sechead = '[main]\n'
 
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        line = self.readline()
+        if line == '':
+            raise StopIteration
+        else:
+            return line
+
     def readline(self):
         if self.sechead:
             try: 

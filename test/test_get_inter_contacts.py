@@ -26,7 +26,8 @@ class Tests(unittest.TestCase):
                            os.path.join(test_dir, 'input',
                                         'test_get_contacts.pdb'),
                            os.path.join(test_dir, 'input',
-                                        'test_get_contacts.pdb'), '8.0'])
+                                        'test_get_contacts.pdb'), '8.0'],
+                           universal_newlines=True)
         lines = out.split('\n')
         self.assertEqual(len(lines), 44)
         self.assertEqual(lines[0][43:48], "0.000")

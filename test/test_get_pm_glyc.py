@@ -69,7 +69,7 @@ class Tests(unittest.TestCase):
         self.assertEqual(allosmod.get_pm_glyc.get_first_unused_chain(
                                                       {'1':'A', '2':'C'}), 'B')
         d = {}
-        for n, chain in enumerate(string.uppercase):
+        for n, chain in enumerate(string.ascii_uppercase):
             d[str(n+1)] = chain
         self.assertRaises(ValueError,
                           allosmod.get_pm_glyc.get_first_unused_chain, d)

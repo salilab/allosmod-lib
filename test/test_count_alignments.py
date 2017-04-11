@@ -43,7 +43,8 @@ AY...VINDSC--IACGACKPECPVNIIQGS--IYAIDADSCIDCGSCASVCPVGAPNPED-----------------
         """Simple complete run of count_alignments"""
         self.setup_inputs()
         out = check_output(['allosmod', 'count_alignments',
-                            'align.ali', 'templates', 'pm.pdb'])
+                            'align.ali', 'templates', 'pm.pdb'],
+                           universal_newlines=True)
         self.assertEqual(out.rstrip('\r\n'), "2")
         for f in ('templates', 'align.ali'):
             os.unlink(f)

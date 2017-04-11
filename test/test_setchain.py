@@ -29,9 +29,10 @@ class Tests(unittest.TestCase):
                           'X'])
             with open('test.pdb') as fh:
                 return fh.read()
-        for out in (check_output(['allosmod', 'setchain', 'test.pdb', 'X']),
+        for out in (check_output(['allosmod', 'setchain', 'test.pdb', 'X'],
+                                 universal_newlines=True),
                     check_output(['python', '-m', 'allosmod.setchain',
-                                  'test.pdb', 'XYZ']),
+                                  'test.pdb', 'XYZ'], universal_newlines=True),
                     check_inplace()):
             lines = out.split('\n')
             self.assertEqual(lines[2][17:25], 'CYS X   ')

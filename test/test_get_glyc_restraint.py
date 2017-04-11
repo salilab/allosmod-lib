@@ -36,7 +36,7 @@ HETATM    6  C1  BMA B   2      19.244  16.654   7.119  1.00 15.42           O
 """)
         out = check_output(['allosmod', 'get_glyc_restraint', 'test.pdb',
                             'test-allosmod.py'], stderr=subprocess.STDOUT,
-                           retcode=0)
+                           retcode=0, universal_newlines=True)
         # One restraint between CA and C1:
         self.assertEqual(out, 'R    3   1   1   1   2   2   1        '
                               '2     6    5.0000    0.0350\n')

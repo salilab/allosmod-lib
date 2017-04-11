@@ -7,8 +7,7 @@ PY=${PYTHONDIR}/allosmod/modeller
 FILES=${PY}/__init__.py ${PY}/forms.py ${PY}/_truncated_gaussian.so
 
 _truncated_gaussian.so: truncated_gaussian_wrap.o truncated_gaussian.o
-	echo ${LDFLAGS} ${LIBS} ${SHFLAGS} ${CFLAGS}
-	${CC} -o $@ ${LDFLAGS} ${LIBS} $^
+	${CC} -o $@ ${LDFLAGS} $^ ${LIBS}
 
 %.o: %.c
 	${CC} -o $@ ${SHFLAGS} ${CFLAGS} -I../../../src -c $<

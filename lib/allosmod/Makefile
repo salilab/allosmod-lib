@@ -26,7 +26,7 @@ ${SUBDIRS}:
 
 ${PY}/config/__init__.py::
 	@if [ ! -d ${PY}/config ]; then mkdir -p ${PY}/config; fi
-	echo "datadir = r'${DATADIR}/allosmod'" > $@
+	echo "datadir = r'${DATADIR}'" > $@
 	echo "local_scratch = r'${LOCAL_SCRATCH}'" >> $@
 	echo "global_scratch = r'${GLOBAL_SCRATCH}'" >> $@
 	python -m py_compile $@

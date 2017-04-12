@@ -33,12 +33,12 @@ class Tests(unittest.TestCase):
 """)
         out = check_output(['allosmod', 'bin_data', 'test.data', '0', 'm1',
                             '10', '20'], universal_newlines=True)
-        self.assertEqual(out, """0.92500 0.00000 4.00000
-2.02500 0.00000 1.00000
-3.12500 0.00000 1.00000
-4.22500 0.00000 1.00000
-4.77500 0.00000 1.00000
-5.87500 0.00000 1.00000
+        self.assertEqual(out, """0.92500 0.44444 4.00000
+2.02500 0.11111 1.00000
+3.12500 0.11111 1.00000
+4.22500 0.11111 1.00000
+4.77500 0.11111 1.00000
+5.87500 0.11111 1.00000
 """)
         out = check_output(['allosmod', 'bin_data', 'test.data', '1', 'm1',
                             '10', '20'], universal_newlines=True)

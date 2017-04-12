@@ -1,6 +1,6 @@
 """Bin data from a file."""
 
-from __future__ import print_function, absolute_import
+from __future__ import print_function, absolute_import, division
 import optparse
 
 def bin_data(data_file, datacol, datamin, datamax, nbins):

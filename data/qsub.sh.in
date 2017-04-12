@@ -381,6 +381,9 @@ run_actual_job() {
   	if (test -e ${FIRSTDIR}/allosmod.py); then cp ${FIRSTDIR}/allosmod.py .; fi
   	echo cp done
   	break
+      elif test -s ${FIRSTDIR}/error.log; then
+        echo "First job failed (see pred_dE@DELEMAX@rAS@RAS@/@ASPDB@_0/error.log) so cannot continue" >> ${OUTDIR}/error.log
+        return 1
       else
   	echo sleep
   	sleep 2m

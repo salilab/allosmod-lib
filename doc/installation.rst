@@ -11,6 +11,8 @@ AllosMod - it is already set up for you as a module. Just run
 Dependencies
 ============
 
+* `Python <https://www.python.org>`_ 2.6 or later (Python 3 should also be OK).
+
 * `MODELLER <https://salilab.org/modeller/>`_. This library expects to be able
   to directly import the Modeller Python package (via ``import modeller``)
   and to run the Modeller binary (e.g. :command:`mod9.15`). If you installed
@@ -20,6 +22,9 @@ Dependencies
 
 * `DSSP <http://swift.cmbi.ru.nl/gv/dssp/>`_. It is expected that the
   :command:`mkdssp` binary is in the ``PATH``.
+
+* `nose <https://nose.readthedocs.io/en/latest/>`_ is also needed to run the
+  test suite (recommended but not essential).
 
 If you will also be using SAXS profiles (e.g. for the AllosMod-FoXS web service)
 then you will need:

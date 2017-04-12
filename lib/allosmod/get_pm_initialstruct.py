@@ -1,4 +1,4 @@
-"""Makes an initial perturbation model (PM) from a sequence."""
+"""Make initial perturbation model (PM) from sequence."""
 
 from __future__ import print_function, absolute_import
 import optparse

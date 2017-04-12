@@ -1,4 +1,4 @@
-"""Generate Modeller restraints between protein and sugars."""
+"""Make Modeller restraints between protein and sugars."""
 
 from __future__ import print_function, absolute_import
 import optparse

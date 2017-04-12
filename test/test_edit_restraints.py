@@ -11,7 +11,6 @@ TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 test_dir = utils.set_search_paths(TOPDIR)
 
 from allosmod.util import check_output
-from test_modeller import mock_method
 import allosmod.get_contacts
 import allosmod.get_ss
 import allosmod.edit_restraints
@@ -93,8 +92,9 @@ class Tests(unittest.TestCase):
             yield ri, rj, 10.0
         def mock_get_ss(pdb_file):
             return []
-        with mock_method(allosmod.get_contacts, 'get_contacts', mock_get_cont):
-            with mock_method(allosmod.get_ss, 'get_ss', mock_get_ss):
+        with utils.mock_method(allosmod.get_contacts, 'get_contacts',
+                               mock_get_cont):
+            with utils.mock_method(allosmod.get_ss, 'get_ss', mock_get_ss):
                 e.setup_atoms(env)
         contacts = sorted(e.contacts.keys())
         # Should have the 1-4 interaction from get_contacts, plus the two
@@ -622,7 +622,7 @@ class Tests(unittest.TestCase):
                 return ['H']*10
             elif pdb_file == 'some_beta':
                 return ['', 'E', '']
-        with mock_method(allosmod.get_ss, 'get_ss', mock_get_ss):
+        with utils.mock_method(allosmod.get_ss, 'get_ss', mock_get_ss):
             self.assertEqual(get_beta('empty'), {})
             self.assertEqual(get_beta('all_beta'), {1:True, 2:True, 3:True})
             self.assertEqual(get_beta('all_helix'), {})
@@ -983,8 +983,8 @@ class Tests(unittest.TestCase):
         open('dummyas.rsr', 'w').close()
         def mock_parse(fh, atoms):
             return []
-        with mock_method(allosmod.edit_restraints, 'parse_restraints_file',
-                         mock_parse):
+        with utils.mock_method(allosmod.edit_restraints,
+                               'parse_restraints_file', mock_parse):
             e.setup_delEmax()
         self.assertAlmostEqual(e.delEmax, 0.2, places=1)
         self.assertAlmostEqual(e.delEmaxNUC, 0.12, places=2)
@@ -1030,8 +1030,8 @@ class Tests(unittest.TestCase):
             # Restraint of wrong type
             r = self.make_cosine_restraint(make_ca_ca)
             yield r
-        with mock_method(allosmod.edit_restraints, 'parse_restraints_file',
-                         mock_parse):
+        with utils.mock_method(allosmod.edit_restraints,
+                               'parse_restraints_file', mock_parse):
             e.setup_delEmax()
         self.assertAlmostEqual(e.delEmax, 0.08, places=2)
         self.assertAlmostEqual(e.delEmaxNUC, 0.05, places=2)

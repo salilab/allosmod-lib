@@ -8,7 +8,6 @@ TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 utils.set_search_paths(TOPDIR)
 
 from allosmod.util import check_output
-from test_modeller import mock_method
 
 def get_seq(code, pdb, seq):
     return """>P1;%s

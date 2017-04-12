@@ -7,7 +7,6 @@ TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 utils.set_search_paths(TOPDIR)
 
 from allosmod.util import check_output
-from test_modeller import mock_method
 
 class Tests(unittest.TestCase):
     def test_bad(self):
@@ -67,7 +66,7 @@ ATOM      7  CA  TYR A   2      26.593  16.867   8.258  1.00120.51           C
         def mock_make(cls, exit_stage):
             self.assertEqual(exit_stage, 1)
             self.assertAlmostEqual(cls.max_sc_sc_distance, 14.0, places=1)
-        with mock_method(modeller.automodel.automodel, 'make', mock_make):
+        with utils.mock_method(modeller.automodel.automodel, 'make', mock_make):
             make_mod_inputs('1fdx', ['5fd1'], -3333, [3,3,3], 4, True)
         for f in ('templates', 'avgpdb.pdb', '5fd1', 'align.ali', 'random.ini'):
             os.unlink(f)

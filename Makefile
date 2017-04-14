@@ -14,4 +14,4 @@ install: pyext
 	${MAKE} -C data install
 
 test: pyext
-	cd test && nosetests
+	nosetests test

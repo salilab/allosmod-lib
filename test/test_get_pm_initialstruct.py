@@ -80,13 +80,13 @@ AFVV*
         test_aln(orig_aln)
         os.unlink('test.aln')
 
-    def setup_inputs(self, seq='AW', subdir=''):
-        with open(os.path.join(subdir, 'test.aln'), 'w') as fh:
+    def setup_inputs(self, topdir, seq='AW', subdir=''):
+        with open(os.path.join(topdir, subdir, 'test.aln'), 'w') as fh:
             fh.write(get_seq('1fdx', '1fdx', 'AY'))
             fh.write(get_seq('foo', 'foo', seq))
-        with open('templates', 'w') as fh:
+        with open(os.path.join(topdir, 'templates'), 'w') as fh:
             fh.write("1fdx\n")
-        with open(os.path.join(subdir, '1fdx'), 'w') as fh:
+        with open(os.path.join(topdir, subdir, '1fdx'), 'w') as fh:
             fh.write("""
 ATOM      2  CA  ALA     1      27.449  14.935   5.140  1.00 29.87           C
 ATOM      7  CA  TYR     2      26.593  16.867   8.258  1.00120.51           C
@@ -95,60 +95,50 @@ ATOM      7  CA  TYR     2      26.593  16.867   8.258  1.00120.51           C
     def test_simple(self):
         """Simple complete run of get_pm_initialstruct"""
         from allosmod.get_pm_initialstruct import get_pm_initialstruct
-        self.setup_inputs()
-        if os.path.exists('pred_1fdx'):
-            shutil.rmtree('pred_1fdx')
+        with utils.temporary_directory() as tmpdir:
+            self.setup_inputs(tmpdir)
 
-        check_output(['allosmod', 'get_pm_initialstruct', '--target', 'foo',
-                      '--keep-alignment', 'test.aln', 'templates',
-                      '.', '1', 'slow'])
-        e = modeller.environ()
-        m = modeller.model(e, file='pred_1fdx/foo.B99990001.pdb')
-        self.assertEqual([x.code for x in m.residues], ['A', 'W'])
-        self.assertEqual(m.chains[0].name, 'A')
-        for f in ('1fdx', 'foo.B99990001.pdb', 'foo.ini', 'foo.sch',
-                  'test.aln', 'foo.D00000001', 'foo.rsr',
-                  'foo.V99990001'):
-            os.unlink(os.path.join('pred_1fdx', f))
-        os.rmdir('pred_1fdx')
-        os.unlink('test.aln')
-        os.unlink('templates')
-        os.unlink('1fdx')
+            check_output(['allosmod', 'get_pm_initialstruct', '--target', 'foo',
+                          '--keep-alignment', 'test.aln', 'templates',
+                          '.', '1', 'slow'], cwd=tmpdir)
+            e = modeller.environ()
+            m = modeller.model(e, file=os.path.join(tmpdir, 'pred_1fdx',
+                               'foo.B99990001.pdb'))
+            self.assertEqual([x.code for x in m.residues], ['A', 'W'])
+            self.assertEqual(m.chains[0].name, 'A')
+            for f in ('1fdx', 'foo.B99990001.pdb', 'foo.ini', 'foo.sch',
+                      'test.aln', 'foo.D00000001', 'foo.rsr',
+                      'foo.V99990001'):
+                os.unlink(os.path.join(tmpdir, 'pred_1fdx', f))
 
     def test_opts(self):
         """Complete run of get_pm_initialstruct using different options"""
         from allosmod.get_pm_initialstruct import get_pm_initialstruct
-        self.setup_inputs(seq='A/W')
+        with utils.temporary_directory() as tmpdir:
+            self.setup_inputs(tmpdir, seq='A/W')
 
-        if os.path.exists('pred_1fdx'):
-            shutil.rmtree('pred_1fdx')
-        os.mkdir('pred_1fdx')
-        check_output(['allosmod', 'get_pm_initialstruct', '--target', 'foo',
-                      '--restraints-only', 'test.aln', 'templates',
-                      '.', '1', 'fast'])
-        for f in ('1fdx', 'family.mat', 'foo.ini', 'test.aln', 'test.aln.ali',
-                  'foo.rsr'):
-            os.unlink(os.path.join('pred_1fdx', f))
-        os.rmdir('pred_1fdx')
-        os.unlink('test.aln')
-        os.unlink('templates')
-        os.unlink('1fdx')
+            os.mkdir(os.path.join(tmpdir, 'pred_1fdx'))
+            check_output(['allosmod', 'get_pm_initialstruct', '--target', 'foo',
+                          '--restraints-only', 'test.aln', 'templates',
+                          '.', '1', 'fast'], cwd=tmpdir)
+            for f in ('1fdx', 'family.mat', 'foo.ini', 'test.aln',
+                      'test.aln.ali', 'foo.rsr'):
+                os.unlink(os.path.join(tmpdir, 'pred_1fdx', f))
 
     def test_nochdir(self):
         """Complete run of get_pm_initialstruct using --no-chdir"""
         from allosmod.get_pm_initialstruct import get_pm_initialstruct
-        if os.path.exists('pred_1fdx'):
-            shutil.rmtree('pred_1fdx')
-        os.mkdir('pred_1fdx')
-        self.setup_inputs(seq='A/W', subdir='pred_1fdx')
+        with utils.temporary_directory() as tmpdir:
+            os.mkdir(os.path.join(tmpdir, 'pred_1fdx'))
+            self.setup_inputs(tmpdir, seq='A/W', subdir='pred_1fdx')
 
-        check_output(['allosmod', 'get_pm_initialstruct', '--target', 'foo',
-                      '--restraints-only', '--no-chdir', '--csrfile',
-                      'test.rsr', 'test.aln', '../templates', '.', '1', 'fast'],
-                     cwd='pred_1fdx')
-        for f in ('1fdx', 'family.mat', 'foo.ini', 'test.aln', 'test.aln.ali'):
-            os.unlink(os.path.join('pred_1fdx', f))
-        os.rmdir('pred_1fdx')
+            check_output(['allosmod', 'get_pm_initialstruct', '--target', 'foo',
+                          '--restraints-only', '--no-chdir', '--csrfile',
+                          'test.rsr', 'test.aln', '../templates', '.', '1',
+                          'fast'], cwd=os.path.join(tmpdir, 'pred_1fdx'))
+            for f in ('1fdx', 'family.mat', 'foo.ini', 'test.aln',
+                      'test.aln.ali'):
+                os.unlink(os.path.join(tmpdir, 'pred_1fdx', f))
 
 if __name__ == '__main__':
     unittest.main()

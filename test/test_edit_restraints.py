@@ -1039,24 +1039,24 @@ class Tests(unittest.TestCase):
 
     def test_simple(self):
         """Simple complete run of edit_restraints"""
-        with open('pm_test.pdb', 'w') as fh:
-            fh.write("""
+        with utils.temporary_directory() as tmpdir:
+            with open(os.path.join(tmpdir, 'pm_test.pdb'), 'w') as fh:
+                fh.write("""
 ATOM      1  N   ARG A   1     -18.387  -9.167  -1.701  1.00  0.54           N
 ATOM      2  CA  ARG A   1     -17.434  -9.856  -0.787  1.00  0.45           C
 ATOM      3  C   ARG A   1     -15.998  -9.610  -1.251  1.00  0.45           C
 ATOM      4  O   ARG A   1     -15.130 -10.444  -1.087  1.00  0.52           O
 ATOM      5  CB  ARG A   1     -17.793 -11.337  -0.899  1.00  0.46           C
 """)
-        with open('test.rsr', 'w') as fh:
-            fh.write("R 3 1 9 12 2 2 1 1 2 10.00 20.00\n")
-        with open('list4contacts', 'w') as fh:
-            fh.write("test.pdb\n")
-        with open('atomlistASRS', 'w') as fh:
-            fh.write("1 AS\n2 AS\n")
-        check_output(['allosmod', 'edit_restraints', 'test.rsr', 'test.rsr',
-                      'pm_test.pdb', 'list4contacts', 'atomlistASRS'])
-        for f in ('pm_test.pdb', 'test.rsr', 'list4contacts', 'atomlistASRS'):
-            os.unlink(f)
+            with open(os.path.join(tmpdir, 'test.rsr'), 'w') as fh:
+                fh.write("R 3 1 9 12 2 2 1 1 2 10.00 20.00\n")
+            with open(os.path.join(tmpdir, 'list4contacts'), 'w') as fh:
+                fh.write("test.pdb\n")
+            with open(os.path.join(tmpdir, 'atomlistASRS'), 'w') as fh:
+                fh.write("1 AS\n2 AS\n")
+            check_output(['allosmod', 'edit_restraints', 'test.rsr', 'test.rsr',
+                          'pm_test.pdb', 'list4contacts', 'atomlistASRS'],
+                         cwd=tmpdir)
 
 if __name__ == '__main__':
     unittest.main()

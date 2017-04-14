@@ -75,22 +75,23 @@ OTHEROPTION foo
 
     def test_simple(self):
         """Simple complete test of get_add_restraint command"""
-        with open('test.pdb', 'w') as fh:
-            fh.write(get_pdb_line('P', 4))
-            fh.write(get_pdb_line('CA', 4))
-            fh.write(get_pdb_line('C', 4))
-            fh.write(get_pdb_line('O', 6))
-            fh.write(get_pdb_line('C', 6))
-        with open('input.dat', 'w') as fh:
-            fh.write("""HARM 10.0 0.5 4,6
+        with utils.temporary_directory() as tmpdir:
+            with open(os.path.join(tmpdir, 'test.pdb'), 'w') as fh:
+                fh.write(get_pdb_line('P', 4))
+                fh.write(get_pdb_line('CA', 4))
+                fh.write(get_pdb_line('C', 4))
+                fh.write(get_pdb_line('O', 6))
+                fh.write(get_pdb_line('C', 6))
+            with open(os.path.join(tmpdir, 'input.dat'), 'w') as fh:
+                fh.write("""HARM 10.0 0.5 4,6
 HARM 4.0 0.1 2,1
 HARM 4.0 0.1 4,8
 """)
-        out = check_output(['allosmod', 'get_add_restraint', 'input.dat',
-                            'test.pdb', 'HARM'], universal_newlines=True)
-        self.assertEqual(out, 'R    3   1   1  27   2   2   1     2     5      10.0000    0.5000\n')
-        os.unlink('input.dat')
-        os.unlink('test.pdb')
+            out = check_output(['allosmod', 'get_add_restraint', 'input.dat',
+                                'test.pdb', 'HARM'],
+                               universal_newlines=True, cwd=tmpdir)
+            self.assertEqual(out, 'R    3   1   1  27   2   2   1     '
+                                  '2     5      10.0000    0.5000\n')
 
 if __name__ == '__main__':
     unittest.main()

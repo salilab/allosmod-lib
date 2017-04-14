@@ -13,6 +13,12 @@ def set_search_paths(topdir):
     return os.path.join(topdir, 'test')
 
 @contextlib.contextmanager
+def temporary_directory():
+    _tmpdir = tempfile.mkdtemp()
+    yield _tmpdir
+    shutil.rmtree(_tmpdir, ignore_errors=True)
+
+@contextlib.contextmanager
 def mock_method(cls, method_name, replacement=None):
     """Temporarily replace the given method in the given class."""
     def mock(*args, **keys):

@@ -22,14 +22,15 @@ class Tests(unittest.TestCase):
 
     def test_simple(self):
         """Simple test of getrofg"""
-        with open('test.pdb', 'w') as fh:
-            fh.write(test_pdb)
-        for out in (check_output(['allosmod', 'getrofg', 'test.pdb']),
-                    check_output(['python', '-m', 'allosmod.getrofg',
-                                  'test.pdb'])):
-            r = float(out)
-            self.assertAlmostEqual(r, 2.3, places=1)
-        os.unlink('test.pdb')
+        with utils.temporary_directory() as tmpdir:
+            with open(os.path.join(tmpdir, 'test.pdb'), 'w') as fh:
+                fh.write(test_pdb)
+            for out in (check_output(['allosmod', 'getrofg', 'test.pdb'],
+                                     cwd=tmpdir),
+                        check_output(['python', '-m', 'allosmod.getrofg',
+                                      'test.pdb'], cwd=tmpdir)):
+                r = float(out)
+                self.assertAlmostEqual(r, 2.3, places=1)
 
 if __name__ == '__main__':
     unittest.main()

@@ -23,18 +23,19 @@ class Tests(unittest.TestCase):
 
     def test_simple(self):
         """Simple test of getcofm"""
-        with open('test.pdb', 'w') as fh:
-            fh.write(test_pdb)
-        for out in (check_output(['allosmod', 'getcofm', 'test.pdb']),
-                    check_output(['python', '-m', 'allosmod.getcofm',
-                                  'test.pdb'])):
-            x = float(out[:8])
-            y = float(out[9:17])
-            z = float(out[18:26])
-            self.assertAlmostEqual(x, 2.214, places=3)
-            self.assertAlmostEqual(y, 1.733, places=3)
-            self.assertAlmostEqual(z, 1.067, places=3)
-        os.unlink('test.pdb')
+        with utils.temporary_directory() as tmpdir:
+            with open(os.path.join(tmpdir, 'test.pdb'), 'w') as fh:
+                fh.write(test_pdb)
+            for out in (check_output(['allosmod', 'getcofm', 'test.pdb'],
+                                     cwd=tmpdir),
+                        check_output(['python', '-m', 'allosmod.getcofm',
+                                      'test.pdb'], cwd=tmpdir)):
+                x = float(out[:8])
+                y = float(out[9:17])
+                z = float(out[18:26])
+                self.assertAlmostEqual(x, 2.214, places=3)
+                self.assertAlmostEqual(y, 1.733, places=3)
+                self.assertAlmostEqual(z, 1.067, places=3)
 
 if __name__ == '__main__':
     unittest.main()

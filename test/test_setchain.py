@@ -22,21 +22,22 @@ class Tests(unittest.TestCase):
 
     def test_simple(self):
         """Simple test of setchain"""
-        with open('test.pdb', 'w') as fh:
-            fh.write(test_pdb)
-        def check_inplace():
-            check_output(['allosmod', 'setchain', '--in-place', 'test.pdb',
-                          'X'])
-            with open('test.pdb') as fh:
-                return fh.read()
-        for out in (check_output(['allosmod', 'setchain', 'test.pdb', 'X'],
-                                 universal_newlines=True),
-                    check_output(['python', '-m', 'allosmod.setchain',
-                                  'test.pdb', 'XYZ'], universal_newlines=True),
-                    check_inplace()):
-            lines = out.split('\n')
-            self.assertEqual(lines[2][17:25], 'CYS X   ')
-        os.unlink('test.pdb')
+        with utils.temporary_directory() as tmpdir:
+            with open(os.path.join(tmpdir, 'test.pdb'), 'w') as fh:
+                fh.write(test_pdb)
+            def check_inplace():
+                check_output(['allosmod', 'setchain', '--in-place', 'test.pdb',
+                              'X'], cwd=tmpdir)
+                with open(os.path.join(tmpdir, 'test.pdb')) as fh:
+                    return fh.read()
+            for out in (check_output(['allosmod', 'setchain', 'test.pdb', 'X'],
+                                     universal_newlines=True, cwd=tmpdir),
+                        check_output(['python', '-m', 'allosmod.setchain',
+                                      'test.pdb', 'XYZ'],
+                                     universal_newlines=True, cwd=tmpdir),
+                        check_inplace()):
+                lines = out.split('\n')
+                self.assertEqual(lines[2][17:25], 'CYS X   ')
 
 if __name__ == '__main__':
     unittest.main()

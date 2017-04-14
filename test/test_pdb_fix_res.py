@@ -49,24 +49,26 @@ class Tests(unittest.TestCase):
 
     def test_simple(self):
         """Simple test of pdb_fix_res"""
-        with open('test.pdb', 'w') as fh:
-            fh.write(test_pdb)
-        def check_inplace():
-            check_output(['allosmod', 'pdb_fix_res', '--in-place', 'test.pdb'])
-            with open('test.pdb') as fh:
-                return fh.read()
-        for out in (check_output(['allosmod', 'pdb_fix_res', 'test.pdb'],
-                                 universal_newlines=True),
-                    check_output(['python', '-m', 'allosmod.pdb_fix_res',
-                                  'test.pdb'], universal_newlines=True),
-                    check_inplace()):
-            lines = out.split('\n')
-            del lines[-1]
-            for n, line in enumerate(lines):
-                self.assertEqual(line[:6].rstrip(' '), exp_records[n][0])
-                self.assertEqual(line[12:15], exp_records[n][1])
-                self.assertEqual(line[17:20], exp_records[n][2])
-        os.unlink('test.pdb')
+        with utils.temporary_directory() as tmpdir:
+            with open(os.path.join(tmpdir, 'test.pdb'), 'w') as fh:
+                fh.write(test_pdb)
+            def check_inplace():
+                check_output(['allosmod', 'pdb_fix_res', '--in-place',
+                              'test.pdb'], cwd=tmpdir)
+                with open(os.path.join(tmpdir, 'test.pdb')) as fh:
+                    return fh.read()
+            for out in (check_output(['allosmod', 'pdb_fix_res', 'test.pdb'],
+                                     universal_newlines=True, cwd=tmpdir),
+                        check_output(['python', '-m', 'allosmod.pdb_fix_res',
+                                      'test.pdb'],
+                                     universal_newlines=True, cwd=tmpdir),
+                        check_inplace()):
+                lines = out.split('\n')
+                del lines[-1]
+                for n, line in enumerate(lines):
+                    self.assertEqual(line[:6].rstrip(' '), exp_records[n][0])
+                    self.assertEqual(line[12:15], exp_records[n][1])
+                    self.assertEqual(line[17:20], exp_records[n][2])
 
 if __name__ == '__main__':
     unittest.main()

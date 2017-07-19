@@ -14,10 +14,12 @@ R_CONECT_IND=(`awk '{print $1}' get_rest.in`)
 R_CONECT_ATM=(`awk '{print $2}' get_rest.in`)
 
 if test ${#R_CONECT_IND[@]} != ${#R_START[@]}; then
-    echo "Number of sugars in get_rest.in: "${#R_CONECT_IND[@]}
-    echo "Number of sugars in "$MODEL_FILE": "${#R_START[@]}
-    echo Connections for all sugars are not defined
-    exit
+    echo "Number of sugars in get_rest.in: "${#R_CONECT_IND[@]} >&2
+    echo "Number of sugars in "$MODEL_FILE": "${#R_START[@]} >&2
+    echo "Connections for all sugars are not defined" >&2
+    echo "(This can happen if your input PDB already contains HETATMs;" >&2
+    echo "they should be removed before using AllosMod with glycosylation.)" >&2
+    exit 1
 fi
 
 ctr=-1

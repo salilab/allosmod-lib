@@ -476,7 +476,10 @@ run_actual_job() {
       if test -s ${OUTDIR}/error.log; then
         return 1
       fi
-      allosmod get_rest pm.pdb.B99990001.pdb >> pm.pdb.rsr
+      allosmod get_rest pm.pdb.B99990001.pdb >> pm.pdb.rsr 2>> ${OUTDIR}/error.log
+      if test -s ${OUTDIR}/error.log; then
+        return 1
+      fi
       mv pm.pdb.rsr converted.rsr
       #sample glycosylated structures
       python model_glyc.py > model_glyc.log

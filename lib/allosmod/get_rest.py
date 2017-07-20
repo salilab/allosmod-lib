@@ -4,11 +4,12 @@ from __future__ import print_function, absolute_import
 import optparse
 import subprocess
 import allosmod.util
+import sys
 
 def get_rest(pdb):
     # No Python implementation yet - call the original script:
     script = allosmod.util.get_data_file('get_rest.sh')
-    subprocess.check_call([script, pdb])
+    sys.exit(subprocess.call([script, pdb]))
 
 def parse_args():
     usage = """%%prog [opts] <pdb>

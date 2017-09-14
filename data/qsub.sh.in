@@ -139,7 +139,10 @@ run_actual_job() {
   	return 1
       fi
   
-      allosmod getavgpdb pm_@ASPDB@ pm_@OTHPDB@ @ASPDB@ @OTHPDB@
+      allosmod getavgpdb pm_@ASPDB@ pm_@OTHPDB@ @ASPDB@ @OTHPDB@ 2>> ${OUTDIR}/error.log
+      if test -s ${OUTDIR}/error.log; then
+        return 1
+      fi
       cp list list4contacts
   
   else #NTOT=1
@@ -352,7 +355,10 @@ run_actual_job() {
   	    for s in `cat list`; do
   		awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"||$1$2$3$4=="HETA"){print $0}'  pred_${s}/pm.pdb.B99990001.pdb >pm_${s}
   	    done
-  	    allosmod getavgpdb pm_@ASPDB@ pm_@OTHPDB@ @ASPDB@ @OTHPDB@
+            allosmod getavgpdb pm_@ASPDB@ pm_@OTHPDB@ @ASPDB@ @OTHPDB@ 2>> ${OUTDIR}/error.log
+            if test -s ${OUTDIR}/error.log; then
+              return 1
+            fi
   	else
   	    s=`head -n1 list`
   	    awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"||$1$2$3$4=="HETA"){print $0}'  pred_${s}/pm.pdb.B99990001.pdb >avgpdb.pdb

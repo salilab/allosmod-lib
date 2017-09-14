@@ -4,11 +4,12 @@ from __future__ import print_function, absolute_import
 import optparse
 import subprocess
 import allosmod.util
+import sys
 
 def getavgpdb(pdb1, pdb2, code1, code2):
     # No Python implementation yet - call the original script:
     script = allosmod.util.get_data_file('getavgpdb2.sh')
-    subprocess.check_call([script, pdb1, pdb2, code1, code2])
+    sys.exit(subprocess.call([script, pdb1, pdb2, code1, code2]))
 
 def parse_args():
     usage = """%%prog [opts] <pdb1> <pdb2> <code1> <code2>

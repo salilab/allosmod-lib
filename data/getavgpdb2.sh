@@ -12,7 +12,10 @@ AFIL=align.ali
 
 NATOM1=`awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"){print $0}' $FIL1 | awk 'END{print NR}'`
 NATOM2=`awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"){print $0}' $FIL2 | awk 'END{print NR}'`
-if test $NATOM1 != $NATOM2; then echo ERROR pm files not same length; exit; fi
+if test $NATOM1 != $NATOM2; then
+  echo "ERROR pm files not same length" >&2
+  exit 1
+fi
 
 allosmod setchain $FIL1 A > temp9941
 allosmod setchain $FIL2 A > temp9942
@@ -111,7 +114,8 @@ for het0 in ${R_iHET0[@]}; do
 	done
     fi
     if test `echo "${match}==0" |bc -l` -eq 1; then
-	echo ERROR getavgpdb: cant locate hetatm
+      echo "ERROR getavgpdb: can't locate hetatm" >&2
+      exit 1
     fi
 done
 

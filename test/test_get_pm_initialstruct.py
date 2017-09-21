@@ -42,44 +42,6 @@ AFVV*
         self.assertEqual(get_target(e, None, 'test.aln'), '1fdx')
         os.unlink('test.aln')
 
-    def test_find_het(self):
-        """Test find_het function"""
-        from allosmod.get_pm_initialstruct import find_het
-        with open('test.aln', 'w') as fh:
-            fh.write("C; Sample alignment\n")
-            fh.write(get_seq('1fdx', '1fdx.pdb', 'AF\nVV'))
-            fh.write(get_seq('5fd1', '5df1.pdb', 'AF.VV'))
-            fh.write(get_seq('foo', 'foo.pdb', 'AF.VV'))
-        self.assertEqual(find_het('test.aln', ['1fdx', 'foo']),
-                         {'1fdx':None, 'foo': True})
-        os.unlink('test.aln')
-
-    def test_remove_hetatms(self):
-        """Test remove_hetatms_from_aln_file function"""
-        from allosmod.get_pm_initialstruct import remove_hetatms_from_aln_file
-        orig_aln = "C; Sample alignment\n" \
-                   + get_seq('1fdx', '1fdx.pdb', 'AFVV') \
-                   + get_seq('5fd1', '5df1.pdb', 'AF.VV') \
-                   + get_seq('foo', 'foo.pdb', 'AF.VV')
-        nohet_aln = "C; Sample alignment\n" \
-                    + get_seq('1fdx', '1fdx.pdb', 'AFVV') \
-                    + get_seq('5fd1', '5df1.pdb', 'AFVV') \
-                    + get_seq('foo', 'foo.pdb', 'AFVV')
-        def make_aln():
-            with open('test.aln', 'w') as fh:
-                fh.write(orig_aln)
-        def test_aln(expected):
-            with open('test.aln') as fh:
-                actual = fh.read()
-            self.assertEqual(actual, expected)
-        make_aln()
-        remove_hetatms_from_aln_file('test.aln', 'foo', '1fdx')
-        test_aln(nohet_aln)
-        make_aln()
-        remove_hetatms_from_aln_file('test.aln', '1fdx', 'foo')
-        test_aln(orig_aln)
-        os.unlink('test.aln')
-
     def setup_inputs(self, topdir, seq='AW', subdir=''):
         with open(os.path.join(topdir, subdir, 'test.aln'), 'w') as fh:
             fh.write(get_seq('1fdx', '1fdx', 'AY'))

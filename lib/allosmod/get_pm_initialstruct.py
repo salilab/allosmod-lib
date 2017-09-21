@@ -20,43 +20,6 @@ def get_target(e, target, aln_file):
         aln = modeller.alignment(e, file=aln_file)
         return aln[0].code
 
-def find_het(aln_file, seqs):
-    """Return a dict where dict[k] = True iff sequence k (from seqs) in aln_file
-       contains at least one '.' residue"""
-    het = dict.fromkeys(seqs)
-    in_seq = None
-    skip_header = False
-    with open(aln_file) as fh:
-        for line in fh:
-            if skip_header:
-                skip_header = False
-            elif line.startswith('>P1;'):
-                in_seq = line.rstrip('\r\n')[4:]
-                if in_seq not in seqs:
-                    in_seq = None
-                skip_header = True
-            elif in_seq:
-                if '.' in line:
-                    het[in_seq] = True
-                if '*' in line:
-                    in_seq = False
-    return het
-
-def remove_hetatms_from_aln_file(aln_file, target, template):
-    """If hetatms ('.' residues) in target, but not in template, remove them
-       from the alignment file."""
-    het = find_het(aln_file, [target, template])
-    if het[target] and not het[template]:
-        title = 0
-        for line in fileinput.input(aln_file, inplace=True):
-            if line.startswith('>P1'):
-                title = 1
-            elif title > 0:
-                title += 1
-            if title >= 3:
-                line = line.replace('.', '')
-            print(line, end='')
-
 def get_pm_initialstruct(aln_file, templates, pdb_dir, nmodel,
                          refine_level, opts):
     # Note the assumption is made in this code that the align code and the
@@ -73,7 +36,6 @@ def get_pm_initialstruct(aln_file, templates, pdb_dir, nmodel,
             shutil.copy(os.path.join(pdb_dir, template), dirname)
         shutil.copy(aln_file, dirname)
         os.chdir(dirname)
-        remove_hetatms_from_aln_file(aln_file, target, templates[0])
 
     env.libs.topology.read(file='$(LIB)/top_heav.lib')
     env.libs.parameters.read(file='$(LIB)/par.lib')

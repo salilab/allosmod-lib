@@ -468,7 +468,7 @@ run_actual_job() {
   else #glycosylation
       ls -lrt
       cp @DATADIR@/[A-Z][A-Z][A-Z].rsr .
-      allosmod get_pm_glyc -- pm.pdb list $RAND_NUM @REPEAT_OPTIMIZATION@ @ATTACH_GAPS@ script >> ${OUTDIR}/error.log
+      allosmod get_pm_glyc -- pm.pdb list $RAND_NUM @REPEAT_OPTIMIZATION@ @ATTACH_GAPS@ script >> ${OUTDIR}/error.log 2>&1
       if test -s ${OUTDIR}/error.log; then
         return 1
       fi
@@ -483,7 +483,7 @@ run_actual_job() {
   	allosmod setchain pm.pdb.B99990001.pdb --in-place $NC
       fi
       #generate initial glycosylation model and restraints
-      allosmod get_pm_glyc -- pm.pdb list $RAND_NUM @REPEAT_OPTIMIZATION@ @ATTACH_GAPS@ pm.pdb.B99990001.pdb >> ${OUTDIR}/error.log
+      allosmod get_pm_glyc -- pm.pdb list $RAND_NUM @REPEAT_OPTIMIZATION@ @ATTACH_GAPS@ pm.pdb.B99990001.pdb >> ${OUTDIR}/error.log 2>&1
       if test -s ${OUTDIR}/error.log; then
         return 1
       fi

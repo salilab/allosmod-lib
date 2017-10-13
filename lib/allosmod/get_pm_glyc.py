@@ -9,6 +9,10 @@ import allosmod.config
 import string
 import os
 
+class BondTypeError(Exception):
+    """Error raised for an invalid bond type."""
+    pass
+
 def read_template_file(template_file):
     """Read the list of templates from a file and return it."""
     with open(template_file) as fh:
@@ -115,6 +119,10 @@ class Sugar(object):
                          'sa26':'O6'}
 
     def __init__(self, monomer, bond_type, attach_res):
+        if bond_type not in self._connect_atom_map.keys():
+            raise BondTypeError("Invalid O1 bond type %s. Valid types are: %s"
+                        % (bond_type,
+                           ", ".join(sorted(self._connect_atom_map.keys()))))
         self.monomer, self.bond_type = monomer, bond_type
         self.attach_res = int(attach_res)
         self.one_letter_code = self._one_letter_map[monomer]

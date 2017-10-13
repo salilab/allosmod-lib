@@ -41,6 +41,12 @@ class Tests(unittest.TestCase):
                       'model_glyc.py', 'get_rest.in', 'allosmod.py'):
                 os.unlink(os.path.join(tempdir, f))
 
+    def test_bad_bond_type(self):
+        """Test handling of invalid O1 bond type"""
+        self.assertRaises(allosmod.get_pm_glyc.BondTypeError,
+                          allosmod.get_pm_glyc.Sugar,
+                          "NAG", '13aa', '54')
+
     def test_script_only(self):
         """Simple get_pm_glyc script, script generation only"""
         with allosmod.util.temporary_directory() as tempdir:

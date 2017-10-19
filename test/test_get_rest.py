@@ -24,7 +24,8 @@ class Tests(unittest.TestCase):
             pass
         out = check_output(['allosmod', 'get_rest',
                            os.path.join(test_dir, 'input',
-                                        'asite_pdb1.pdb')])
+                                        'asite_pdb1.pdb')],
+                           universal_newlines=True)
         os.unlink('get_rest.in')
         # PDB file contains no sugars, so no restraints should be output
         self.assertEqual(out, '')

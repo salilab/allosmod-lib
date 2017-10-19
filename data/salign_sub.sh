@@ -83,7 +83,7 @@ aln.write(file='temp5773.ali', alignment_format='PIR')
 EOF
 
 echo "run salign of FILE2_subset onto FILE1" >>run.log
-/salilab/diva1/home/modeller/modSVN modeller.in
+python modeller.in >& modeller.in.log
 
 if (test ! -e 2temp88_fit.pdb); then exit; fi
 
@@ -112,7 +112,7 @@ r = atmsel.superpose(mdl2, aln,superpose_refine=True,rms_cutoff=6.0)
 mdl2.write(file='${SFILE2}_fit.pdb')
 EOF
 echo "run superimpose FILE2 onto FILE2_subset" >>run.log
-/salilab/diva1/home/modeller/modSVN modeller2.in
+python modeller2.in >& modeller2.in.log
 
 #save only interacting residues
 NLINE=`awk 'END{print NR}' $FF2`

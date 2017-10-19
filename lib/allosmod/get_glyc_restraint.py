@@ -4,11 +4,12 @@ from __future__ import print_function, absolute_import
 import optparse
 import subprocess
 import allosmod.util
+import sys
 
 def get_glyc_restraint(pdb, allosmod_py):
     # No Python implementation yet - call the original script:
     script = allosmod.util.get_data_file('get_glyc_restraint.sh')
-    subprocess.check_call([script, pdb, allosmod_py])
+    sys.exit(subprocess.call([script, pdb, allosmod_py]))
 
 def parse_args():
     usage = """%%prog [opts] <pdb> <allosmod.py>

@@ -22,22 +22,24 @@ class Tests(unittest.TestCase):
 
     def test_simple(self):
         """Simple test of rotatepdb"""
-        with open('test.pdb', 'w') as fh:
-            fh.write(test_pdb)
-        for out in (check_output(['allosmod', 'rotatepdb', '--', 'test.pdb',
-                                  '10', '-20', '30'], universal_newlines=True),
-                    check_output(['python', '-m', 'allosmod.rotatepdb',
-                                  '--', 'test.pdb', '10', '-20', '30'],
-                                 universal_newlines=True)):
-            lines = out.split('\n')
-            self.assertEqual(len(lines), 4)
-            x = float(lines[0][30:38])
-            y = float(lines[0][38:46])
-            z = float(lines[0][46:54])
-            self.assertAlmostEqual(x, -0.615, places=3)
-            self.assertAlmostEqual(y, 1.391, places=3)
-            self.assertAlmostEqual(z, 3.801, places=3)
-        os.unlink('test.pdb')
+        with utils.temporary_directory() as tmpdir:
+            with open(os.path.join(tmpdir, 'test.pdb'), 'w') as fh:
+                fh.write(test_pdb)
+            for out in (check_output(['allosmod', 'rotatepdb', '--', 'test.pdb',
+                                      '10', '-20', '30'],
+                                     universal_newlines=True, cwd=tmpdir),
+                        check_output(['python', '-m', 'allosmod.rotatepdb',
+                                      '--', 'test.pdb', '10', '-20', '30'],
+                                     universal_newlines=True, cwd=tmpdir)):
+                lines = out.split('\n')
+                self.assertEqual(len(lines), 4)
+                x = float(lines[0][30:38])
+                y = float(lines[0][38:46])
+                z = float(lines[0][46:54])
+                self.assertAlmostEqual(x, -0.615, places=3)
+                self.assertAlmostEqual(y, 1.391, places=3)
+                self.assertAlmostEqual(z, 3.801, places=3)
+            os.unlink(os.path.join(tmpdir, 'test.pdb'))
 
 if __name__ == '__main__':
     unittest.main()

@@ -65,11 +65,7 @@ Commands:""" % self._progname)
             if c == 'help':
                 doc = 'Get help on using %s.' % self._progname
             else:
-                doc = self.import_module(c).__doc__
-                if doc:
-                    doc = doc.split('\n', 1)[0]
-                else:
-                    doc = "<no help>"
+                doc = self.import_module(c).__doc__.split('\n', 1)[0]
             c += ' ' * (cmdlen - len(c))
             print('    ' + c + '  ' + doc)
         print("""

@@ -14,4 +14,4 @@ install: pyext
 	${MAKE} -C data install
 
 test: pyext
-	nosetests --processes=-1 test
+	nosetests test

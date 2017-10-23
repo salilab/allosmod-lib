@@ -13,6 +13,10 @@ class BondTypeError(Exception):
     """Error raised for an invalid bond type."""
     pass
 
+class InvalidResidueError(Exception):
+    """Error raised for an invalid residue number."""
+    pass
+
 def read_template_file(template_file):
     """Read the list of templates from a file and return it."""
     with open(template_file) as fh:
@@ -199,10 +203,21 @@ class _Connection(object):
                                  self.patch_type))
 
 
+def _check_attachments(sugar_chains, chain_for_res):
+    """Make sure the attachment point for each sugar chain exists."""
+    attachments = [str(sc[0].attach_res) for sc in sugar_chains]
+    bad_attachments = [r for r in attachments if r not in chain_for_res]
+    if bad_attachments:
+        sorted_res = sorted(chain_for_res)
+        raise InvalidResidueError("Bad sugar attachment point(s): %s. Note "
+                    "that residues are numbered sequentially starting "
+                    "from 1, with no chain ID." % (", ".join(bad_attachments)))
+
 def add_glycosidic_bonds(target, glycpm, sugar_chains):
     """Add bonds between protein and sugar chains"""
     last_res = count_residues('align.ali', target)
     chain_for_res = get_residue_chains(glycpm)
+    _check_attachments(sugar_chains, chain_for_res)
     sugar_chain = get_first_unused_chain(chain_for_res)
     start_res = last_res + 1
     for sc in sugar_chains:

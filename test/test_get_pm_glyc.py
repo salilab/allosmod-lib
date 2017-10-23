@@ -106,5 +106,14 @@ class Tests(unittest.TestCase):
         self.assertEqual(s.one_letter_code, '1')
         self.assertEqual(s.get_connect_atom(), 'ND2')
 
+    def test_check_attachments(self):
+        """Test _check_attachments()"""
+        fname = os.path.join(test_dir, 'input', 'glyc.dat')
+        c = allosmod.get_pm_glyc.read_glyc_file(fname)
+        chain_for_res = {'1': 'A'}
+        self.assertRaises(allosmod.get_pm_glyc.InvalidResidueError,
+                          allosmod.get_pm_glyc._check_attachments,
+                          c, chain_for_res)
+
 if __name__ == '__main__':
     unittest.main()

@@ -477,6 +477,11 @@ run_actual_job() {
       if test -s ${OUTDIR}/error.log; then
         return 1
       fi
+      if test ! -s pm.pdb.B99990001.pdb; then
+        echo "MODELLER has failed to create an initial model" >> ${OUTDIR}/error.log
+        echo "Perhaps there is an issue with the alignment file; check for MODELLER errors in model_ini0.log" >>${OUTDIR}/error.log
+        return 1
+      fi
       CHAIN=`awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"||$1$2$3$4=="HETA"){print $22$23}' pm.pdb.B99990001.pdb | awk '{print $1}' | sort -u | head -n1`
       if test -z $CHAIN; then
   	NC=A #`grep pm.pdb align.ali | grep -v P1 | awk 'BEGIN{FS=":"}{print $4}' | awk 'BEGIN{a="A"}(NR==1){a=$1}{print a}'`

@@ -350,8 +350,9 @@ run_actual_job() {
   	cat tempaddrestr >>edited.rsr
   	echo "" >>run.log; echo "additional restraints: " >>run.log; cat tempaddrestr >>run.log; echo "" >>run.log
   	#redo initial structure with additional restraints
-  	for dir in `ls -1d pred_*`; do
-  	    cd $dir
+        for s in `cat list`; do
+            echo $s >listinit
+            cd "pred_$s"
   	    awk '($2==2||$2==3){print $0}' ../tempaddrestr >> pm.pdb.rsr
   	    awk '($2==1){print $0}' ../tempaddrestr | awk 'BEGIN{FS=""}{for(a=1;a<=45;a++){printf $a;if(a==45){printf "   20.0000    0.0100\n"}}}' >> pm.pdb.rsr
   	    mv pm.pdb.rsr edit.rsr

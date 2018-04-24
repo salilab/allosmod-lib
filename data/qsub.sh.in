@@ -283,7 +283,7 @@ run_actual_job() {
       NRES=`awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"){print $23$24$25$26}' tempiq7781 | awk 'END{print $1}'`
       #if no distance interactions, delEmax defaults to 0.1
       delEmax=`awk '($2==50){a+=1}END{if(a>0){printf "%9.3f",3.6*('${NRES}'+'${NHET}')/a}else{print 0.1}}' edited.rsr | awk '{print $1}'`
-      NDISTCONT=`awk '($2==50){a+=1}END{print a}' edited.rsr`
+      NDISTCONT=`awk 'BEGIN{a=0}($2==50){a+=1}END{print a}' edited.rsr`
       TF=`echo "367*${delEmax}*${NDISTCONT}/(4*(${NRES}+${NHET}))" | bc -l | awk '{printf "%9.0f",$1}' | awk '{print $1}'`
     else
       delEmax=999

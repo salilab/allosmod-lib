@@ -80,10 +80,10 @@ class Restraint(object):
         raise ValueError("Could not handle %d" % self.form)
 
     def write(self, fh=sys.stdout):
-        fh.write('R %4d%4d%4d%4d%4d%4d%4d'
+        fh.write('R %4d %3d %3d %3d %3d %3d %3d '
                  % (self.form, self.modal, self.feat, self.group,
                     len(self.atoms), self.nparam, 1))
-        fh.write(''.join('%6d' % x.a.index for x in self.atoms))
+        fh.write(' '.join('%5d' % x.a.index for x in self.atoms))
         fh.write('    ')
         self.write_parameters(fh)
         fh.write('\n')

@@ -115,5 +115,11 @@ class Tests(unittest.TestCase):
                           allosmod.get_pm_glyc._check_attachments,
                           c, chain_for_res)
 
+    def test_non_integer_residue(self):
+        """Test handling of non-integer residue indices"""
+        fname = os.path.join(test_dir, 'input', 'glyc.dat-nonintres')
+        self.assertRaises(allosmod.get_pm_glyc.InvalidResidueError,
+                          allosmod.get_pm_glyc.read_glyc_file, fname)
+
 if __name__ == '__main__':
     unittest.main()

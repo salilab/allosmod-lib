@@ -127,6 +127,11 @@ class Sugar(object):
             raise BondTypeError("Invalid O1 bond type %s. Valid types are: %s"
                         % (bond_type,
                            ", ".join(sorted(self._connect_atom_map.keys()))))
+        if not attach_res.isdigit():
+            raise InvalidResidueError("Invalid residue index for sugar "
+                    "attachment point: %s. Note that residues are numbered "
+                    "sequentially starting from 1, with no chain ID or "
+                    "insertion code." % attach_res)
         self.monomer, self.bond_type = monomer, bond_type
         self.attach_res = int(attach_res)
         self.one_letter_code = self._one_letter_map[monomer]
@@ -209,10 +214,10 @@ def _check_attachments(sugar_chains, chain_for_res):
     bad_attachments = [r for r in attachments if r not in chain_for_res]
     if bad_attachments:
         sorted_res = sorted(chain_for_res)
-        raise InvalidResidueError("Bad sugar attachment point(s): %s. Note "
-                    "that residues are numbered sequentially starting "
-                    "from 1, with no chain ID or insertion code."
-                    % (", ".join(bad_attachments)))
+        raise InvalidResidueError("Sugar attachment point(s) not found in "
+                    "PDB file: %s. Note that residues are numbered "
+                    "sequentially starting from 1, with no chain ID or "
+                    "insertion code." % (", ".join(bad_attachments)))
 
 def add_glycosidic_bonds(target, glycpm, sugar_chains):
     """Add bonds between protein and sugar chains"""

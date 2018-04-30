@@ -211,7 +211,8 @@ def _check_attachments(sugar_chains, chain_for_res):
         sorted_res = sorted(chain_for_res)
         raise InvalidResidueError("Bad sugar attachment point(s): %s. Note "
                     "that residues are numbered sequentially starting "
-                    "from 1, with no chain ID." % (", ".join(bad_attachments)))
+                    "from 1, with no chain ID or insertion code."
+                    % (", ".join(bad_attachments)))
 
 def add_glycosidic_bonds(target, glycpm, sugar_chains):
     """Add bonds between protein and sugar chains"""

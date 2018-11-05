@@ -317,7 +317,7 @@ run_actual_job() {
       allosmod get_loopadjres #strengthen residues adjacent to loops
   fi
   if (test -e break.dat); then
-      break="break.dat"
+      break="--break_file=break.dat"
   else
       break=""
   fi

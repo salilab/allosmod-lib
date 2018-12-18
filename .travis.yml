@@ -1,9 +1,13 @@
 sudo: required
 language: python
+dist: xenial
 python:
-  - 2.6
   - 2.7
-  - 3.6
+  - 3.7
+matrix:
+  include:
+    - dist: trusty
+      python: 2.6
 install:
   - wget -q $LICENSE_URL -O mod-license >& /dev/null
   - sudo apt-get -qq update

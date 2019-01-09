@@ -28,5 +28,14 @@ class Tests(unittest.TestCase):
                            universal_newlines=True)
         self.assertEqual(out, '-\n-\n-\n-\n-\nS\nT\nT\n-\n-\n')
 
+    def test_rna(self):
+        """Test get_ss with RNA-only file"""
+        out = check_output(['allosmod', 'get_ss',
+                           os.path.join(test_dir, 'input',
+                                        'test_rna.pdb')],
+                           universal_newlines=True)
+        # No SS info for RNA, thus output should be empty
+        self.assertEqual(out, '')
+
 if __name__ == '__main__':
     unittest.main()

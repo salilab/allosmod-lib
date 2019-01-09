@@ -2,11 +2,22 @@
 
 from __future__ import print_function, absolute_import
 import optparse
-import allosmod.util
+import subprocess
 
 def get_ss(pdb_file):
-    out = allosmod.util.check_output(["mkdssp", pdb_file],
-                                     universal_newlines=True)
+    p = subprocess.Popen(["mkdssp", pdb_file], stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE,
+                         universal_newlines=True)
+    out, err = p.communicate()
+    if p.returncode != 0:
+        # DSSP considers a lack of amino acids to be an error, but we don't
+        # (e.g. the system could be a piece of RNA/DNA). Return an empty
+        # set of SS info in this case
+        if 'empty protein, or no valid complete residues' in err:
+            out = ''
+        else:
+            raise OSError("mkdssp %s exited with code %d, output %s, error %s"
+                          % (pdb_file, p.returncode, out, err))
     start = False
     for line in out.split("\n"):
         if "RESIDUE AA STRUCTURE" in line:

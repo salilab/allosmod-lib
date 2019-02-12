@@ -116,7 +116,9 @@ python modeller2.in >& modeller2.in.log
 
 #save only interacting residues
 NLINE=`awk 'END{print NR}' $FF2`
-awk '(NR>'${NLINE}'+1){print $0}' ${SFILE2}_fit.pdb >${SFILE2}_sub.pdb
+if test -e ${SFILE2}_fit.pdb; then
+  awk '(NR>'${NLINE}'+1){print $0}' ${SFILE2}_fit.pdb >${SFILE2}_sub.pdb
+fi
 
 #rm 1temp88.pdb 2temp88.pdb 1temp88_fit.pdb 2temp88_fit.pdb
 #rm modeller.in modeller.in.log

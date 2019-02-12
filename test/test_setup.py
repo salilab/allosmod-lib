@@ -60,49 +60,51 @@ class Tests(unittest.TestCase):
         os.unlink('test.dat')
 
     def parse_config_file(self, contents, *args, **keys):
-        with open('test.dat', 'w') as fh:
-            fh.write(contents)
-        c = allosmod.setup.ConfigFile(*args, **keys)
-        try:
-            return c, list(c.parse('test.dat'))
-        finally:
-            os.unlink('test.dat')
+        with allosmod.util.temporary_directory() as tempdir:
+            fname = os.path.join(tempdir, 'test.dat')
+            with open(fname, 'w') as fh:
+                fh.write(contents)
+            c = allosmod.setup.ConfigFile(*args, **keys)
+            return c, list(c.parse(fname)), fname
 
     def test_parse_config_file_invalid(self):
         """Test ConfigFile.parse() with invalid format"""
-        c, errs = self.parse_config_file("DEVIATION=garbage", None)
-        self.assertEqual(errs, ['Missing variable in test.dat: NRUNS',
-                                'Invalid variable in test.dat: DEVIATION: '
-                                '%s' % float_fail('garbage')])
+        c, errs, fname = self.parse_config_file("DEVIATION=garbage", None)
+        self.assertEqual(errs, ['Missing variable in %s: NRUNS' % fname,
+                                'Invalid variable in %s: DEVIATION: '
+                                '%s' % (fname, float_fail('garbage'))])
 
     def test_parse_config_file_bad_delemax(self):
         """Test ConfigFile.parse() with bad delEmax"""
-        c, errs = self.parse_config_file("NRUNS=1\ndelEmax=garbage", None)
-        self.assertEqual(errs, ['Invalid variable in test.dat: DELEMAX: '
-                                '%s' % float_fail('garbage')])
+        c, errs, fname = self.parse_config_file("NRUNS=1\ndelEmax=garbage",
+                                                None)
+        self.assertEqual(errs, ['Invalid variable in %s: DELEMAX: '
+                                '%s' % (fname, float_fail('garbage'))])
 
     def test_parse_config_file_bad_sampling(self):
         """Test ConfigFile.parse() with bad sampling"""
-        c, errs = self.parse_config_file("NRUNS=1\nsampling=garbage", None)
-        self.assertEqual(errs, ['Invalid variable in test.dat: SAMPLING: '
+        c, errs, fname = self.parse_config_file("NRUNS=1\nsampling=garbage",
+                                                None)
+        self.assertEqual(errs, ['Invalid variable in %s: SAMPLING: '
                            'not one of simulation, moderate_cm, moderate_am, '
-                           'fast_cm'])
+                           'fast_cm' % fname])
 
     def test_parse_config_file_bad_mdtemp(self):
         """Test ConfigFile.parse() with bad mdtemp"""
-        c, errs = self.parse_config_file("NRUNS=1\nMDTEMP=garbage", None)
-        self.assertEqual(errs, ['Invalid variable in test.dat: MDTEMP: '
-                                '%s' % float_fail('garbage')])
+        c, errs, fname = self.parse_config_file("NRUNS=1\nMDTEMP=garbage", None)
+        self.assertEqual(errs, ['Invalid variable in %s: MDTEMP: '
+                                '%s' % (fname, float_fail('garbage'))])
 
     def test_parse_config_file_bad_boolean(self):
         """Test ConfigFile.parse() with bad boolean"""
-        c, errs = self.parse_config_file("NRUNS=1\ncoarse=garbage", None)
-        self.assertEqual(errs, ['Invalid variable in test.dat: COARSE: '
-                            'not one of 1, yes, true, on, 0, no, false, off'])
+        c, errs, fname = self.parse_config_file("NRUNS=1\ncoarse=garbage", None)
+        self.assertEqual(errs, ['Invalid variable in %s: COARSE: '
+                            'not one of 1, yes, true, on, 0, no, false, off'
+                            % fname])
 
     def test_parse_config_file_ok(self):
         """Test ConfigFile.parse() with ok file"""
-        c, errs = self.parse_config_file("""
+        c, errs, fname = self.parse_config_file("""
 NRUNS=1
 MDTEMP=SCAN
 delEmax=100.0
@@ -122,7 +124,7 @@ LOCALRIGID=yes
 
     def test_parse_config_file_defaults(self):
         """Test ConfigFile.parse() with defaults"""
-        c, errs = self.parse_config_file("""
+        c, errs, fname = self.parse_config_file("""
 NRUNS=1
 ASPDB=
 """, ["temp1", "temp2"])
@@ -133,7 +135,7 @@ ASPDB=
 
     def test_parse_config_file_glyco(self):
         """Test ConfigFile.parse() with glycocsylation"""
-        c, errs = self.parse_config_file("NRUNS=1\nDEVIATION=4\n"
+        c, errs, fname = self.parse_config_file("NRUNS=1\nDEVIATION=4\n"
                                          "SAMPLING=moderate_am",
                                          None, glyco=True)
         self.assertEqual(len(errs), 0)
@@ -142,14 +144,14 @@ ASPDB=
 
     def test_parse_config_file_one_struc(self):
         """Test ConfigFile.parse() with one structure"""
-        c, errs = self.parse_config_file("NRUNS=1\nrAS=40.\n"
+        c, errs, fname = self.parse_config_file("NRUNS=1\nrAS=40.\n"
                                          "SAMPLING=moderate_am", ["template"])
         self.assertEqual(len(errs), 0)
         self.assertAlmostEqual(c['rAS'], 1000., places=1)
 
     def test_parse_config_file_big_system(self):
         """Test ConfigFile.parse() with big system"""
-        c, errs = self.parse_config_file("NRUNS=1\nCOARSE=false", None,
+        c, errs, fname = self.parse_config_file("NRUNS=1\nCOARSE=false", None,
                                          maxres=2000)
         self.assertEqual(len(errs), 0)
         self.assertEqual(c['COARSE'], True)

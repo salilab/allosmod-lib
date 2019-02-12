@@ -6,6 +6,7 @@ import utils
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 utils.set_search_paths(TOPDIR)
 
+import allosmod.util
 from allosmod.util import check_output
 
 class Tests(unittest.TestCase):
@@ -18,8 +19,10 @@ class Tests(unittest.TestCase):
                                 'allosmod.make_mod_inputs'] + args,
                                stderr=subprocess.STDOUT, retcode=2)
 
-    def setup_inputs(self, seq='AW'):
-        with open('align.ali', 'w') as fh:
+    def setup_inputs(self, seq='AW', dir='.'):
+        def d(fname):
+            return os.path.join(dir, fname)
+        with open(d('align.ali'), 'w') as fh:
             fh.write("""C; Sample alignment
 >P1;1fdx
 sequence:1fdx:1    : :54   : ::: 2.00:-1.00
@@ -28,14 +31,14 @@ AY*
 structureX:5fd1:1    :A:2  :A::: 1.90: 0.19
 AV*
 """)
-        with open('templates', 'w') as fh:
+        with open(d('templates'), 'w') as fh:
             fh.write("5fd1\n")
-        with open('5fd1', 'w') as fh:
+        with open(d('5fd1'), 'w') as fh:
             fh.write("""
 ATOM      2  CA  ALA A   1      27.449  14.935   5.140  1.00 29.87           C
 ATOM      7  CA  VAL A   2      26.593  16.867   8.258  1.00120.51           C
 """)
-        with open('avgpdb.pdb', 'w') as fh:
+        with open(d('avgpdb.pdb'), 'w') as fh:
             fh.write("""
 ATOM      2  CA  ALA A   1      27.449  14.935   5.140  1.00 29.87           C
 ATOM      7  CA  TYR A   2      26.593  16.867   8.258  1.00120.51           C
@@ -43,20 +46,22 @@ ATOM      7  CA  TYR A   2      26.593  16.867   8.258  1.00120.51           C
 
     def test_simple(self):
         """Simple complete run of make_mod_inputs"""
-        self.setup_inputs()
-        check_output(['allosmod', 'make_mod_inputs', '--', '1fdx',
-                      'templates', '-3333', '3', '3', '3', '4'])
-        e = modeller.environ()
-        for fname in ('random.ini', '1fdx.ini'):
-            m = modeller.model(e, file=fname)
-            self.assertEqual([x.code for x in m.residues], ['A', 'Y'])
-            # Should have converted CA-only in all-atom model
-            self.assertEqual(len(m.atoms), 18)
-        with open('1fdx.rsr') as fh:
-            self.assertEqual(len(fh.readlines()), 78)
-        for f in ('templates', 'avgpdb.pdb', '5fd1', 'align.ali',
-                  'random.ini', '1fdx.ini', '1fdx.rsr'):
-            os.unlink(f)
+        with allosmod.util.temporary_directory() as tempdir:
+            self.setup_inputs(dir=tempdir)
+            check_output(['allosmod', 'make_mod_inputs', '--', '1fdx',
+                          'templates', '-3333', '3', '3', '3', '4'],
+                         cwd=tempdir)
+            e = modeller.environ()
+            for fname in ('random.ini', '1fdx.ini'):
+                m = modeller.model(e, file=os.path.join(tempdir, fname))
+                self.assertEqual([x.code for x in m.residues], ['A', 'Y'])
+                # Should have converted CA-only in all-atom model
+                self.assertEqual(len(m.atoms), 18)
+            with open(os.path.join(tempdir, '1fdx.rsr')) as fh:
+                self.assertEqual(len(fh.readlines()), 78)
+            for f in ('templates', 'avgpdb.pdb', '5fd1', 'align.ali',
+                      'random.ini', '1fdx.ini', '1fdx.rsr'):
+                os.unlink(os.path.join(tempdir, f))
 
     def test_nucleic(self):
         """Test make_mod_inputs with nucleic acids"""

@@ -17,6 +17,10 @@ class InvalidResidueError(Exception):
     """Error raised for an invalid residue number."""
     pass
 
+class NoSugarsError(Exception):
+    """Error raised for an empty glyc.dat."""
+    pass
+
 def read_template_file(template_file):
     """Read the list of templates from a file and return it."""
     with open(template_file) as fh:
@@ -160,6 +164,9 @@ def read_glyc_file(fname):
                 chain = SugarChain()
                 s.append(chain)
             chain.append(Sugar(monomer, bond_type, attach_res))
+    if len(s) == 0:
+        raise NoSugarsError("You have provided a glyc.dat that contains "
+                            "no valid sugars.")
     return s
 
 def count_residues(alnfile, code):

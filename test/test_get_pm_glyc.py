@@ -106,6 +106,15 @@ class Tests(unittest.TestCase):
         self.assertEqual(s.one_letter_code, '1')
         self.assertEqual(s.get_connect_atom(), 'ND2')
 
+    def test_read_empty_glyc_file(self):
+        """Test read_glyc_file() with empty file"""
+        with allosmod.util.temporary_directory() as tempdir:
+            glyc = os.path.join(tempdir, "glyc.dat")
+            with open(glyc, 'w') as fh:
+                pass
+            self.assertRaises(allosmod.get_pm_glyc.NoSugarsError,
+                              allosmod.get_pm_glyc.read_glyc_file, glyc)
+
     def test_check_attachments(self):
         """Test _check_attachments()"""
         fname = os.path.join(test_dir, 'input', 'glyc.dat')

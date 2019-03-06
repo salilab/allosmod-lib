@@ -81,12 +81,11 @@ run_actual_job() {
       allosmod pdb_fix_res --in-place $s
   done
   
-  #set up random numbers for structure generation
-  RR=`date --rfc-3339=ns | awk -F. '{print $2}' | awk -F- '{print $1}'`
-  RAND_NUM=`echo "scale=0; -1*(155421*${JOB_ID}+${RR})%40000-2" |bc -l | awk '{printf "%9.0f",$1}' | awk '{print $1}'`
-  RR1=`echo "scale=0; (155421*${JOB_ID}+${RR})%360" |bc -l | awk '{printf "%9.0f",$1}' | awk '{print $1}'`
-  RR2=`echo "scale=0; (5433*${JOB_ID}+2*${RR})%360" |bc -l | awk '{printf "%9.0f",$1}' | awk '{print $1}'`
-  RR3=`echo "scale=0; (11*${JOB_ID}+3*${RR})%360" |bc -l | awk '{printf "%9.0f",$1}' | awk '{print $1}'`
+  # get random numbers for structure generation
+  RAND_NUM=$((-1*(155421*${JOB_ID}+${RANDOM})%40000-2))
+  RR1=$(((155421*${JOB_ID}+${RANDOM})%360))
+  RR2=$(((5433*${JOB_ID}+2*${RANDOM})%360))
+  RR2=$(((11*${JOB_ID}+3*${RANDOM})%360))
   
   ##########
   ### if AllosMod landscape, set up landscape here ###
@@ -156,11 +155,10 @@ run_actual_job() {
       ctr=-1; iVECT=0
       for s in `cat list`; do
   	ctr=$((${ctr} + 1))
-  	RR=`date --rfc-3339=ns | awk -F. '{print $2}' | awk -F- '{print $1}'`
-  	RAND_NUM=`echo "scale=0; -1*(155421*${JOB_ID}+${RR})%40000-2" |bc -l | awk '{printf "%9.0f",$1}' | awk '{print $1}'`
-  	RR1=`echo "scale=0; ((${ctr}+1)*${JOB_ID}+${RR})%360" |bc -l | awk '{printf "%9.0f",$1}' | awk '{print $1}'`
-  	RR2=`echo "scale=0; ((${ctr}+13)*${JOB_ID}+2*${RR})%360" |bc -l | awk '{printf "%9.0f",$1}' | awk '{print $1}'`
-  	RR3=`echo "scale=0; ((${ctr}+23)*${JOB_ID}+3*${RR})%360" |bc -l | awk '{printf "%9.0f",$1}' | awk '{print $1}'`
+        RAND_NUM=$((-1*(155421*${JOB_ID}+${RANDOM})%40000-2))
+        RR1=$((((${ctr}+1)*${JOB_ID}+${RANDOM})%360))
+        RR2=$((((${ctr}+13)*${JOB_ID}+${RANDOM})%360))
+        RR3=$((((${ctr}+23)*${JOB_ID}+${RANDOM})%360))
   	#rotate
   echo $RAND_NUM $RR1 $RR2 $RR3
   	allosmod rotatepdb -- $s $RR1 $RR2 $RR3 >random.ini

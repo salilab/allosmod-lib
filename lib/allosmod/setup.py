@@ -236,6 +236,7 @@ class Setup(object):
             self.substitute_script_file(fh_out)
 
     def make_script_file_header(self, fh):
+        fh.write('#!/bin/bash\n')
         fh.write('TASK=( null \\\n'
               + ''.join('%d \\\n' % i for i in range(self.config['NRUNS']))
               + ')\n')

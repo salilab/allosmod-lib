@@ -348,7 +348,12 @@ run_actual_job() {
   	cat tempaddrestr >>edited.rsr
   	echo "" >>run.log; echo "additional restraints: " >>run.log; cat tempaddrestr >>run.log; echo "" >>run.log
   	#redo initial structure with additional restraints
-        for s in `cat list`; do
+        if test ${NTOT} -gt 1 -o ${isLIGMOD} -eq 1; then
+            all_structures=`cat list`
+        else
+            all_structures=`head -n1 list`
+        fi
+        for s in ${all_structures}; do
             echo $s >listinit
             cd "pred_$s"
   	    awk '($2==2||$2==3){print $0}' ../tempaddrestr >> pm.pdb.rsr

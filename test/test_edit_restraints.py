@@ -642,6 +642,17 @@ class Tests(unittest.TestCase):
         self.assertFalse(get_nuc_restrained('N2', 'CYT'))
         self.assertFalse(get_nuc_restrained('N2', 'URA'))
 
+    def test_parse_other(self):
+        """Test parse of restraints unknown to AllosMod"""
+        class MockRestraint(object):
+            atoms = []
+            def is_intrahet(self):
+                return False
+        e = TestRestraintEditor()
+        r2 = list(e.check_parse_restraint(MockRestraint()))
+        # Unknown restraints are ignored
+        self.assertEqual(len(r2), 0)
+
     def test_parse_coarse_ca_ca_intra_protein(self):
         """Test parse of coarse AS-AS CA-CA intra-protein restraint"""
         e = TestRestraintEditor()

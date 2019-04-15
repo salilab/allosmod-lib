@@ -57,5 +57,41 @@ class Tests(unittest.TestCase):
             os.unlink(break_dat)
             os.unlink(os.path.join(tmpdir, 'contpres.dat'))
 
+    def test_cdensity_even_cutoff_negative(self):
+        """Test contpres with even charge density, negative cutoff"""
+        with utils.temporary_directory() as tmpdir:
+            break_dat = os.path.join(tmpdir, 'break.dat')
+            with open(break_dat, 'w') as fh:
+                fh.write("foo\nbar\n")
+            out = check_output(['allosmod', 'contpres', '--cdensity_cutoff',
+                                '-1.0', os.path.join(test_dir, 'input',
+                                                    'contpres_evencd.rsr'),
+                                os.path.join(test_dir, 'input',
+                                             'contpres_evencd.pdb'), '50.0'],
+                               cwd=tmpdir)
+            with open(break_dat) as fh:
+                content = fh.read()
+            self.assertEqual(content, "foo\nbar\n1 50.0\n2 50.0\n")
+            os.unlink(break_dat)
+            os.unlink(os.path.join(tmpdir, 'contpres.dat'))
+
+    def test_cdensity_even_cutoff_positive(self):
+        """Test contpres with even charge density, positive cutoff"""
+        with utils.temporary_directory() as tmpdir:
+            break_dat = os.path.join(tmpdir, 'break.dat')
+            with open(break_dat, 'w') as fh:
+                fh.write("foo\nbar\n")
+            out = check_output(['allosmod', 'contpres', '--cdensity_cutoff',
+                                '1.0', os.path.join(test_dir, 'input',
+                                                    'contpres_evencd.rsr'),
+                                os.path.join(test_dir, 'input',
+                                             'contpres_evencd.pdb'), '50.0'],
+                               cwd=tmpdir)
+            with open(break_dat) as fh:
+                content = fh.read()
+            self.assertEqual(content, "foo\nbar\n")
+            os.unlink(break_dat)
+            os.unlink(os.path.join(tmpdir, 'contpres.dat'))
+
 if __name__ == '__main__':
     unittest.main()

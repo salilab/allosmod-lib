@@ -37,5 +37,13 @@ class Tests(unittest.TestCase):
         # No SS info for RNA, thus output should be empty
         self.assertEqual(out, '')
 
+    def test_dssp_error(self):
+        """Test handling of DSSP errors in get_ss"""
+        out = check_output(['allosmod', 'get_ss',
+                           os.path.join(test_dir, 'input',
+                                        'not-exist.pdb')],
+                           universal_newlines=True, retcode=1)
+        self.assertEqual(out, '')
+
 if __name__ == '__main__':
     unittest.main()

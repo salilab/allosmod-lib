@@ -85,7 +85,7 @@ run_actual_job() {
   RAND_NUM=$((-1*(155421*${JOB_ID}+${RANDOM})%40000-2))
   RR1=$(((155421*${JOB_ID}+${RANDOM})%360))
   RR2=$(((5433*${JOB_ID}+2*${RANDOM})%360))
-  RR2=$(((11*${JOB_ID}+3*${RANDOM})%360))
+  RR3=$(((11*${JOB_ID}+3*${RANDOM})%360))
   
   ##########
   ### if AllosMod landscape, set up landscape here ###

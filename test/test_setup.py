@@ -56,7 +56,11 @@ class Tests(unittest.TestCase):
     def test_write_config_file(self):
         """Test ConfigFile.write()"""
         c = allosmod.setup.ConfigFile(None)
+        c['deleMaX'] = 'foo'
         c.write('test.dat')
+        with open('test.dat') as fh:
+            content = fh.read()
+        self.assertEqual(content, 'DELEMAX=foo\n')
         os.unlink('test.dat')
 
     def parse_config_file(self, contents, *args, **keys):

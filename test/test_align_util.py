@@ -36,5 +36,14 @@ class Tests(unittest.TestCase):
             self.assertEqual(out_lines[2], 'N/T--TVFQG---VAGQSLQ')
             self.assertEqual(out_lines[6], 'NT-TV/F-QGVAG---QSLQ')
 
+    def test_insert_fail(self):
+        """Test align.insert_gap() failure"""
+        with utils.temporary_directory() as tmpdir:
+            ali = os.path.join(tmpdir, 'test_insert.ali')
+            with open(ali, 'w') as fh:
+                fh.write(TEST_ALIGNMENT)
+            self.assertRaises(ValueError, allosmod.util.align.insert_gap,
+                              ali, 1, 97, 99)
+
 if __name__ == '__main__':
     unittest.main()

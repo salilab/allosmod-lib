@@ -14,6 +14,7 @@ def _get_insertion_point(seq, lres):
     for alnpos, ires, res in _enumerate_sequence(seq):
         if ires == lres:
             return alnpos
+    raise ValueError("Could not find residue %d in sequence %s" % (lres, seq))
 
 def insert_gap(fname, sequence, from_res, to_res, fh=sys.stdout):
     """Insert a gap in the named alignment file.

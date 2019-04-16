@@ -326,7 +326,8 @@ Generate Modeller scripts and alignments to model with glycosylation.
 <template_file> file containing a list of all templates
 <rand> random seed
 <rep_opt> option to allow repeat optimization
-<att_gap> if set, inserts gaps to allow flexibility at glycosylation sites
+<att_gap> if set to "TRUE", inserts gaps to allow flexibility at
+          glycosylation sites
 <glycpm> either "script" or the name of a PDB file
 """
     parser = optparse.OptionParser(usage)

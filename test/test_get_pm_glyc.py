@@ -41,6 +41,26 @@ class Tests(unittest.TestCase):
                       'model_glyc.py', 'get_rest.in', 'allosmod.py'):
                 os.unlink(os.path.join(tempdir, f))
 
+    def test_simple_no_gaps(self):
+        """Simple complete run of get_pm_glyc script, no gaps"""
+        with allosmod.util.temporary_directory() as tempdir:
+            with open(os.path.join(tempdir, 'list'), 'w') as fh:
+                fh.write('test_pm_glyc.pdb')
+            shutil.copy(os.path.join(test_dir, 'input', 'asite_pdb1.pdb'),
+                        os.path.join(tempdir, 'test_pm_glyc.pdb'))
+            shutil.copy(os.path.join(test_dir, 'input', 'test_pm_glyc.ali'),
+                        os.path.join(tempdir, 'align.ali'))
+            shutil.copy(os.path.join(test_dir, 'input', 'glyc.dat'),
+                        tempdir)
+            out = check_output(['allosmod', 'get_pm_glyc', 'pm.pdb', 'list',
+                                '42', '1', 'false', 'test_pm_glyc.pdb'],
+                               cwd=tempdir)
+            # assert on generated files
+            self.assertFalse(os.path.exists('align2.ali'))
+            for f in ('model_ini.py', 'model_ini0.py',
+                      'model_glyc.py', 'get_rest.in', 'allosmod.py'):
+                os.unlink(os.path.join(tempdir, f))
+
     def test_bad_bond_type(self):
         """Test handling of invalid O1 bond type"""
         self.assertRaises(allosmod.get_pm_glyc.BondTypeError,

@@ -52,7 +52,8 @@ class Tests(unittest.TestCase):
                                         'test_qiavg.pdb'), '20.0',
                            os.path.join(test_dir, 'input',
                                         'test_rna.pdb')],
-                           stderr=subprocess.STDOUT, retcode=1)
+                           stderr=subprocess.STDOUT, retcode=1,
+                           universal_newlines=True)
         self.assertTrue('different numbers of residues' in out)
 
 if __name__ == '__main__':

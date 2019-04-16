@@ -44,13 +44,16 @@ class Tests(unittest.TestCase):
                 mat[mat_ind] = (m1,m2,m3)
         for i in range(3):
             self.assertAlmostEqual(mat[i][inds[i]], 1.0, places=3)
-        self.assertAlmostEqual(mat[0][inds[1]], 0.9278, places=4)
-        self.assertAlmostEqual(mat[1][inds[0]], 0.9278, places=4)
-        self.assertAlmostEqual(mat[2][inds[0]], 0.8815, places=4)
+        self.assertAlmostEqual(mat[0][inds[1]], 1.0000, places=4)
+        self.assertAlmostEqual(mat[0][inds[2]], 0.9047, places=4)
+        self.assertAlmostEqual(mat[1][inds[0]], 1.0000, places=4)
+        self.assertAlmostEqual(mat[1][inds[2]], 0.9193, places=4)
+        self.assertAlmostEqual(mat[2][inds[0]], 0.9047, places=4)
+        self.assertAlmostEqual(mat[2][inds[2]], 1.0000, places=4)
        
         with open('cq_aq_qavg_qsd.dat') as fh:
             contents = fh.read()
-        self.assertEqual(contents, "Qa,b: 0.91\n")
+        self.assertEqual(contents, "Qa,b: 0.94\n")
         os.unlink('qmatrix.dat')
         os.unlink('cq_aq_qavg_qsd.dat')
 

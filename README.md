@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3234956.svg)](https://doi.org/10.5281/zenodo.3234956)
 [![docs](https://readthedocs.org/projects/allosmod/badge/)](https://allosmod.readthedocs.org/)
 [![Build Status](https://travis-ci.org/salilab/allosmod-lib.svg?branch=master)](https://travis-ci.org/salilab/allosmod-lib)
 [![codecov](https://codecov.io/gh/salilab/allosmod-lib/branch/master/graph/badge.svg)](https://codecov.io/gh/salilab/allosmod-lib)

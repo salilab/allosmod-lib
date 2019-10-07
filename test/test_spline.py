@@ -27,8 +27,10 @@ ATOM      7  CA  VAL A   2      26.593  16.867   8.258  1.00120.51           C
 """)
         check_output(['allosmod', 'spline', 'test.pdb',
                       os.path.join(test_dir, 'input', 'edited.rsr'), 'out.rsr'])
-        rsr = open('out.rsr').read()
-        expected = open(os.path.join(test_dir, 'input', 'converted.rsr')).read()
+        with open('out.rsr') as fh:
+            rsr = fh.read()
+        with open(os.path.join(test_dir, 'input', 'converted.rsr')) as fh:
+            expected = fh.read()
         self.assertEqual(rsr, expected)
         for f in ('test.pdb', 'out.rsr'):
             os.unlink(f)

@@ -24,7 +24,7 @@ install:
   - (cd ProFitV3.1/src && make -j2 && sudo cp profit /usr/bin)
   - pip install coverage
 script:
-  - make
+  - make PYTHON=python
   - nosetests --with-coverage --cover-branches
 after_success:
   - bash <(curl -s https://codecov.io/bash)

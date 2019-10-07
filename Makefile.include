@@ -4,10 +4,11 @@ BINDIR=${PREFIX}/bin
 PYTHONDIR=${PREFIX}/python
 LOCAL_SCRATCH=/tmp
 GLOBAL_SCRATCH=/scrapp
+PYTHON=python3
 
 CC=gcc
 SWIG=swig
-PYTHON_CFLAGS=-I`echo "import distutils.sysconfig; print(distutils.sysconfig.get_python_inc())" | python`
+PYTHON_CFLAGS=-I`echo "import distutils.sysconfig; print(distutils.sysconfig.get_python_inc())" | ${PYTHON}`
 GLIB2_CFLAGS=`pkg-config --cflags glib-2.0`
 MODELLER_CFLAGS=`pkg-config --cflags modeller`
 MODELLER_LIBS=`pkg-config --libs modeller`

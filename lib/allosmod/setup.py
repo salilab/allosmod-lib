@@ -108,7 +108,8 @@ class ConfigFile(object):
         """Read in configuration from the given file.
            Yields any parsing errors."""
         cp = ConfigParser()
-        cp.readfp(_FakeSectionHead(open(fname)))
+        with open(fname) as fh:
+            cp.readfp(_FakeSectionHead(fh))
         for name, value in cp.items('main'):
             self._d[name.upper()] = value
 

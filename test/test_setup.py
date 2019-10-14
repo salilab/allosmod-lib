@@ -27,7 +27,7 @@ class Tests(unittest.TestCase):
             out = check_output(['allosmod', 'setup'] + args,
                                stderr=subprocess.STDOUT, retcode=2,
                                universal_newlines=True)
-            out = check_output(['python', '-m',
+            out = check_output([sys.executable, '-m',
                                 'allosmod.setup'] + args,
                                stderr=subprocess.STDOUT, retcode=2,
                                universal_newlines=True)

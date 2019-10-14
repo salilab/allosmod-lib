@@ -13,7 +13,7 @@ class Tests(unittest.TestCase):
         for args in ([], [''] * 3):
             out = check_output(['allosmod', 'get_glyc_restraint'] + args,
                                stderr=subprocess.STDOUT, retcode=2)
-            out = check_output(['python', '-m',
+            out = check_output([sys.executable, '-m',
                                 'allosmod.get_glyc_restraint'] + args,
                                stderr=subprocess.STDOUT, retcode=2)
     def test_simple(self):

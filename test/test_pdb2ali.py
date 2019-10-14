@@ -60,7 +60,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCMYh./CMY-frh.*
                 fh.write(test_pdb)
             for out in (check_output(['allosmod', 'pdb2ali', 'test.pdb'],
                                      universal_newlines=True, cwd=tmpdir),
-                        check_output(['python', '-m', 'allosmod.pdb2ali',
+                        check_output([sys.executable, '-m', 'allosmod.pdb2ali',
                                       'test.pdb'], universal_newlines=True,
                                       cwd=tmpdir)):
                 self.assertEqual(out, """>P1;test.pdb

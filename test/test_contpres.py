@@ -16,7 +16,7 @@ class Tests(unittest.TestCase):
         for args in ([], [''] * 4):
             out = check_output(['allosmod', 'contpres'] + args,
                                stderr=subprocess.STDOUT, retcode=2)
-            out = check_output(['python', '-m',
+            out = check_output([sys.executable, '-m',
                                 'allosmod.contpres'] + args,
                                stderr=subprocess.STDOUT, retcode=2)
 

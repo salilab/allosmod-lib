@@ -27,7 +27,7 @@ class Tests(unittest.TestCase):
                 fh.write(test_pdb)
             for out in (check_output(['allosmod', 'getrofg', 'test.pdb'],
                                      cwd=tmpdir),
-                        check_output(['python', '-m', 'allosmod.getrofg',
+                        check_output([sys.executable, '-m', 'allosmod.getrofg',
                                       'test.pdb'], cwd=tmpdir)):
                 r = float(out)
                 self.assertAlmostEqual(r, 2.3, places=1)

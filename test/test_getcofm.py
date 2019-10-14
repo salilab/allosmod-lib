@@ -28,7 +28,7 @@ class Tests(unittest.TestCase):
                 fh.write(test_pdb)
             for out in (check_output(['allosmod', 'getcofm', 'test.pdb'],
                                      cwd=tmpdir),
-                        check_output(['python', '-m', 'allosmod.getcofm',
+                        check_output([sys.executable, '-m', 'allosmod.getcofm',
                                       'test.pdb'], cwd=tmpdir)):
                 x = float(out[:8])
                 y = float(out[9:17])

@@ -59,8 +59,8 @@ class Tests(unittest.TestCase):
                     return fh.read()
             for out in (check_output(['allosmod', 'pdb_fix_res', 'test.pdb'],
                                      universal_newlines=True, cwd=tmpdir),
-                        check_output(['python', '-m', 'allosmod.pdb_fix_res',
-                                      'test.pdb'],
+                        check_output([sys.executable, '-m',
+                                      'allosmod.pdb_fix_res', 'test.pdb'],
                                      universal_newlines=True, cwd=tmpdir),
                         check_inplace()):
                 lines = out.split('\n')

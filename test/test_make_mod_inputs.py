@@ -15,7 +15,7 @@ class Tests(unittest.TestCase):
         for args in ([], ['x'] * 8):
             out = check_output(['allosmod', 'make_mod_inputs'] + args,
                                stderr=subprocess.STDOUT, retcode=2)
-            out = check_output(['python', '-m',
+            out = check_output([sys.executable, '-m',
                                 'allosmod.make_mod_inputs'] + args,
                                stderr=subprocess.STDOUT, retcode=2)
 

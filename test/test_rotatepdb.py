@@ -28,7 +28,8 @@ class Tests(unittest.TestCase):
             for out in (check_output(['allosmod', 'rotatepdb', '--', 'test.pdb',
                                       '10', '-20', '30'],
                                      universal_newlines=True, cwd=tmpdir),
-                        check_output(['python', '-m', 'allosmod.rotatepdb',
+                        check_output([sys.executable, '-m',
+                                      'allosmod.rotatepdb',
                                       '--', 'test.pdb', '10', '-20', '30'],
                                      universal_newlines=True, cwd=tmpdir)):
                 lines = out.split('\n')

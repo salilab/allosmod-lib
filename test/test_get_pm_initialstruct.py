@@ -21,7 +21,7 @@ class Tests(unittest.TestCase):
         for args in ([], ['1', '2', '3', '4', '5', '6']):
             out = check_output(['allosmod', 'get_pm_initialstruct'] + args,
                                stderr=subprocess.STDOUT, retcode=2)
-            out = check_output(['python', '-m',
+            out = check_output([sys.executable, '-m',
                                 'allosmod.get_pm_initialstruct'] + args,
                                stderr=subprocess.STDOUT, retcode=2)
 

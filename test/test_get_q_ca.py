@@ -15,7 +15,7 @@ class Tests(unittest.TestCase):
         """Test wrong arguments to get_q_ca"""
         out = check_output(['allosmod', 'get_q_ca'],
                            stderr=subprocess.STDOUT, retcode=2)
-        out = check_output(['python', '-m',
+        out = check_output([sys.executable, '-m',
                             'allosmod.get_q_ca'],
                            stderr=subprocess.STDOUT, retcode=2)
 

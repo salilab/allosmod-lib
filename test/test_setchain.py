@@ -32,7 +32,7 @@ class Tests(unittest.TestCase):
                     return fh.read()
             for out in (check_output(['allosmod', 'setchain', 'test.pdb', 'X'],
                                      universal_newlines=True, cwd=tmpdir),
-                        check_output(['python', '-m', 'allosmod.setchain',
+                        check_output([sys.executable, '-m', 'allosmod.setchain',
                                       'test.pdb', 'XYZ'],
                                      universal_newlines=True, cwd=tmpdir),
                         check_inplace()):

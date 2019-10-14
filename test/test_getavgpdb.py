@@ -28,7 +28,7 @@ class Tests(unittest.TestCase):
         for args in ([], [''] * 5):
             out = check_output(['allosmod', 'getavgpdb'] + args,
                                stderr=subprocess.STDOUT, retcode=2)
-            out = check_output(['python', '-m',
+            out = check_output([sys.executable, '-m',
                                 'allosmod.getavgpdb'] + args,
                                stderr=subprocess.STDOUT, retcode=2)
 

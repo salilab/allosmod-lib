@@ -16,7 +16,7 @@ class Tests(unittest.TestCase):
         for args in ([], [''] * 5):
             out = check_output(['allosmod', 'get_allosteric_site'] + args,
                                stderr=subprocess.STDOUT, retcode=2)
-            out = check_output(['python', '-m',
+            out = check_output([sys.executable, '-m',
                                 'allosmod.get_allosteric_site'] + args,
                                stderr=subprocess.STDOUT, retcode=2)
 

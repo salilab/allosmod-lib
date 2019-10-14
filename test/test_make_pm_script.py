@@ -13,7 +13,7 @@ class Tests(unittest.TestCase):
         for args in ([], [''] * 7):
             out = check_output(['allosmod', 'make_pm_script'] + args,
                                stderr=subprocess.STDOUT, retcode=2)
-            out = check_output(['python', '-m',
+            out = check_output([sys.executable, '-m',
                                 'allosmod.make_pm_script'] + args,
                                stderr=subprocess.STDOUT, retcode=2)
         out = check_output(['allosmod', 'make_pm_script', '--', 'target',

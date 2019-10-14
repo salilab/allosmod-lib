@@ -21,7 +21,8 @@ class Tests(unittest.TestCase):
         for args in ([], ['1', '2', '3', '4']):
             out = check_output(['allosmod', 'salign0'] + args,
                                stderr=subprocess.STDOUT, retcode=2)
-            out = check_output(['python', '-m', 'allosmod.salign0'] + args,
+            out = check_output([sys.executable, '-m',
+                                'allosmod.salign0'] + args,
                                stderr=subprocess.STDOUT, retcode=2)
 
     def test_determine_fit_atoms(self):

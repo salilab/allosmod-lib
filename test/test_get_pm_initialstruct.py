@@ -1,6 +1,7 @@
 import unittest
 import subprocess
 import os
+import sys
 import shutil
 import modeller
 import utils

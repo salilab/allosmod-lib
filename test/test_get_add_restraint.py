@@ -1,6 +1,7 @@
 import unittest
 import modeller
 import os
+import sys
 import subprocess
 import utils
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))

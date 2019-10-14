@@ -1,6 +1,7 @@
 import unittest
 import subprocess
 import os
+import sys
 from io import BytesIO
 import utils
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))

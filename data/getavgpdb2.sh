@@ -8,6 +8,7 @@ FIL1=$1 #if hetatm's, then taken from this file first (not randomized)
 FIL2=$2
 ID1=$3 #input structures
 ID2=$4
+PYTHON="$5"
 AFIL=align.ali
 
 NATOM1=`awk 'BEGIN{FS=""}($1$2$3$4=="ATOM"){print $0}' $FIL1 | awk 'END{print NR}'`
@@ -35,7 +36,7 @@ for i in `seq ${NRES}`; do
     fi
 done
 
-$SCRIPT_DIR/salign_sub.sh temp9941 tempfit.pdb temp9942
+$SCRIPT_DIR/salign_sub.sh temp9941 tempfit.pdb temp9942 "$PYTHON"
 
 echo >>run.log
 

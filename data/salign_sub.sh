@@ -3,6 +3,7 @@
 # saligns FILE2_subset onto FILE1 and then superimposes FILE2_whole onto FILE2_subset
 
 PDIR=./
+PYTHON="$4"
 cp ${PDIR}/$1 ./1temp88.pdb
 cp ${PDIR}/$2 ./2temp88.pdb
 cp ${PDIR}/$3 ./3temp88.pdb
@@ -83,7 +84,7 @@ aln.write(file='temp5773.ali', alignment_format='PIR')
 EOF
 
 echo "run salign of FILE2_subset onto FILE1" >>run.log
-python modeller.in >& modeller.in.log
+"$PYTHON" modeller.in >& modeller.in.log
 
 if (test ! -e 2temp88_fit.pdb); then exit; fi
 
@@ -112,7 +113,7 @@ r = atmsel.superpose(mdl2, aln,superpose_refine=True,rms_cutoff=6.0)
 mdl2.write(file='${SFILE2}_fit.pdb')
 EOF
 echo "run superimpose FILE2 onto FILE2_subset" >>run.log
-python modeller2.in >& modeller2.in.log
+"$PYTHON" modeller2.in >& modeller2.in.log
 
 #save only interacting residues
 NLINE=`awk 'END{print NR}' $FF2`

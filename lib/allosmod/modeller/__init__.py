@@ -3,28 +3,44 @@
 
 from __future__ import absolute_import
 
-from modeller.alignment import alignment
+try:
+    # Modeller 10
+    from modeller.alignment import Alignment
+    from modeller.energy_data import EnergyData
+    from modeller.selection import Selection
+    from modeller.automodel import AutoModel
+    from modeller.schedule import Schedule, Step
+    from modeller.optimizers import MolecularDynamics as MD
+    from modeller.optimizers import ConjugateGradients as CG
+    from modeller.physical import Values
+except ImportError:
+    # Modeller 9
+    from modeller.alignment import alignment as Alignment
+    from modeller.energy_data import energy_data as EnergyData
+    from modeller.selection import selection as Selection
+    from modeller.automodel import automodel as AutoModel
+    from modeller.schedule import schedule as Schedule
+    from modeller.schedule import step as Step
+    from modeller.optimizers import molecular_dynamics as MD
+    from modeller.optimizers import conjugate_gradients as CG
+    from modeller.physical import values as Values
+
 from modeller import physical
-from modeller.energy_data import energy_data
-from modeller.selection import selection
-from modeller.automodel import automodel, randomize
+from modeller.automodel import randomize
 import modeller.modfile as modfile
 from modeller.automodel.autosched import mk_scale
-from modeller.schedule import schedule, step
-from modeller.optimizers import molecular_dynamics as MD
-from modeller.optimizers import conjugate_gradients as CG
 
 #: MD optimization
-MDopt = schedule(4,
-       [ step(CG(max_iterations=500), 2, mk_scale(default=0.00001, nonbond=0.0)) ] + \
-       [ step(CG(max_iterations=500), 9999, mk_scale(default=rng, nonbond=0.0)) for rng in \
+MDopt = Schedule(4,
+       [ Step(CG(max_iterations=500), 2, mk_scale(default=0.00001, nonbond=0.0)) ] + \
+       [ Step(CG(max_iterations=500), 9999, mk_scale(default=rng, nonbond=0.0)) for rng in \
                   (0.00001,0.0001,0.001,0.01,0.1,0.5,1.0) ] + \
-       [ step(MD(temperature=rng, cap_atom_shift=0.028, md_time_step=1.0, equilibrate=20, max_iterations=50000), 9999, mk_scale(default=1.00, nonbond=0.001)) for rng in \
+       [ Step(MD(temperature=rng, cap_atom_shift=0.028, md_time_step=1.0, equilibrate=20, max_iterations=50000), 9999, mk_scale(default=1.00, nonbond=0.001)) for rng in \
          (50.0,100.0,200.0,300.0) ] + \
-       [ step(MD(temperature=300.0, cap_atom_shift=0.028, md_time_step=1.0, equilibrate=20, max_iterations=50000), 9999, mk_scale(default=1.00, nonbond=0.01)),
-         step(MD(temperature=300.0, cap_atom_shift=0.028, md_time_step=1.0, equilibrate=20, max_iterations=50000), 9999, mk_scale(default=1.00, nonbond=0.1)),
-         step(MD(temperature=300.0, cap_atom_shift=0.028, md_time_step=1.0, equilibrate=20, max_iterations=50000), 9999, mk_scale(default=1.00, nonbond=0.5)),
-         step(MD(temperature=300.0, cap_atom_shift=0.028, md_time_step=1.0, equilibrate=20, max_iterations=50000), 9999, physical.values(default=1.00)) ])
+       [ Step(MD(temperature=300.0, cap_atom_shift=0.028, md_time_step=1.0, equilibrate=20, max_iterations=50000), 9999, mk_scale(default=1.00, nonbond=0.01)),
+         Step(MD(temperature=300.0, cap_atom_shift=0.028, md_time_step=1.0, equilibrate=20, max_iterations=50000), 9999, mk_scale(default=1.00, nonbond=0.1)),
+         Step(MD(temperature=300.0, cap_atom_shift=0.028, md_time_step=1.0, equilibrate=20, max_iterations=50000), 9999, mk_scale(default=1.00, nonbond=0.5)),
+         Step(MD(temperature=300.0, cap_atom_shift=0.028, md_time_step=1.0, equilibrate=20, max_iterations=50000), 9999, Values(default=1.00)) ])
 
 #: MD equilibration and simulation
 class ConstTemp(object):
@@ -55,7 +71,7 @@ class ConstTemp(object):
         EQits=50000
 
         mdl = atmsel.get_model()
-        edat = energy_data(copy=mdl.env.edat)
+        edat = EnergyData(copy=mdl.env.edat)
         edat.contact_shell=4.0
         edat.update_dynamic=0.39
 
@@ -68,14 +84,14 @@ class ConstTemp(object):
                   sampl_temp=self.MDtemp, sampl_nmov=self.nmov)
 
 #: Omit optimization
-MDnone = schedule(4,
-       [ step(CG(max_iterations=500), 2, mk_scale(default=0.00001, nonbond=0.0)) ])
+MDnone = Schedule(4,
+       [ Step(CG(max_iterations=500), 2, mk_scale(default=0.00001, nonbond=0.0)) ])
 
 #: Omit refinement
 def none(atmsel, actions):
     write_intermediates = False
     mdl = atmsel.get_model()
-    edat = energy_data(copy=mdl.env.edat)
+    edat = EnergyData(copy=mdl.env.edat)
 
     _refineCT(write_intermediates, edat, atmsel, actions, cap=0.01, timestep=0.01,
            equil_its=1, equil_equil=1,
@@ -113,7 +129,7 @@ class ModerateAM(object):
         EQtemp6=self.MDtemp
 
         mdl = atmsel.get_model()
-        edat = energy_data(copy=mdl.env.edat)
+        edat = EnergyData(copy=mdl.env.edat)
         edat.contact_shell=4.0
         edat.update_dynamic=0.39
 
@@ -127,12 +143,10 @@ class ModerateAM(object):
 
 def _refine(atmsel, actions, cap, timestep, equil_its, equil_equil,
            equil_temps, sampl_its, sampl_equil, sampl_temps, **args):
-    from modeller.optimizers import molecular_dynamics
-
     mdl = atmsel.get_model()
-    md = molecular_dynamics(cap_atom_shift=cap, md_time_step=timestep,
-                            md_return='FINAL', output=mdl.optimize_output,
-                            actions=actions, **args)
+    md = MD(cap_atom_shift=cap, md_time_step=timestep,
+            md_return='FINAL', output=mdl.optimize_output,
+            actions=actions, **args)
     init_vel = True
     # First run for equilibration, the second for sampling:
     for (its, equil, temps) in ((equil_its, equil_equil, equil_temps),
@@ -144,13 +158,11 @@ def _refine(atmsel, actions, cap, timestep, equil_its, equil_equil,
 
 def _refineCT(write_intermediates, edat, atmsel, actions, cap, timestep, equil_its, equil_equil,
              equil_temps, sampl_its, sampl_equil, sampl_temp, sampl_nmov, **args):
-    from modeller.optimizers import molecular_dynamics
-    
     mdl = atmsel.get_model()
     
-    md = molecular_dynamics(cap_atom_shift=cap, md_time_step=timestep,
-                            md_return='FINAL', output=mdl.optimize_output,
-                            actions=actions, edat=edat, **args)
+    md = MD(cap_atom_shift=cap, md_time_step=timestep,
+            md_return='FINAL', output=mdl.optimize_output,
+            actions=actions, edat=edat, **args)
     init_vel = True
     # First run equilibration
     ctr=500
@@ -173,7 +185,7 @@ def _refineCT(write_intermediates, edat, atmsel, actions, cap, timestep, equil_i
             ctr=ctr+1
             atmsel.get_model().write_int(ctr, 1)
 
-class AllosModel(automodel):
+class AllosModel(AutoModel):
     spline_on_site = False
     starting_model = 1 #necessary
     ending_model = 1 #necessary
@@ -182,13 +194,13 @@ class AllosModel(automodel):
     def __init__(self, env, alnfile, knowns, sequence,
                  deviation=None, library_schedule=None, csrfile=None,
                  inifile=None, assess_methods=None):
-        automodel.__init__(self, env, alnfile, knowns, sequence, deviation,
+        AutoModel.__init__(self, env, alnfile, knowns, sequence, deviation,
                            library_schedule, csrfile, inifile, assess_methods)
         if deviation:
             self.rand_method = randomize.xyz
 
     def set_defaults(self):
-        automodel.set_defaults(self)
+        AutoModel.set_defaults(self)
         self.rand_method = None
 
     def refine(self, atmsel, actions):

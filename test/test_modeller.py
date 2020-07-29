@@ -1,5 +1,11 @@
 import unittest
 import modeller.automodel.randomize
+try:
+    # Modeller 10
+    from modeller.optimizers import MolecularDynamics
+except ImportError:
+    # Modeller 9
+    from modeller.optimizers import molecular_dynamics as MolecularDynamics
 import sys
 if sys.version_info[0] >= 3:
     from io import StringIO
@@ -32,8 +38,7 @@ class Tests(unittest.TestCase):
         m = allosmod.modeller.AllosModel(self.env, 'dummyaln', 'known', 'seq')
         m.read(file=StringIO(test_pdb))
         atmsel = modeller.selection(m)
-        with utils.mock_method(modeller.optimizers.molecular_dynamics,
-                               'optimize'):
+        with utils.mock_method(MolecularDynamics, 'optimize'):
             allosmod.modeller.none(atmsel, [])
 
     def test_refine_moderate(self):
@@ -41,8 +46,7 @@ class Tests(unittest.TestCase):
         m = allosmod.modeller.AllosModel(self.env, 'dummyaln', 'known', 'seq')
         m.read(file=StringIO(test_pdb))
         atmsel = modeller.selection(m)
-        with utils.mock_method(modeller.optimizers.molecular_dynamics,
-                               'optimize'):
+        with utils.mock_method(MolecularDynamics, 'optimize'):
             allosmod.modeller.moderate(atmsel, [])
 
     def test_refine_moderate_am(self):
@@ -50,8 +54,7 @@ class Tests(unittest.TestCase):
         m = WriteIntMock(self.env, 'dummyaln', 'known', 'seq')
         m.read(file=StringIO(test_pdb))
         atmsel = modeller.selection(m)
-        with utils.mock_method(modeller.optimizers.molecular_dynamics,
-                               'optimize'):
+        with utils.mock_method(MolecularDynamics, 'optimize'):
             c = allosmod.modeller.ModerateAM(md_temp=300.0)
             c(atmsel, [])
         self.assertEqual(m.ints, [(x, 1) for x in range(501, 507)] +
@@ -62,8 +65,7 @@ class Tests(unittest.TestCase):
         m = WriteIntMock(self.env, 'dummyaln', 'known', 'seq')
         m.read(file=StringIO(test_pdb))
         atmsel = modeller.selection(m)
-        with utils.mock_method(modeller.optimizers.molecular_dynamics,
-                               'optimize'):
+        with utils.mock_method(MolecularDynamics, 'optimize'):
             c = allosmod.modeller.ConstTemp(md_temp=300.0)
             c(atmsel, [])
         self.assertEqual(m.ints, [(x, 1) for x in range(501, 511)] +

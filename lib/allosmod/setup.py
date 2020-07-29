@@ -30,6 +30,8 @@ class _FakeSectionHead(object):
             raise StopIteration
         else:
             return line
+    if sys.version_info[0] == 2:
+        next = __next__
 
     def readline(self):
         if self.sechead:

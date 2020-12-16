@@ -29,6 +29,9 @@ jobs:
         sudo --preserve-env=KEY_MODELLER dpkg -i modeller_9.25-1_amd64.deb
         ln -sf /usr/lib/python${{ matrix.python-version }}/dist-packages/_modeller.so ${PYTHON}
         ln -sf /usr/lib/python${{ matrix.python-version }}/dist-packages/modeller ${PYTHON}
+        echo $PYTHON
+        ls $PYTHON
+        ls /usr/lib/python${{ matrix.python-version }}/dist-packages
         wget https://salilab.org/dssp/dssp-2.0.4-linux-amd64
         sudo mv dssp-2.0.4-linux-amd64 /usr/bin/mkdssp
         sudo chmod a+x /usr/bin/mkdssp
@@ -37,6 +40,8 @@ jobs:
         (cd ProFitV3.1/src && make -j2 && sudo cp profit /usr/bin)
     - name: Test
       run: |
+        echo "import sys; print(sys.path, sys.version)" | python
+        echo "import coverage; print(coverage)" | python
         make PYTHON=python
         nosetests --with-coverage --cover-branches
         scons coverage=true python=$(which python) test

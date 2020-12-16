@@ -1,0 +1,45 @@
+name: build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-20.04]
+        python-version: [2.7, 3.7, 3.8, 3.9]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      env:
+        KEY_MODELLER: ${{ secrets.KEY_MODELLER }}
+      run: |
+        sudo apt-get -qq update && sudo apt-get install -y swig
+        pip install coverage scons nose
+        export PYTHON=`pip show coverage |grep Location|cut -b11-`
+        wget https://salilab.org/modeller/9.25/modeller_9.25-1_amd64.deb
+        sudo dpkg -i modeller_9.25-1_amd64.deb
+        ln -sf /usr/lib/python${{ matrix.python-version }}/dist-packages/_modeller.so ${PYTHON}
+        ln -sf /usr/lib/python${{ matrix.python-version }}/dist-packages/modeller ${PYTHON}
+        wget https://salilab.org/dssp/dssp-2.0.4-linux-amd64
+        sudo mv dssp-2.0.4-linux-amd64 /usr/bin/mkdssp
+        sudo chmod a+x /usr/bin/mkdssp
+        wget http://www.bioinf.org.uk/software/profit/235216/ProFitV3.1.tar.gz
+        tar -xzf ProFitV3.1.tar.gz
+        (cd ProFitV3.1/src && make -j2 && sudo cp profit /usr/bin)
+    - name: Test
+      run: |
+        make PYTHON=python
+        nosetests --with-coverage --cover-branches
+        scons coverage=true python=$(which python) test
+    - name: Upload coverage to codecov
+      run: |
+        bash <(curl -s https://codecov.io/bash)

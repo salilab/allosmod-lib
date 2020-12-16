@@ -26,7 +26,7 @@ jobs:
         pip install coverage scons nose
         export PYTHON=`pip show coverage |grep Location|cut -b11-`
         wget https://salilab.org/modeller/9.25/modeller_9.25-1_amd64.deb
-        sudo dpkg -i modeller_9.25-1_amd64.deb
+        sudo --preserve-env=KEY_MODELLER dpkg -i modeller_9.25-1_amd64.deb
         ln -sf /usr/lib/python${{ matrix.python-version }}/dist-packages/_modeller.so ${PYTHON}
         ln -sf /usr/lib/python${{ matrix.python-version }}/dist-packages/modeller ${PYTHON}
         wget https://salilab.org/dssp/dssp-2.0.4-linux-amd64

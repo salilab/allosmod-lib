@@ -23,7 +23,7 @@ jobs:
         KEY_MODELLER: ${{ secrets.KEY_MODELLER }}
       run: |
         sudo apt-get -qq update && sudo apt-get install -y swig
-        pip install coverage scons nose
+        pip install coverage nose
         export PYTHON=`pip show coverage |grep Location|cut -b11-`
         wget https://salilab.org/modeller/9.25/modeller_9.25-1_amd64.deb
         sudo --preserve-env=KEY_MODELLER dpkg -i modeller_9.25-1_amd64.deb
@@ -43,7 +43,6 @@ jobs:
       run: |
         make PYTHON=python
         nosetests --with-coverage --cover-branches
-        scons coverage=true python=$(which python) test
     - name: Upload coverage to codecov
       run: |
         bash <(curl -s https://codecov.io/bash)

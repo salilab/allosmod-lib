@@ -16,7 +16,7 @@ def get_restraints(dat_file, restr_type):
             if len(s) == 4 and s[0] == restr_type:
                 # Remove any trailing comma, then split on commas
                 resind = re.sub(',\s*$', '', s[3]).split(',')
-                for i in range(0, len(resind), 2):
+                for i in range(0, len(resind) - 1, 2):
                     yield Restraint(float(s[1]), float(s[2]),
                                     resind[i], resind[i + 1])
 

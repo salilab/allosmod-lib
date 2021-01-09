@@ -8,8 +8,10 @@ from __future__ import print_function, absolute_import
 import optparse
 import math
 
+
 def get_coordinates(m, fname):
     m.read(file=fname)
+
     def get_coord(res):
         if 'CA' in res.atoms:
             return res.atoms['CA']
@@ -17,12 +19,14 @@ def get_coordinates(m, fname):
             return res.atoms['P']
     return [get_coord(r) for r in m.residues]
 
+
 def get_distance(ci, cj):
     if ci is not None and cj is not None:
         dx = ci.x - cj.x
         dy = ci.y - cj.y
         dz = ci.z - cj.z
-        return dx*dx + dy*dy + dz*dz
+        return dx * dx + dy * dy + dz * dz
+
 
 def get_distances(coord, rcut):
     rcut2 = rcut * rcut
@@ -31,8 +35,9 @@ def get_distances(coord, rcut):
         for j in range(i + 1, len(coord)):
             d = get_distance(coord[i], coord[j])
             if d is not None and d < rcut2:
-                dist[(i,j)] = dist[(j,i)] = math.sqrt(d)
+                dist[(i, j)] = dist[(j, i)] = math.sqrt(d)
     return dist
+
 
 def get_qi_ca(m, len_coord, dist, template, avg_qi_cut, navg_qi_cut, fh):
     coord = get_coordinates(m, template)
@@ -42,11 +47,11 @@ def get_qi_ca(m, len_coord, dist, template, avg_qi_cut, navg_qi_cut, fh):
     nqi_cut = [0] * len(coord)
     for i in range(len(coord)):
         for j in range(len(coord)):
-            if abs(i-j) < 2 or (i,j) not in dist:
+            if abs(i - j) < 2 or (i, j) not in dist:
                 continue
             d = get_distance(coord[i], coord[j])
             if d is not None:
-                delta = (dist[(i,j)] - math.sqrt(d)) / (abs(j-i) ** 0.15)
+                delta = (dist[(i, j)] - math.sqrt(d)) / (abs(j - i) ** 0.15)
                 qi_cut[i] += math.exp(-delta * delta * 0.5)
                 nqi_cut[i] += 1
     for i in range(len(coord)):
@@ -57,6 +62,7 @@ def get_qi_ca(m, len_coord, dist, template, avg_qi_cut, navg_qi_cut, fh):
         else:
             qi_cut[i] = 1.1
         print("%6d %9.4f" % (i+1, qi_cut[i]), file=fh)
+
 
 def get_qiavg_ca(target, templates, rcut):
     import modeller
@@ -81,6 +87,7 @@ def get_qiavg_ca(target, templates, rcut):
                 avg_qi_cut[i] = 1.1
             print("%6d %9.4f" % (i+1, avg_qi_cut[i]), file=fh)
 
+
 def parse_args():
     usage = """%prog <target PDB> <cutoff> <template PDB> [...]
 
@@ -92,9 +99,11 @@ Calculate qiavg for CA atoms.
         parser.error("incorrect number of arguments")
     return args[0], float(args[1]), args[2:]
 
+
 def main():
     target, cutoff, templates = parse_args()
     get_qiavg_ca(target, templates, cutoff)
+
 
 if __name__ == '__main__':
     main()

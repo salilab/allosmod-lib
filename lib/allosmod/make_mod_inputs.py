@@ -1,8 +1,8 @@
 """Make input files for Modeller."""
 
 from __future__ import print_function, absolute_import
-import optparse
 import allosmod.util
+
 
 def make_mod_inputs(target, templates, rand_seed, rand_ang, deviation,
                     nucleic_acids):
@@ -14,7 +14,7 @@ def make_mod_inputs(target, templates, rand_seed, rand_ang, deviation,
     env.libs.parameters.read(file='$(LIB)/par.lib')
 
     # Read in HETATM records from template PDBs
-    env.io.hetatm = True 
+    env.io.hetatm = True
 
     mdl = modeller.scripts.complete_pdb(env, 'avgpdb.pdb')
 
@@ -22,9 +22,9 @@ def make_mod_inputs(target, templates, rand_seed, rand_ang, deviation,
     sel = modeller.selection(mdl)
 
     # Change all existing X,Y,Z for +- dev:
-    sel.rotate_mass_center([0,0,1], rand_ang[0])
-    sel.rotate_mass_center([0,1,0], rand_ang[1])
-    sel.rotate_mass_center([1,0,0], rand_ang[2])
+    sel.rotate_mass_center([0, 0, 1], rand_ang[0])
+    sel.rotate_mass_center([0, 1, 0], rand_ang[1])
+    sel.rotate_mass_center([1, 0, 0], rand_ang[2])
     sel.randomize_xyz(deviation=deviation)
     mdl.write(file='random.ini')
     a = modeller.automodel.automodel(env, deviation=None, alnfile='align.ali',
@@ -38,6 +38,7 @@ def make_mod_inputs(target, templates, rand_seed, rand_ang, deviation,
     # but the original code has it True
     a.spline_on_site = True
     a.make(exit_stage=1)
+
 
 def parse_args():
     usage = """%prog [opts] <target> <template file>
@@ -65,10 +66,12 @@ model (random.ini) and a restraints file.
             (float(args[3]), float(args[4]), float(args[5])),
             float(args[6]), opts)
 
+
 def main():
     target, template_file, rand_seed, rand_ang, deviation, opts = parse_args()
     make_mod_inputs(target, allosmod.util.read_templates(template_file),
                     rand_seed, rand_ang, deviation, opts.nuc)
+
 
 if __name__ == '__main__':
     main()

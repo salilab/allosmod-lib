@@ -3,6 +3,7 @@
 from __future__ import print_function, absolute_import, division
 import optparse
 
+
 def bin_data(data_file, datacol, datamin, datamax, nbins):
     data = []
     for line in open(data_file):
@@ -35,6 +36,7 @@ def bin_data(data_file, datacol, datamin, datamax, nbins):
             print("%.5f %.5f %.5f" % (midrange, numrange[i_range] / zpart,
                                       numrange[i_range]))
 
+
 def parse_args():
     usage = """%prog [opts] <data_file> <column> <min> <max> <nbins>
 
@@ -57,9 +59,11 @@ In both <min> and <max> the 'm' character is treated as '-'.
     return(args[0], int(args[1]), float(args[2].replace('m', '-')),
            float(args[3].replace('m', '-')), int(args[4]))
 
+
 def main():
     data_file, datacol, datamin, datamax, nbins = parse_args()
     bin_data(data_file, datacol, datamin, datamax, nbins)
+
 
 if __name__ == '__main__':
     main()

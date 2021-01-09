@@ -10,10 +10,11 @@ import utils
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 test_dir = utils.set_search_paths(TOPDIR)
 
-from allosmod.util import check_output
-import allosmod.get_contacts
-import allosmod.get_ss
-import allosmod.edit_restraints
+from allosmod.util import check_output  # noqa: E402
+import allosmod.get_contacts  # noqa: E402
+import allosmod.get_ss  # noqa: E402
+import allosmod.edit_restraints  # noqa: E402
+
 
 class TruncatedGaussianRestraint(allosmod.edit_restraints.Restraint):
     def handle_parameters(self, params):
@@ -28,11 +29,11 @@ class TestRestraintEditor(allosmod.edit_restraints.RestraintEditor):
     def __init__(self):
         sigmas = allosmod.edit_restraints.Sigmas(2, 2.0, 3.0, 4.0)
         allosmod.edit_restraints.RestraintEditor.__init__(
-               self, "dummyoth.rsr", "dummyas.rsr", "dummypdbfile", ["contact"],
-               "dummyatomlist", sigmas, 10.0, 0.2, None, False, False)
+            self, "dummyoth.rsr", "dummyas.rsr", "dummypdbfile", ["contact"],
+            "dummyatomlist", sigmas, 10.0, 0.2, None, False, False)
         self.contacts = allosmod.edit_restraints.ContactMap()
         self.beta_structure = {}
-        self.HETscale *= 4.0 # fail if HETscale not in parent
+        self.HETscale *= 4.0  # fail if HETscale not in parent
 
     def check_parse_restraint(self, r, delEmax=10.0):
         from allosmod.edit_restraints import TruncatedGaussianParameters
@@ -59,37 +60,41 @@ class Tests(unittest.TestCase):
     def test_bad(self):
         """Test wrong arguments to edit_restraints"""
         for args in ([], [''] * 6):
-            out = check_output(['allosmod', 'edit_restraints'] + args,
-                               stderr=subprocess.STDOUT, retcode=2)
-            out = check_output([sys.executable, '-m',
-                                'allosmod.edit_restraints'] + args,
-                               stderr=subprocess.STDOUT, retcode=2)
+            check_output(['allosmod', 'edit_restraints'] + args,
+                         stderr=subprocess.STDOUT, retcode=2)
+            check_output([sys.executable, '-m',
+                          'allosmod.edit_restraints'] + args,
+                         stderr=subprocess.STDOUT, retcode=2)
 
     def test_setup_atoms(self):
         """Test setup_atoms()"""
         import modeller
-        from allosmod.edit_restraints import RestraintEditor, Sigmas
+        from allosmod.edit_restraints import RestraintEditor
         sigmas = allosmod.edit_restraints.Sigmas(1, 1.0, 2.0, 3.0)
         with open('atomlistASRS', 'w') as fh:
             for i in range(64):
-               fh.write("%d %s\n" % (i+1, "AS" if i < 10 else "RS"))
+                fh.write("%d %s\n" % (i+1, "AS" if i < 10 else "RS"))
         with open('break.dat', 'w') as fh:
             fh.write('1 20')
         env = modeller.environ()
         env.io.hetatm = True
 
-        e = RestraintEditor('test.rsr', 'test.rsr',
-                      os.path.join(test_dir, 'input', 'test_editrsr.pdb'),
-                      ['test.pdb'], 'atomlistASRS', sigmas, 10.0, 0.1,
-                      'break.dat', False, False)
+        e = RestraintEditor(
+            'test.rsr', 'test.rsr',
+            os.path.join(test_dir, 'input', 'test_editrsr.pdb'),
+            ['test.pdb'], 'atomlistASRS', sigmas, 10.0, 0.1,
+            'break.dat', False, False)
+
         class Residue(object):
             pass
+
         def mock_get_cont(fname, rcut):
             ri = Residue()
             ri.index = 1
             rj = Residue()
             rj.index = 4
             yield ri, rj, 10.0
+
         def mock_get_ss(pdb_file):
             return []
         with utils.mock_method(allosmod.get_contacts, 'get_contacts',
@@ -119,7 +124,6 @@ class Tests(unittest.TestCase):
 
     def test_sigmas(self):
         """Test Sigmas class"""
-        from allosmod.edit_restraints import Sigmas
         class Atom(object):
             def __init__(self, isAS, isSC):
                 self.isAS, self.isSC = isAS, isSC
@@ -166,8 +170,10 @@ class Tests(unittest.TestCase):
     def test_truncated_gaussian_parameters(self):
         """Test TruncatedGaussianParameters class"""
         from allosmod.edit_restraints import TruncatedGaussianParameters
+
         class Residue(object):
             pass
+
         class Atom(object):
             def __init__(self, ri):
                 self.a = self
@@ -198,18 +204,21 @@ class Tests(unittest.TestCase):
     def test_restraint(self):
         """Test Restraint base class"""
         from allosmod.edit_restraints import Restraint
+
         class Atom(object):
             def __init__(self, ind):
                 self.index = ind
                 self.a = self
         self.assertRaises(ValueError, Restraint,
                           "R 3 1 9 12 2 2 1 3 2 10.00 20.00",
-                          [Atom(i) for i in range(1,10)])
+                          [Atom(i) for i in range(1, 10)])
 
     def make_restraint(self, modify_atom_func, args, natom, cls, fmt):
         from allosmod.edit_restraints import Atom
+
         class ModellerResidue(object):
             hetatm = False
+
         class ModellerAtom(object):
             def __init__(self, ind):
                 self.index = ind
@@ -266,19 +275,19 @@ class Tests(unittest.TestCase):
                 a.isNUC, a.isCA, a.isCB = n
         # No atom is CA, CB, or a nucleotide
         r = self.make_gaussian_restraint(modify_atoms, [[False, False, False],
-                                               [True, True, True]])
+                                                        [True, True, True]])
         self.assertFalse(r.is_ca_cb_interaction())
         # nuc-nuc interaction
         r = self.make_gaussian_restraint(modify_atoms, [[True, False, False],
-                                               [True, False, False]])
+                                                        [True, False, False]])
         self.assertTrue(r.is_ca_cb_interaction())
         # CA-nuc interaction
         r = self.make_gaussian_restraint(modify_atoms, [[True, False, False],
-                                               [False, True, False]])
+                                                        [False, True, False]])
         self.assertTrue(r.is_ca_cb_interaction())
         # CA-CB interaction
         r = self.make_gaussian_restraint(modify_atoms, [[False, False, True],
-                                               [False, True, False]])
+                                                        [False, True, False]])
         self.assertTrue(r.is_ca_cb_interaction())
 
     def test_is_sidechain_sidechain_interaction(self):
@@ -287,13 +296,16 @@ class Tests(unittest.TestCase):
             for a, s in zip(atoms, sc_cb):
                 a.isSC, a.isCB = s
         # SC-SC interaction
-        r = self.make_gaussian_restraint(modify_atoms, [[True, False], [True, False]])
+        r = self.make_gaussian_restraint(modify_atoms, [[True, False],
+                                                        [True, False]])
         self.assertTrue(r.is_sidechain_sidechain_interaction())
         # SC-CB interaction
-        r = self.make_gaussian_restraint(modify_atoms, [[True, False], [False, True]])
+        r = self.make_gaussian_restraint(modify_atoms, [[True, False],
+                                                        [False, True]])
         self.assertTrue(r.is_sidechain_sidechain_interaction())
         # BB-BB interaction
-        r = self.make_gaussian_restraint(modify_atoms, [[False, False], [False, False]])
+        r = self.make_gaussian_restraint(modify_atoms, [[False, False],
+                                                        [False, False]])
         self.assertFalse(r.is_sidechain_sidechain_interaction())
 
     def test_is_beta_beta_interaction(self):
@@ -327,13 +339,16 @@ class Tests(unittest.TestCase):
             for a, n in zip(atoms, nuc_r):
                 a.isNUC, a.torestr = n
         # restrNUC-restrNUC interaction
-        r = self.make_gaussian_restraint(modify_atoms, [[True, True], [True, True]])
+        r = self.make_gaussian_restraint(modify_atoms, [[True, True],
+                                                        [True, True]])
         self.assertTrue(r.is_intra_dna_interaction())
         # restrNUC-NUC interaction
-        r = self.make_gaussian_restraint(modify_atoms, [[True, True], [True, False]])
+        r = self.make_gaussian_restraint(modify_atoms, [[True, True],
+                                                        [True, False]])
         self.assertFalse(r.is_intra_dna_interaction())
         # restrNUC-protein interaction
-        r = self.make_gaussian_restraint(modify_atoms, [[True, True], [False, False]])
+        r = self.make_gaussian_restraint(modify_atoms, [[True, True],
+                                                        [False, False]])
         self.assertFalse(r.is_intra_dna_interaction())
 
     def test_is_protein_dna_interaction(self):
@@ -342,16 +357,20 @@ class Tests(unittest.TestCase):
             for a, n in zip(atoms, nuc_r):
                 a.isNUC, a.torestr = n
         # protein-restrNUC interaction
-        r = self.make_gaussian_restraint(modify_atoms, [[False, False], [True, True]])
+        r = self.make_gaussian_restraint(modify_atoms, [[False, False],
+                                                        [True, True]])
         self.assertTrue(r.is_protein_dna_interaction())
         # protein-unrestrNUC interaction
-        r = self.make_gaussian_restraint(modify_atoms, [[False, False], [True, False]])
+        r = self.make_gaussian_restraint(modify_atoms, [[False, False],
+                                                        [True, False]])
         self.assertFalse(r.is_protein_dna_interaction())
         # protein-protein interaction
-        r = self.make_gaussian_restraint(modify_atoms, [[False, False], [False, False]])
+        r = self.make_gaussian_restraint(modify_atoms, [[False, False],
+                                                        [False, False]])
         self.assertFalse(r.is_protein_dna_interaction())
         # restrNUC-restrNUC interaction
-        r = self.make_gaussian_restraint(modify_atoms, [[True, True], [True, True]])
+        r = self.make_gaussian_restraint(modify_atoms, [[True, True],
+                                                        [True, True]])
         self.assertFalse(r.is_protein_dna_interaction())
 
     def test_is_allosteric_interaction(self):
@@ -373,12 +392,13 @@ class Tests(unittest.TestCase):
         """Test GaussianRestraint class"""
         from allosmod.edit_restraints import GaussianRestraint
         from allosmod.edit_restraints import TruncatedGaussianParameters
+
         class Atom(object):
             def __init__(self, ind):
                 self.index = ind
                 self.a = self
         r = GaussianRestraint("R 3 1 9 12 2 2 1 3 2 10.00 20.00",
-                              [Atom(i) for i in range(1,10)])
+                              [Atom(i) for i in range(1, 10)])
         self.assertEqual([a.a.index for a in r.atoms], [3, 2])
         self.assertEqual(r.modal, 1)
         self.assertEqual(r.feat, 9)
@@ -403,12 +423,14 @@ class Tests(unittest.TestCase):
         # transform to truncated gaussian
         s = StringIO()
         tgparams = TruncatedGaussianParameters(delEmax=2.0, delEmaxNUC=3.0,
-                                           slope=4.0, scl_delx=5.0, breaks={})
+                                               slope=4.0, scl_delx=5.0,
+                                               breaks={})
         r.transform(tgparams, 2, 30.0, truncated=True, nuc=True, fh=s)
-        self.assertEqual(s.getvalue(),
-               'R   50   2   9  12   2   9   1     3     2       '
-               '3.0000    4.0000    5.0000    0.5000    0.5000   '
-               '10.0000   10.0000   30.0000   30.0000\n')
+        self.assertEqual(
+            s.getvalue(),
+            'R   50   2   9  12   2   9   1     3     2       '
+            '3.0000    4.0000    5.0000    0.5000    0.5000   '
+            '10.0000   10.0000   30.0000   30.0000\n')
         r.rescale(4.0)
         self.assertAlmostEqual(r.stdev, 5.0, places=1)
 
@@ -416,13 +438,14 @@ class Tests(unittest.TestCase):
         """Test MultiGaussianRestraint class"""
         from allosmod.edit_restraints import MultiGaussianRestraint
         from allosmod.edit_restraints import TruncatedGaussianParameters
+
         class Atom(object):
             def __init__(self, ind):
                 self.index = ind
                 self.a = self
         r = MultiGaussianRestraint("R 4 2 9 12 2 6 1 3 2 0.8 0.2 "
                                    "10.00 20.00 30.00 40.00",
-                                   [Atom(i) for i in range(1,10)])
+                                   [Atom(i) for i in range(1, 10)])
         self.assertEqual([a.a.index for a in r.atoms], [3, 2])
         self.assertEqual(r.modal, 2)
         self.assertEqual(r.feat, 9)
@@ -439,9 +462,10 @@ class Tests(unittest.TestCase):
         self.assertFalse(r.any_mean_below(10.0))
         s = StringIO()
         r.write(s)
-        self.assertEqual(s.getvalue(), 
-                   'R    4   2   9  12   2   6   1     3     2       '
-                   '0.8000    0.2000   10.0000   20.0000   30.0000   40.0000\n')
+        self.assertEqual(
+            s.getvalue(),
+            'R    4   2   9  12   2   6   1     3     2       '
+            '0.8000    0.2000   10.0000   20.0000   30.0000   40.0000\n')
         # transform to multigaussian
         s = StringIO()
         r.transform(None, 8, 70.0, truncated=False, fh=s)
@@ -452,12 +476,14 @@ class Tests(unittest.TestCase):
         # transform to truncated gaussian
         s = StringIO()
         tgparams = TruncatedGaussianParameters(delEmax=2.0, delEmaxNUC=3.0,
-                                           slope=4.0, scl_delx=5.0, breaks={})
+                                               slope=4.0, scl_delx=5.0,
+                                               breaks={})
         r.transform(tgparams, 8, 70.0, truncated=True, nuc=True, fh=s)
-        self.assertEqual(s.getvalue(),
-               'R   50   2   9  12   2   9   1     3     2       '
-               '3.0000    4.0000    5.0000    0.5000    0.5000   '
-               '10.0000   20.0000   70.0000   70.0000\n')
+        self.assertEqual(
+            s.getvalue(),
+            'R   50   2   9  12   2   9   1     3     2       '
+            '3.0000    4.0000    5.0000    0.5000    0.5000   '
+            '10.0000   20.0000   70.0000   70.0000\n')
         r.rescale(5.0)
         self.assertAlmostEqual(r.stdevs[0], 6.0, places=1)
         self.assertAlmostEqual(r.stdevs[1], 8.0, places=1)
@@ -465,12 +491,13 @@ class Tests(unittest.TestCase):
     def test_cosine_restraint(self):
         """Test CosineRestraint class"""
         from allosmod.edit_restraints import CosineRestraint
+
         class Atom(object):
             def __init__(self, ind):
                 self.index = ind
                 self.a = self
         r = CosineRestraint("R 7 2 9 12 2 2 1 3 2 2.0 4.0",
-                            [Atom(i) for i in range(1,10)])
+                            [Atom(i) for i in range(1, 10)])
         self.assertEqual([a.a.index for a in r.atoms], [3, 2])
         self.assertEqual(r.modal, 2)
         self.assertEqual(r.feat, 9)
@@ -479,21 +506,23 @@ class Tests(unittest.TestCase):
         self.assertAlmostEqual(r.force, 4.0, places=1)
         s = StringIO()
         r.write(s)
-        self.assertEqual(s.getvalue(),
-                      'R    7   2   9  12   2   2   1     3     '
-                      '2       2.0000    4.0000\n')
+        self.assertEqual(
+            s.getvalue(),
+            'R    7   2   9  12   2   2   1     3     '
+            '2       2.0000    4.0000\n')
         r.rescale(2.5)
         self.assertAlmostEqual(r.force, 10.0, places=1)
 
     def test_binormal_restraint(self):
         """Test BinormalRestraint class"""
         from allosmod.edit_restraints import BinormalRestraint
+
         class Atom(object):
             def __init__(self, ind):
                 self.index = ind
                 self.a = self
         r = BinormalRestraint("R 9 2 9 12 2 2 1 3 2 x y z",
-                              [Atom(i) for i in range(1,10)])
+                              [Atom(i) for i in range(1, 10)])
         self.assertEqual([a.a.index for a in r.atoms], [3, 2])
         s = StringIO()
         r.write(s)
@@ -504,12 +533,13 @@ class Tests(unittest.TestCase):
     def test_spline_restraint(self):
         """Test SplineRestraint class"""
         from allosmod.edit_restraints import SplineRestraint
+
         class Atom(object):
             def __init__(self, ind):
                 self.index = ind
                 self.a = self
         r = SplineRestraint("R 10 2 9 12 2 2 1 3 2 x y z",
-                            [Atom(i) for i in range(1,10)])
+                            [Atom(i) for i in range(1, 10)])
         self.assertEqual([a.a.index for a in r.atoms], [3, 2])
         s = StringIO()
         r.write(s)
@@ -520,6 +550,7 @@ class Tests(unittest.TestCase):
     def test_restraint_filters(self):
         """Test restraint filters"""
         from allosmod.edit_restraints import filter_rs_rs, filter_not_rs_rs
+
         class Atom(object):
             def __init__(self, isAS):
                 self.isAS = isAS
@@ -541,6 +572,7 @@ class Tests(unittest.TestCase):
     def test_add_ca_boundary_restraints(self):
         """Test add_ca_boundary_restraints()"""
         from allosmod.edit_restraints import add_ca_boundary_restraints
+
         class Atom(object):
             def __init__(self, ind, isCA):
                 self.isCA = isCA
@@ -559,12 +591,13 @@ class Tests(unittest.TestCase):
         """Test parse_restraints_file()"""
         from allosmod.edit_restraints import parse_restraints_file
         from allosmod.edit_restraints import filter_rs_rs
+
         class Atom(object):
             def __init__(self, ind, isAS):
                 self.index = ind
                 self.a = self
                 self.isAS = isAS
-        atoms = [Atom(i, True) for i in range(1,10)]
+        atoms = [Atom(i, True) for i in range(1, 10)]
         # no filter
         s = StringIO("R 3 1 9 12 2 2 1 3 2 10.00 20.00\n\n")
         rs = list(parse_restraints_file(s, atoms))
@@ -591,28 +624,31 @@ class Tests(unittest.TestCase):
     def test_contact_map(self):
         """Test ContactMap class"""
         from allosmod.edit_restraints import ContactMap, Atom
+
         class ModellerResidue(object):
             pass
+
         class ModellerAtom(object):
             def __init__(self, ind):
                 self.residue = ModellerResidue()
                 self.residue.index = ind
         c = ContactMap()
         self.assertEqual(list(c.keys()), [])
-        self.assertFalse(c[(1,4)])
-        c[(1,4)] = True
-        c[(5,2)] = True
-        self.assertTrue(c[(1,4)])
-        self.assertTrue(c[(4,1)])
-        self.assertTrue(c[(2,5)])
-        self.assertTrue(c[(5,2)])
-        self.assertTrue(c[(Atom(ModellerAtom(5)),2)])
+        self.assertFalse(c[(1, 4)])
+        c[(1, 4)] = True
+        c[(5, 2)] = True
+        self.assertTrue(c[(1, 4)])
+        self.assertTrue(c[(4, 1)])
+        self.assertTrue(c[(2, 5)])
+        self.assertTrue(c[(5, 2)])
+        self.assertTrue(c[(Atom(ModellerAtom(5)), 2)])
         self.assertTrue(c[(5, Atom(ModellerAtom(2)))])
         self.assertEqual(len(c.keys()), 2)
 
     def test_get_beta(self):
         """Test get_beta()"""
         from allosmod.edit_restraints import get_beta
+
         def mock_get_ss(pdb_file):
             if pdb_file == 'empty':
                 return []
@@ -624,7 +660,7 @@ class Tests(unittest.TestCase):
                 return ['', 'E', '']
         with utils.mock_method(allosmod.get_ss, 'get_ss', mock_get_ss):
             self.assertEqual(get_beta('empty'), {})
-            self.assertEqual(get_beta('all_beta'), {1:True, 2:True, 3:True})
+            self.assertEqual(get_beta('all_beta'), {1: True, 2: True, 3: True})
             self.assertEqual(get_beta('all_helix'), {})
             self.assertEqual(get_beta('some_beta'), {2: True})
 
@@ -646,6 +682,7 @@ class Tests(unittest.TestCase):
         """Test parse of restraints unknown to AllosMod"""
         class MockRestraint(object):
             atoms = []
+
             def is_intrahet(self):
                 return False
         e = TestRestraintEditor()
@@ -657,10 +694,11 @@ class Tests(unittest.TestCase):
         """Test parse of coarse AS-AS CA-CA intra-protein restraint"""
         e = TestRestraintEditor()
         e.coarse = True
-        e.contacts[(1,2)] = True # non-local interaction
+        e.contacts[(1, 2)] = True  # non-local interaction
+
         def modify_atoms(atoms, arg):
-            atoms[0].isAS = atoms[1].isAS = True # AS-AS
-            atoms[0].isCA = atoms[1].isCA = True # CA-CA
+            atoms[0].isAS = atoms[1].isAS = True  # AS-AS
+            atoms[0].isCA = atoms[1].isCA = True  # CA-CA
             atoms[0].a.residue.index = 1
             atoms[1].a.residue.index = 2
         r = self.make_gaussian_restraint(modify_atoms)
@@ -690,10 +728,11 @@ class Tests(unittest.TestCase):
     def test_parse_ca_ca_multi_intra_protein(self):
         """Test parse of CA-CA multigauss intra-protein restraint"""
         e = TestRestraintEditor()
-        e.contacts[(1,2)] = True # non-local interaction
+        e.contacts[(1, 2)] = True  # non-local interaction
+
         def modify_atoms(atoms, arg):
-            atoms[0].isAS = atoms[1].isAS = True # AS-AS
-            atoms[0].isCA = atoms[1].isCA = True # CA-CA
+            atoms[0].isAS = atoms[1].isAS = True  # AS-AS
+            atoms[0].isCA = atoms[1].isCA = True  # CA-CA
             atoms[0].a.residue.index = 1
             atoms[1].a.residue.index = 2
         r = self.make_multi_gaussian_restraint(modify_atoms)
@@ -716,10 +755,11 @@ class Tests(unittest.TestCase):
         """Test parse of RS-RS CA-CA intra-protein restraint"""
         e = TestRestraintEditor()
         e.coarse = True
-        e.contacts[(1,2)] = True # non-local interaction
+        e.contacts[(1, 2)] = True  # non-local interaction
+
         def modify_atoms(atoms, arg):
-            atoms[0].isAS = atoms[1].isAS = False # RS-RS
-            atoms[0].isCA = atoms[1].isCA = True # CA-CA
+            atoms[0].isAS = atoms[1].isAS = False  # RS-RS
+            atoms[0].isCA = atoms[1].isCA = True  # CA-CA
             atoms[0].a.residue.index = 1
             atoms[1].a.residue.index = 2
         r = self.make_gaussian_restraint(modify_atoms)
@@ -742,6 +782,7 @@ class Tests(unittest.TestCase):
     def test_parse_bond_restraint(self):
         """Test parse of bond restraint"""
         e = TestRestraintEditor()
+
         def modify_atoms(atoms, arg):
             for a, h in zip(atoms, arg):
                 a.a.residue.hetatm = h
@@ -758,10 +799,11 @@ class Tests(unittest.TestCase):
     def test_parse_angle_restraint(self):
         """Test parse of angle/dihedral restraint"""
         e = TestRestraintEditor()
+
         def modify_atoms(atoms, arg):
             for a, h in zip(atoms, arg):
                 a.a.residue.hetatm = h
-        for natom in (3,4):
+        for natom in (3, 4):
             for het, scale in (False, 1.0), (True, 4.0):
                 r = self.make_gaussian_restraint(modify_atoms, [het]*natom,
                                                  natom=natom)
@@ -776,17 +818,19 @@ class Tests(unittest.TestCase):
     def test_parse_multi_angle_restraint(self):
         """Test parse of multigauss angle/dihedral restraint"""
         e = TestRestraintEditor()
+
         def modify_atoms(atoms, arg):
             for a, h in zip(atoms, arg):
                 a.a.residue.hetatm = h
-        for natom in (3,4):
+        for natom in (3, 4):
             for het, scale in (False, 1.0), (True, 4.0):
                 r = self.make_multi_gaussian_restraint(
-                            modify_atoms, [het]*natom, natom=natom)
+                    modify_atoms, [het]*natom, natom=natom)
                 r2 = list(e.check_parse_restraint(r))
                 self.assertEqual(len(r2), 1)
-                self.assertEqual(type(r2[0]),
-                              allosmod.edit_restraints.MultiGaussianRestraint)
+                self.assertEqual(
+                    type(r2[0]),
+                    allosmod.edit_restraints.MultiGaussianRestraint)
                 self.assertEqual(len(r2[0].means), 2)
                 self.assertAlmostEqual(r2[0].weights[0], 0.8, places=1)
                 self.assertAlmostEqual(r2[0].weights[1], 0.2, places=1)
@@ -798,6 +842,7 @@ class Tests(unittest.TestCase):
     def test_parse_cosine_restraint(self):
         """Test parse of cosine restraint"""
         e = TestRestraintEditor()
+
         def modify_atoms(atoms, arg):
             for a, h in zip(atoms, arg):
                 a.a.residue.hetatm = h
@@ -825,6 +870,7 @@ class Tests(unittest.TestCase):
         """Test parse of coarse restraint, not CA-CB"""
         e = TestRestraintEditor()
         e.coarse = True
+
         def modify_atoms(atoms, arg):
             atoms[0].a.residue.index = 1
             atoms[1].a.residue.index = 2
@@ -836,6 +882,7 @@ class Tests(unittest.TestCase):
     def test_parse_sidechain_too_long(self):
         """Test parse of sidechain-sidechain restraint, mean too big"""
         e = TestRestraintEditor()
+
         def modify_atoms(atoms, arg):
             atoms[0].isSC = atoms[1].isSC = True
             atoms[0].a.residue.index = 1
@@ -850,8 +897,9 @@ class Tests(unittest.TestCase):
         """Test locrigid CA-CB restraint with res range 2-5"""
         e = TestRestraintEditor()
         e.locrigid = True
+
         def modify_atoms(atoms, seqdst):
-            atoms[0].isCA = atoms[1].isCA = True # CA-CA
+            atoms[0].isCA = atoms[1].isCA = True  # CA-CA
             atoms[0].a.residue.index = 30
             atoms[1].a.residue.index = 30 + seqdst
         for seqdst in 2, 5, -2, -5:
@@ -868,8 +916,9 @@ class Tests(unittest.TestCase):
         """Test locrigid CA-CB restraint with res range 6-12"""
         e = TestRestraintEditor()
         e.locrigid = True
+
         def modify_atoms(atoms, seqdst):
-            atoms[0].isCA = atoms[1].isCA = True # CA-CA
+            atoms[0].isCA = atoms[1].isCA = True  # CA-CA
             atoms[0].a.residue.index = 30
             atoms[1].a.residue.index = 30 + seqdst
         for seqdst in 6, 12, -6, -12:
@@ -891,12 +940,13 @@ class Tests(unittest.TestCase):
     def test_under3_ca_cb(self):
         """Test CA-CB restraint with res range <= 2"""
         e = TestRestraintEditor()
+
         def modify_atoms(atoms, arg):
-            atoms[0].isCA = atoms[1].isCA = True # CA-CA
+            atoms[0].isCA = atoms[1].isCA = True  # CA-CA
             atoms[0].a.residue.index = 30
             atoms[1].a.residue.index = 32
         r = self.make_gaussian_restraint(modify_atoms)
-        e.beta_structure = {30:True, 32:True}
+        e.beta_structure = {30: True, 32: True}
         r.mean = 5.9
         r2 = list(e.check_parse_restraint(r))
         # sigma should be set to 2.0
@@ -920,6 +970,7 @@ class Tests(unittest.TestCase):
     def test_parse_het_het(self):
         """Test parse of het-het restraint"""
         e = TestRestraintEditor()
+
         def modify_atoms(atoms, arg):
             atoms[0].a.residue.hetatm = True
             atoms[1].a.residue.hetatm = True
@@ -935,9 +986,10 @@ class Tests(unittest.TestCase):
     def test_protein_dna_restraint(self):
         """Test parse of protein-dna restraint"""
         e = TestRestraintEditor()
-        e.contacts[(1,2)] = True # non-local interaction
+        e.contacts[(1, 2)] = True  # non-local interaction
+
         def modify_atoms(atoms, arg):
-            atoms[1].isNUC = atoms[1].torestr = True # protein-DNA, RS-RS
+            atoms[1].isNUC = atoms[1].torestr = True  # protein-DNA, RS-RS
             atoms[0].a.residue.index = 1
             atoms[1].a.residue.index = 2
         r = self.make_gaussian_restraint(modify_atoms)
@@ -945,7 +997,7 @@ class Tests(unittest.TestCase):
         r2 = list(e.check_parse_restraint(r))
         self.assertEqual(len(r2), 1)
         self.assertEqual(type(r2[0]), TruncatedGaussianRestraint)
-        self.assertAlmostEqual(r2[0].delE, 20.0, places=1) # delEmaxNUC
+        self.assertAlmostEqual(r2[0].delE, 20.0, places=1)  # delEmaxNUC
         self.assertEqual(len(r2[0].stdevs), 2)
         self.assertAlmostEqual(r2[0].stdevs[0], 3.0, places=1)
         self.assertAlmostEqual(r2[0].stdevs[1], 3.0, places=1)
@@ -957,9 +1009,10 @@ class Tests(unittest.TestCase):
     def test_intra_dna_restraint(self):
         """Test parse of intra-dna restraint"""
         e = TestRestraintEditor()
-        e.contacts[(1,2)] = True # non-local interaction
+        e.contacts[(1, 2)] = True  # non-local interaction
+
         def modify_atoms(atoms, arg):
-            atoms[0].isNUC = atoms[0].torestr = True # DNA-DNA, RS-RS
+            atoms[0].isNUC = atoms[0].torestr = True  # DNA-DNA, RS-RS
             atoms[1].isNUC = atoms[1].torestr = True
             atoms[0].a.residue.index = 1
             atoms[1].a.residue.index = 2
@@ -992,6 +1045,7 @@ class Tests(unittest.TestCase):
         e.coarse = True
         e.atoms = []
         open('dummyas.rsr', 'w').close()
+
         def mock_parse(fh, atoms):
             return []
         with utils.mock_method(allosmod.edit_restraints,
@@ -1004,23 +1058,27 @@ class Tests(unittest.TestCase):
     def test_setup_delEmax_rsr(self):
         """Test setup_delEmax(), with some restraints"""
         e = TestRestraintEditor()
-        e.contacts[(1,2)] = True
+        e.contacts[(1, 2)] = True
         e.coarse = True
         e.atoms = []
         open('dummyas.rsr', 'w').close()
+
         def mock_parse(fh, atoms):
             def set_resind(atoms):
                 atoms[0].a.residue.index = 1
                 atoms[1].a.residue.index = 2
+
             def make_ca_ca(atoms, arg):
                 set_resind(atoms)
-                atoms[0].isCA = atoms[1].isCA = True # CA-CA
+                atoms[0].isCA = atoms[1].isCA = True  # CA-CA
+
             def make_cb_cb(atoms, arg):
                 set_resind(atoms)
-                atoms[0].isCB = atoms[1].isCB = True # CB-CB
+                atoms[0].isCB = atoms[1].isCB = True  # CB-CB
+
             def make_sc_sc(atoms, arg):
                 set_resind(atoms)
-                atoms[0].isSC = atoms[1].isSC = True # SC-SC
+                atoms[0].isSC = atoms[1].isSC = True  # SC-SC
             # CA-CA restraint
             r = self.make_gaussian_restraint(make_ca_ca)
             yield r
@@ -1065,9 +1123,10 @@ ATOM      5  CB  ARG A   1     -17.793 -11.337  -0.899  1.00  0.46           C
                 fh.write("test.pdb\n")
             with open(os.path.join(tmpdir, 'atomlistASRS'), 'w') as fh:
                 fh.write("1 AS\n2 AS\n")
-            check_output(['allosmod', 'edit_restraints', 'test.rsr', 'test.rsr',
-                          'pm_test.pdb', 'list4contacts', 'atomlistASRS'],
-                         cwd=tmpdir)
+            check_output(['allosmod', 'edit_restraints', 'test.rsr',
+                          'test.rsr', 'pm_test.pdb', 'list4contacts',
+                          'atomlistASRS'], cwd=tmpdir)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -4,19 +4,23 @@ import sys
 import shutil
 import contextlib
 
+
 def set_search_paths(topdir):
-    """Set search paths so that we can run binaries and import Python modules"""
+    """Set search paths so that we can run binaries and import
+       Python modules"""
     os.environ['PATH'] = os.path.join(topdir, 'bin') + ':' + os.environ['PATH']
-    os.environ['PYTHONPATH'] = os.path.join(topdir, 'lib') + ':' \
-                               + os.environ.get('PYTHONPATH', '')
+    os.environ['PYTHONPATH'] = \
+        os.path.join(topdir, 'lib') + ':' + os.environ.get('PYTHONPATH', '')
     sys.path.append(os.path.join(topdir, 'lib'))
     return os.path.join(topdir, 'test')
+
 
 @contextlib.contextmanager
 def temporary_directory():
     _tmpdir = tempfile.mkdtemp()
     yield _tmpdir
     shutil.rmtree(_tmpdir, ignore_errors=True)
+
 
 @contextlib.contextmanager
 def mock_method(cls, method_name, replacement=None):
@@ -30,6 +34,7 @@ def mock_method(cls, method_name, replacement=None):
     setattr(cls, method_name, replacement)
     yield mock
     setattr(cls, method_name, old_method)
+
 
 if 'coverage' in sys.modules:
     import atexit
@@ -49,8 +54,8 @@ def _coverage_cleanup(c):
 atexit.register(_coverage_cleanup, _cov)
 """ % os.getcwd())
 
-    os.environ['PYTHONPATH'] = __site_tmpdir + ':' \
-                               + os.environ.get('PYTHONPATH', '')
+    os.environ['PYTHONPATH'] = \
+        __site_tmpdir + ':' + os.environ.get('PYTHONPATH', '')
 
     def __cleanup(d):
         shutil.rmtree(d, ignore_errors=True)

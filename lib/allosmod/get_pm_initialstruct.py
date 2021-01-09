@@ -1,15 +1,14 @@
 """Make initial perturbation model (PM) from sequence."""
 
 from __future__ import print_function, absolute_import
-import optparse
 import shutil
 import os
 import modeller
 import modeller.automodel
 import modeller.scripts
 import random
-import fileinput
 import allosmod.util
+
 
 def get_target(e, target, aln_file):
     """Get the target sequence (either the provided value, or the first entry
@@ -19,6 +18,7 @@ def get_target(e, target, aln_file):
     else:
         aln = modeller.alignment(e, file=aln_file)
         return aln[0].code
+
 
 def get_pm_initialstruct(aln_file, templates, pdb_dir, nmodel,
                          refine_level, opts):
@@ -61,8 +61,9 @@ def get_pm_initialstruct(aln_file, templates, pdb_dir, nmodel,
     a.starting_model = 1
     a.ending_model = nmodel
     if not opts.keepaln:
-        a.auto_align() # get an automatic alignment
+        a.auto_align()  # get an automatic alignment
     a.make(exit_stage=1 if opts.rsronly else 0)
+
 
 def parse_args():
     usage = """%prog [opts] <alignment file> <template file>
@@ -100,10 +101,12 @@ Makes an initial perturbation model (PM) from a sequence.
         parser.error("incorrect number of arguments")
     return args[0], args[1], args[2], int(args[3]), args[4], opts
 
+
 def main():
     aln_file, template_file, pdb_dir, nmodel, refine_level, opts = parse_args()
     get_pm_initialstruct(aln_file, allosmod.util.read_templates(template_file),
                          pdb_dir, nmodel, refine_level, opts)
+
 
 if __name__ == '__main__':
     main()

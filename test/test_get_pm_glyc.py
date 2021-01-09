@@ -8,19 +8,20 @@ import utils
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 test_dir = utils.set_search_paths(TOPDIR)
 
-import allosmod.util
-import allosmod.get_pm_glyc
-from allosmod.util import check_output
+import allosmod.util  # noqa: E402
+import allosmod.get_pm_glyc  # noqa: E402
+from allosmod.util import check_output  # noqa: E402
+
 
 class Tests(unittest.TestCase):
     def test_bad(self):
         """Test wrong arguments to get_pm_glyc"""
         for args in ([], [''] * 7):
-            out = check_output(['allosmod', 'get_pm_glyc'] + args,
-                               stderr=subprocess.STDOUT, retcode=2)
-            out = check_output([sys.executable, '-m',
-                                'allosmod.get_pm_glyc'] + args,
-                               stderr=subprocess.STDOUT, retcode=2)
+            check_output(['allosmod', 'get_pm_glyc'] + args,
+                         stderr=subprocess.STDOUT, retcode=2)
+            check_output([sys.executable, '-m',
+                          'allosmod.get_pm_glyc'] + args,
+                         stderr=subprocess.STDOUT, retcode=2)
 
     def test_simple(self):
         """Simple complete run of get_pm_glyc script"""
@@ -33,9 +34,9 @@ class Tests(unittest.TestCase):
                         os.path.join(tempdir, 'align.ali'))
             shutil.copy(os.path.join(test_dir, 'input', 'glyc.dat'),
                         tempdir)
-            out = check_output(['allosmod', 'get_pm_glyc', 'pm.pdb', 'list',
-                                '42', '1', 'true', 'test_pm_glyc.pdb'],
-                               cwd=tempdir)
+            check_output(['allosmod', 'get_pm_glyc', 'pm.pdb', 'list',
+                          '42', '1', 'true', 'test_pm_glyc.pdb'],
+                         cwd=tempdir)
             # assert on generated files
             for f in ('align2.ali', 'model_ini.py', 'model_ini0.py',
                       'model_glyc.py', 'get_rest.in', 'allosmod.py'):
@@ -52,9 +53,9 @@ class Tests(unittest.TestCase):
                         os.path.join(tempdir, 'align.ali'))
             shutil.copy(os.path.join(test_dir, 'input', 'glyc.dat'),
                         tempdir)
-            out = check_output(['allosmod', 'get_pm_glyc', 'pm.pdb', 'list',
-                                '42', '1', 'false', 'test_pm_glyc.pdb'],
-                               cwd=tempdir)
+            check_output(['allosmod', 'get_pm_glyc', 'pm.pdb', 'list',
+                          '42', '1', 'false', 'test_pm_glyc.pdb'],
+                         cwd=tempdir)
             # assert on generated files
             self.assertFalse(os.path.exists('align2.ali'))
             for f in ('model_ini.py', 'model_ini0.py',
@@ -72,9 +73,9 @@ class Tests(unittest.TestCase):
         with allosmod.util.temporary_directory() as tempdir:
             with open(os.path.join(tempdir, 'list'), 'w') as fh:
                 fh.write('test_pm_glyc.pdb')
-            out = check_output(['allosmod', 'get_pm_glyc', 'pm.pdb', 'list',
-                                '42', '1', 'true', 'script'],
-                               cwd=tempdir)
+            check_output(['allosmod', 'get_pm_glyc', 'pm.pdb', 'list',
+                          '42', '1', 'true', 'script'],
+                         cwd=tempdir)
             # assert on generated files
             for f in ('model_ini.py', 'model_ini0.py',
                       'model_glyc.py'):
@@ -82,18 +83,18 @@ class Tests(unittest.TestCase):
 
     def test_remove_overlaps(self):
         """Test remove_overlaps"""
-        gaps = [(1,4), (10, 20), (15, 17)]
+        gaps = [(1, 4), (10, 20), (15, 17)]
         self.assertEqual(allosmod.get_pm_glyc.remove_overlaps(gaps),
-                         [(1,4), (10,20)])
-        gaps = [(1,4), (3, 7)]
+                         [(1, 4), (10, 20)])
+        gaps = [(1, 4), (3, 7)]
         self.assertEqual(allosmod.get_pm_glyc.remove_overlaps(gaps),
-                         [(1,7)])
+                         [(1, 7)])
 
     def test_get_first_unused_chain(self):
         """Test get_first_unused_chain"""
         self.assertEqual(allosmod.get_pm_glyc.get_first_unused_chain({}), 'A')
         self.assertEqual(allosmod.get_pm_glyc.get_first_unused_chain(
-                                                      {'1':'A', '2':'C'}), 'B')
+            {'1': 'A', '2': 'C'}), 'B')
         d = {}
         for n, chain in enumerate(string.ascii_uppercase):
             d[str(n+1)] = chain
@@ -130,7 +131,7 @@ class Tests(unittest.TestCase):
         """Test read_glyc_file() with empty file"""
         with allosmod.util.temporary_directory() as tempdir:
             glyc = os.path.join(tempdir, "glyc.dat")
-            with open(glyc, 'w') as fh:
+            with open(glyc, 'w'):
                 pass
             self.assertRaises(allosmod.get_pm_glyc.NoSugarsError,
                               allosmod.get_pm_glyc.read_glyc_file, glyc)
@@ -149,6 +150,7 @@ class Tests(unittest.TestCase):
         fname = os.path.join(test_dir, 'input', 'glyc.dat-nonintres')
         self.assertRaises(allosmod.get_pm_glyc.InvalidResidueError,
                           allosmod.get_pm_glyc.read_glyc_file, fname)
+
 
 if __name__ == '__main__':
     unittest.main()

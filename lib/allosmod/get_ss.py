@@ -4,6 +4,7 @@ from __future__ import print_function, absolute_import
 import optparse
 import subprocess
 
+
 def get_ss(pdb_file):
     p = subprocess.Popen(["mkdssp", pdb_file], stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE,
@@ -25,6 +26,7 @@ def get_ss(pdb_file):
         elif start and len(line) > 16 and line[11] != ' ':
             yield line[16] if line[16] != ' ' else '-'
 
+
 def parse_args():
     usage = """%prog <PDB file>
 
@@ -37,10 +39,12 @@ structure type for each residue, one per line.
         parser.error("incorrect number of arguments")
     return args[0]
 
+
 def main():
     pdb_file = parse_args()
     for res in get_ss(pdb_file):
         print(res)
+
 
 if __name__ == '__main__':
     main()

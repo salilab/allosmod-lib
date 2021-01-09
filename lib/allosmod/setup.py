@@ -10,11 +10,12 @@ import allosmod.util
 import allosmod.getcofm
 import allosmod.config
 import collections
-import re
 import os
 import sys
 
+
 AlignInfo = collections.namedtuple('AlignInfo', ['codes', 'maxres'])
+
 
 class _FakeSectionHead(object):
     def __init__(self, fp):
@@ -35,17 +36,18 @@ class _FakeSectionHead(object):
 
     def readline(self):
         if self.sechead:
-            try: 
+            try:
                 return self.sechead
-            finally: 
+            finally:
                 self.sechead = None
-        else: 
+        else:
             line = self.fp.readline()
             # Hide custom restraints from ConfigParser
             if len(line) > 5 and line[:5] in ('HARM ', 'LOBD ', 'UPBD '):
                 return '# ' + line
             else:
                 return line
+
 
 class ConfigFile(object):
     """AllosMod config file (input.dat).
@@ -69,12 +71,12 @@ class ConfigFile(object):
         self.maxres = maxres
 
     def _set_defaults(self):
-        defaults = {'DELEMAX':'CALC', 'DEVIATION':1.0, 'RAS':1000,
-                    'SAMPLING':'simulation', 'MDTEMP':300.0,
-                    'REPEAT_OPTIMIZATION':1, 'ATTACH_GAPS':True,
-                    'SCRAPP':False, 'BREAK':False, 'SCLBREAK':0.1,
-                    'ZCUTOFF':3.5, 'CHEMFR':'cdensity', 'COARSE':False,
-                    'LOCALRIGID':False, 'PW':False,
+        defaults = {'DELEMAX': 'CALC', 'DEVIATION': 1.0, 'RAS': 1000,
+                    'SAMPLING': 'simulation', 'MDTEMP': 300.0,
+                    'REPEAT_OPTIMIZATION': 1, 'ATTACH_GAPS': True,
+                    'SCRAPP': False, 'BREAK': False, 'SCLBREAK': 0.1,
+                    'ZCUTOFF': 3.5, 'CHEMFR': 'cdensity', 'COARSE': False,
+                    'LOCALRIGID': False, 'PW': False,
                     'LIGPDB': self._first_template,
                     'ASPDB': self._first_template}
         # set default if key not present or was explicitly set to empty string
@@ -121,6 +123,7 @@ class ConfigFile(object):
                 return upval
             else:
                 return float(val)
+
         def parse_mdtemp(val):
             if isinstance(val, float):
                 return val
@@ -129,15 +132,18 @@ class ConfigFile(object):
                 return lowval
             else:
                 return float(val)
+
         class ParseChoice(object):
             def __init__(self, choices):
                 self.choices = choices
+
             def __call__(self, val):
                 val = val.lower()
                 if val in self.choices:
                     return val
                 else:
                     raise ValueError("not one of %s" % ", ".join(self.choices))
+
         def parse_boolean(val):
             if isinstance(val, bool):
                 return val
@@ -151,6 +157,7 @@ class ConfigFile(object):
             else:
                 raise ValueError("not one of %s"
                                  % ", ".join(true_types + false_types))
+
         def float_or_int(val):
             if isinstance(val, (int, float)):
                 return val
@@ -195,9 +202,11 @@ class ConfigFile(object):
 
 class ErrorAccumulator(object):
     error = False
+
     def report(self, msg):
         print(msg)
         self.error = True
+
 
 class Setup(object):
     align_file = 'align.ali'
@@ -240,22 +249,23 @@ class Setup(object):
 
     def make_script_file_header(self, fh):
         fh.write('#!/bin/bash\n')
-        fh.write('TASK=( null \\\n'
-              + ''.join('%d \\\n' % i for i in range(self.config['NRUNS']))
-              + ')\n')
+        fh.write(
+            'TASK=( null \\\n'
+            + ''.join('%d \\\n' % i for i in range(self.config['NRUNS']))
+            + ')\n')
 
     def substitute_script_file(self, fh_out):
         subs = {}
         for k in self.config.keys():
             val = self.config[k]
             subs[k] = str(val).lower() if isinstance(val, bool) else str(val)
-        subs.update({'LOCAL_SCRATCH':allosmod.config.local_scratch,
-                     'GLOBAL_SCRATCH':allosmod.config.global_scratch,
-                     'DATADIR':allosmod.config.datadir,
+        subs.update({'LOCAL_SCRATCH': allosmod.config.local_scratch,
+                     'GLOBAL_SCRATCH': allosmod.config.global_scratch,
+                     'DATADIR': allosmod.config.datadir,
                      'GLYC1': '1' if self.config.glyco else '0',
                      'GLYC2': '1' if self.with_glyc2() else '0',
                      'COARSE': '--coarse' if self.config['COARSE'] else '',
-                     'LOCALRIGID': '--locrigid' \
+                     'LOCALRIGID': '--locrigid'
                                    if self.config['LOCALRIGID'] else '',
                      'OTHPDB': self.get_other_pdb()})
         template = allosmod.util.get_data_file('qsub.sh.in')
@@ -335,6 +345,7 @@ class Setup(object):
             else:
                 allosmod.util.fix_newlines(f)
 
+
 def parse_args():
     usage = """%prog
 
@@ -350,6 +361,7 @@ will automatically be run and the outputs deposited on the global scratch disk.
         parser.error("incorrect number of arguments")
     return
 
+
 def main():
     parse_args()
     s = Setup()
@@ -358,6 +370,7 @@ def main():
         sys.exit(1)
     else:
         s.make_script_file('qsub.sh')
+
 
 if __name__ == '__main__':
     main()

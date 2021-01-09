@@ -16,19 +16,24 @@ import utils
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 utils.set_search_paths(TOPDIR)
 
-import allosmod.modeller
+import allosmod.modeller  # noqa: E402
+
 
 class WriteIntMock(allosmod.modeller.AllosModel):
     ints = None
+
     def __init__(self, *args, **keys):
         allosmod.modeller.AllosModel.__init__(self, *args, **keys)
         self.ints = []
+
     def write_int(self, ctr, suff):
         self.ints.append((ctr, suff))
+
 
 test_pdb = """
 ATOM      7  CA  HIS     7      17.121  17.162   6.197  1.00 15.60           C
 """
+
 
 class Tests(unittest.TestCase):
     env = modeller.environ()
@@ -84,15 +89,20 @@ class Tests(unittest.TestCase):
         """Test AllodModel.refine method"""
         class MockAllosModel(allosmod.modeller.AllosModel):
             calls = None
+
             def __init__(self, *args, **keys):
                 allosmod.modeller.AllosModel.__init__(self, *args, **keys)
                 self.calls = []
+
             def initial_refine_hot(self, atmsel):
                 self.calls.append('initial_refine_hot')
+
             def final_refine_hot(self, atmsel):
                 self.calls.append('final_refine_hot')
+
             def fit_refined(self, fname):
                 self.calls.append('fit_refined')
+
         def test_md_level(atmsel, actions):
             atmsel.get_model().calls.append('md_level')
         m = MockAllosModel(self.env, 'dummyaln', 'known', 'seq')
@@ -118,6 +128,7 @@ class Tests(unittest.TestCase):
         m.refine(modeller.selection(m), [])
         self.assertEqual(m.calls, ['fit_refined'])
         os.unlink('TO_BE_REFINED.TMP')
+
 
 if __name__ == '__main__':
     unittest.main()

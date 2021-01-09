@@ -4,6 +4,7 @@ from __future__ import print_function
 import optparse
 import fileinput
 
+
 def pdb_fix_res(pdb_file, inplace):
     for line in fileinput.input(pdb_file, inplace):
         if line.startswith('ATOM') or line.startswith('HETATM'):
@@ -14,6 +15,7 @@ def pdb_fix_res(pdb_file, inplace):
                 if line[12:14] == 'SE':
                     line = line[:12] + ' SD' + line[15:]
             print(line, end='')
+
 
 def parse_args():
     usage = """%prog <PDB file>
@@ -35,9 +37,11 @@ The following substitutions are made:
         parser.error("incorrect number of arguments")
     return args[0], opts
 
+
 def main():
     pdb_file, opts = parse_args()
     pdb_fix_res(pdb_file, opts.inplace)
+
 
 if __name__ == '__main__':
     main()

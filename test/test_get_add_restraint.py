@@ -1,5 +1,4 @@
 import unittest
-import modeller
 import os
 import sys
 import subprocess
@@ -7,30 +6,32 @@ import utils
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 utils.set_search_paths(TOPDIR)
 
-from allosmod.util import check_output
+from allosmod.util import check_output  # noqa: E402
+
 
 def get_pdb_line(attyp, resnum, typ='ATOM'):
-    return "%-6s    1  %-3s TYR A%4d      24.417  18.891   8.203  1.00  0.00           C\n" % (typ, attyp, resnum)
+    return("%-6s    1  %-3s TYR A%4d      24.417  18.891   8.203"
+           "  1.00  0.00           C\n" % (typ, attyp, resnum))
+
 
 class Tests(unittest.TestCase):
     def test_bad(self):
         """Test wrong arguments to get_add_restraint"""
         for args in ([], ['x'] * 4):
-            out = check_output(['allosmod', 'get_add_restraint'] + args,
-                               stderr=subprocess.STDOUT, retcode=2)
-            out = check_output([sys.executable, '-m',
-                                'allosmod.get_add_restraint'] + args,
-                               stderr=subprocess.STDOUT, retcode=2)
+            check_output(['allosmod', 'get_add_restraint'] + args,
+                         stderr=subprocess.STDOUT, retcode=2)
+            check_output([sys.executable, '-m',
+                          'allosmod.get_add_restraint'] + args,
+                         stderr=subprocess.STDOUT, retcode=2)
 
     def test_get_restraints(self):
         """Test get_restraints() function"""
         from allosmod.get_add_restraint import get_restraints
         with open('test.dat', 'w') as fh:
-            fh.write("""HARM 10.0 0.5 1,2,3,4
-HARM 4.0 0.1 2,1
-UPBD 4.0 0.1 2,1,   
-OTHEROPTION foo
-""")
+            fh.write("HARM 10.0 0.5 1,2,3,4\n"
+                     "HARM 4.0 0.1 2,1\n"
+                     "UPBD 4.0 0.1 2,1,   \n"
+                     "OTHEROPTION foo\n")
         r = list(get_restraints('test.dat', 'HARM'))
         self.assertEqual(len(r), 3)
         self.assertAlmostEqual(r[0].distance, 10.0, places=1)
@@ -62,7 +63,7 @@ OTHEROPTION foo
             fh.write(get_pdb_line('DUM', 6, typ='HETATM'))
             fh.write('END\n')
         i = get_atom_indexes('test.dat')
-        self.assertEqual(i, {'3': 1 ,'6': 2})
+        self.assertEqual(i, {'3': 1, '6': 2})
         with open('test.dat', 'w') as fh:
             fh.write(get_pdb_line('P', 4))
             fh.write(get_pdb_line('CA', 4))
@@ -93,6 +94,7 @@ HARM 4.0 0.1 4,8
                                universal_newlines=True, cwd=tmpdir)
             self.assertEqual(out, 'R    3   1   1  27   2   2   1     '
                                   '2     5      10.0000    0.5000\n')
+
 
 if __name__ == '__main__':
     unittest.main()

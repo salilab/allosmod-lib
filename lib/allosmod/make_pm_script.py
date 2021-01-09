@@ -4,18 +4,20 @@ from __future__ import print_function, absolute_import
 import optparse
 import allosmod.util
 
+
 def make_pm_script(target, templates, rand_seed, deviation, typ, mdtemp):
-    template = {'script':'pm_script.py.in',
-                'moderate_cm':'pm_moderate_cm.py.in',
-                'moderate_cm_simulation':'pm_moderate_cm.py.in',
-                'fast_cm':'pm_fast_cm.py.in',
-                'fast_cm_simulation':'pm_fast_cm.py.in',
-                'moderate_am':'pm_moderate_am.py.in'}[typ]
-    subs = {'RAND':str(rand_seed), 'DEVIATION':str(deviation),
-            'MDTEMP':str(mdtemp), 'KNOWNS':repr(templates),
-            'TARG_SEQ':repr(target)}
+    template = {'script': 'pm_script.py.in',
+                'moderate_cm': 'pm_moderate_cm.py.in',
+                'moderate_cm_simulation': 'pm_moderate_cm.py.in',
+                'fast_cm': 'pm_fast_cm.py.in',
+                'fast_cm_simulation': 'pm_fast_cm.py.in',
+                'moderate_am': 'pm_moderate_am.py.in'}[typ]
+    subs = {'RAND': str(rand_seed), 'DEVIATION': str(deviation),
+            'MDTEMP': str(mdtemp), 'KNOWNS': repr(templates),
+            'TARG_SEQ': repr(target)}
     allosmod.util.subst_file(open(allosmod.util.get_data_file(template)),
                              open('model_run.py', 'w'), subs)
+
 
 def parse_args():
     script_types = ['script', 'moderate_cm', 'moderate_cm_simulation',
@@ -42,10 +44,12 @@ Make a script file to generate perturbation models (PM).
     return (args[0], args[1], args[2], float(args[3]), args[4].lower(),
             float(args[5]))
 
+
 def main():
     target, template_file, rand_seed, deviation, typ, mdtemp = parse_args()
     make_pm_script(target, allosmod.util.read_templates(template_file),
                    rand_seed, deviation, typ, mdtemp)
+
 
 if __name__ == '__main__':
     main()

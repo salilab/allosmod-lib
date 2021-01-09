@@ -9,7 +9,8 @@ import utils
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 utils.set_search_paths(TOPDIR)
 
-import allosmod.util
+import allosmod.util  # noqa:E402
+
 
 class Tests(unittest.TestCase):
     def test_check_output(self):
@@ -151,6 +152,7 @@ A-FVV*
         self.assertTrue(allosmod.util.atom_hetatm_filter("ATOM foo"))
         self.assertTrue(allosmod.util.atom_hetatm_filter("HETATM foo"))
         self.assertFalse(allosmod.util.atom_hetatm_filter("foo"))
+
 
 if __name__ == '__main__':
     unittest.main()

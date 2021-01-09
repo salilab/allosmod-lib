@@ -1,24 +1,23 @@
 import unittest
-import modeller
 import os
 import sys
 import subprocess
-import collections
 import utils
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 test_dir = utils.set_search_paths(TOPDIR)
 
-from allosmod.util import check_output
+from allosmod.util import check_output   # noqa: E402
+
 
 class Tests(unittest.TestCase):
     def test_bad(self):
         """Test wrong arguments to contpres"""
         for args in ([], [''] * 4):
-            out = check_output(['allosmod', 'contpres'] + args,
-                               stderr=subprocess.STDOUT, retcode=2)
-            out = check_output([sys.executable, '-m',
-                                'allosmod.contpres'] + args,
-                               stderr=subprocess.STDOUT, retcode=2)
+            check_output(['allosmod', 'contpres'] + args,
+                         stderr=subprocess.STDOUT, retcode=2)
+            check_output([sys.executable, '-m',
+                          'allosmod.contpres'] + args,
+                         stderr=subprocess.STDOUT, retcode=2)
 
     def test_simple(self):
         """Simple complete run of contpres"""
@@ -26,12 +25,12 @@ class Tests(unittest.TestCase):
             break_dat = os.path.join(tmpdir, 'break.dat')
             with open(break_dat, 'w') as fh:
                 fh.write("foo\nbar\n")
-            out = check_output(['allosmod', 'contpres',
-                                os.path.join(test_dir, 'input',
-                                             'test_contpres.rsr'),
-                                os.path.join(test_dir, 'input',
-                                             'test_contpres.pdb'), '50.0'],
-                               cwd=tmpdir)
+            check_output(['allosmod', 'contpres',
+                          os.path.join(test_dir, 'input',
+                                       'test_contpres.rsr'),
+                          os.path.join(test_dir, 'input',
+                                       'test_contpres.pdb'), '50.0'],
+                         cwd=tmpdir)
             with open(break_dat) as fh:
                 content = fh.read()
             self.assertEqual(content, "foo\nbar\n1 50.0\n3 50.0\n")
@@ -45,12 +44,12 @@ class Tests(unittest.TestCase):
             break_dat = os.path.join(tmpdir, 'break.dat')
             with open(break_dat, 'w') as fh:
                 fh.write("foo\nbar\n")
-            out = check_output(['allosmod', 'contpres', '--cdensity_cutoff',
-                                '1.0', os.path.join(test_dir, 'input',
-                                                    'test_contpres.rsr'),
-                                os.path.join(test_dir, 'input',
-                                             'test_contpres.pdb'), '50.0'],
-                               cwd=tmpdir)
+            check_output(['allosmod', 'contpres', '--cdensity_cutoff',
+                          '1.0', os.path.join(test_dir, 'input',
+                                              'test_contpres.rsr'),
+                          os.path.join(test_dir, 'input',
+                                       'test_contpres.pdb'), '50.0'],
+                         cwd=tmpdir)
             with open(break_dat) as fh:
                 content = fh.read()
             self.assertEqual(content, "foo\nbar\n2 50.0\n")
@@ -63,12 +62,12 @@ class Tests(unittest.TestCase):
             break_dat = os.path.join(tmpdir, 'break.dat')
             with open(break_dat, 'w') as fh:
                 fh.write("foo\nbar\n")
-            out = check_output(['allosmod', 'contpres', '--cdensity_cutoff',
-                                '-1.0', os.path.join(test_dir, 'input',
-                                                    'contpres_evencd.rsr'),
-                                os.path.join(test_dir, 'input',
-                                             'contpres_evencd.pdb'), '50.0'],
-                               cwd=tmpdir)
+            check_output(['allosmod', 'contpres', '--cdensity_cutoff',
+                          '-1.0', os.path.join(test_dir, 'input',
+                                               'contpres_evencd.rsr'),
+                          os.path.join(test_dir, 'input',
+                                       'contpres_evencd.pdb'), '50.0'],
+                         cwd=tmpdir)
             with open(break_dat) as fh:
                 content = fh.read()
             self.assertEqual(content, "foo\nbar\n1 50.0\n2 50.0\n")
@@ -81,17 +80,18 @@ class Tests(unittest.TestCase):
             break_dat = os.path.join(tmpdir, 'break.dat')
             with open(break_dat, 'w') as fh:
                 fh.write("foo\nbar\n")
-            out = check_output(['allosmod', 'contpres', '--cdensity_cutoff',
-                                '1.0', os.path.join(test_dir, 'input',
-                                                    'contpres_evencd.rsr'),
-                                os.path.join(test_dir, 'input',
-                                             'contpres_evencd.pdb'), '50.0'],
-                               cwd=tmpdir)
+            check_output(['allosmod', 'contpres', '--cdensity_cutoff',
+                          '1.0', os.path.join(test_dir, 'input',
+                                              'contpres_evencd.rsr'),
+                          os.path.join(test_dir, 'input',
+                                       'contpres_evencd.pdb'), '50.0'],
+                         cwd=tmpdir)
             with open(break_dat) as fh:
                 content = fh.read()
             self.assertEqual(content, "foo\nbar\n")
             os.unlink(break_dat)
             os.unlink(os.path.join(tmpdir, 'contpres.dat'))
+
 
 if __name__ == '__main__':
     unittest.main()

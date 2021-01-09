@@ -1,13 +1,14 @@
 """Get all residues involved in charge contacts."""
 
 from __future__ import print_function, absolute_import, division
-import optparse
 import modeller
 import math
 import allosmod.util
 
+
 charged_residues = dict.fromkeys(('ARG', 'HIS', 'LYS', 'HSD', 'HSE',
                                   'HSP', 'HID', 'HIE', 'HIP', 'ASP', 'GLU'))
+
 
 def get_restrained_atoms(mdl, rsr_file):
     for line in rsr_file:
@@ -15,10 +16,12 @@ def get_restrained_atoms(mdl, rsr_file):
         if len(spl) > 10 and spl[5] == '2' and spl[4] != '1':
             yield mdl.atoms[int(spl[8])-1], mdl.atoms[int(spl[9])-1]
 
+
 def charged_ca_pair(a1, a2):
     return a1.name == 'CA' and a2.name == 'CA' \
            and a1.residue.pdb_name in charged_residues \
            and a2.residue.pdb_name in charged_residues
+
 
 class ChargedContactFinder(object):
     def __init__(self, env, rsr_file, pdb_file):
@@ -53,7 +56,7 @@ class ChargedContactFinder(object):
 
     def print_cdensity(self, cutoff, sclbreak, fh):
         xavg = sum(x[1] for x in self._contacts) / len(self._contacts)
-        xsd = math.sqrt(sum((x[1]-xavg)**2 \
+        xsd = math.sqrt(sum((x[1]-xavg)**2
                         for x in self._contacts) / len(self._contacts))
         if xsd > 0.:
             for n, c in self._contacts:
@@ -63,6 +66,7 @@ class ChargedContactFinder(object):
         elif cutoff < 0:
             for n, c in self._contacts:
                 print("%d %s" % (n, sclbreak), file=fh)
+
 
 def parse_args():
     usage = """%prog [opts] <restraint file> <PDB file> <sclbreak>
@@ -86,6 +90,7 @@ Note that residue indices (starting from 1) are used, not PDB residue numbers.
         parser.error("incorrect number of arguments")
     return args[0], args[1], args[2], opts
 
+
 def main():
     rsr_file, pdb_file, sclbreak, opts = parse_args()
     e = modeller.environ()
@@ -94,9 +99,11 @@ def main():
     a.find()
     a.print_contacts(open('contpres.dat', 'w'))
     if opts.cdensity_cutoff is not None:
-        a.print_cdensity(opts.cdensity_cutoff, sclbreak, open('break.dat', 'a'))
+        a.print_cdensity(opts.cdensity_cutoff, sclbreak,
+                         open('break.dat', 'a'))
     else:
         a.print_all_buried(sclbreak, open('break.dat', 'a'))
+
 
 if __name__ == '__main__':
     main()

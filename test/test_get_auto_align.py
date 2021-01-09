@@ -7,17 +7,18 @@ import utils
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 utils.set_search_paths(TOPDIR)
 
-from allosmod.util import check_output
+from allosmod.util import check_output  # noqa: E402
+
 
 class Tests(unittest.TestCase):
     def test_bad(self):
         """Test wrong arguments to get_auto_align"""
         for args in ([], ['x'] * 5):
-            out = check_output(['allosmod', 'get_auto_align'] + args,
-                               stderr=subprocess.STDOUT, retcode=2)
-            out = check_output([sys.executable, '-m',
-                                'allosmod.get_auto_align'] + args,
-                               stderr=subprocess.STDOUT, retcode=2)
+            check_output(['allosmod', 'get_auto_align'] + args,
+                         stderr=subprocess.STDOUT, retcode=2)
+            check_output([sys.executable, '-m',
+                          'allosmod.get_auto_align'] + args,
+                         stderr=subprocess.STDOUT, retcode=2)
 
     def setup_inputs(self, seq='AW'):
         with open('align.ali', 'w') as fh:
@@ -46,6 +47,7 @@ ATOM      7  CA  VAL A   2      26.593  16.867   8.258  1.00120.51           C
         self.assertEqual(a[1].code, '5fd1')
         for f in ('templates', '5fd1', 'align.ali', 'align_suggested.ali'):
             os.unlink(f)
+
 
 if __name__ == '__main__':
     unittest.main()

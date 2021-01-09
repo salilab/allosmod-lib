@@ -1,8 +1,8 @@
 """Structurally align two PDBs using SALIGN."""
 
 from __future__ import print_function, absolute_import
-import optparse
 import allosmod.util
+
 
 def determine_fit_atoms(mdl):
     n_ca = n_p = 0
@@ -16,6 +16,7 @@ def determine_fit_atoms(mdl):
     else:
         return 'P'
 
+
 def salign0(env, ff1, ff2):
     import modeller
     aln = modeller.alignment(env)
@@ -27,9 +28,10 @@ def salign0(env, ff1, ff2):
     mdl = modeller.model(env, file=code, model_segment=('FIRST:@', 'END:'))
     aln.append_model(mdl, atom_files=code, align_codes=code)
 
-    for (weights, write_fit, whole) in (((1., 0., 0., 0., 1., 0.), False, True),
-                                        ((1.,0.5, 1., 1., 1., 0.), False, True),
-                                        ((1.,1., 1., 1., 1., 0.), True, False)):
+    for (weights, write_fit, whole) in (
+            ((1.,  0.,  0.,  0.,  1.,  0.),  False,  True),
+            ((1., 0.5,  1.,  1.,  1.,  0.),  False,  True),
+            ((1., 1.,  1.,  1.,  1.,  0.),  True,  False)):
         aln.salign(rms_cutoff=3.5, normalize_pp_scores=False,
                    rr_file='$(LIB)/as1.sim.mat', overhang=30,
                    gap_penalties_1d=(-450, -50),
@@ -39,6 +41,7 @@ def salign0(env, ff1, ff2):
                    improve_alignment=True, fit=True, write_fit=write_fit,
                    write_whole_pdb=whole, output='ALIGNMENT QUALITY')
     return aln
+
 
 def parse_args():
     usage = """%prog <PDB file> <PDB file> <alignment file>
@@ -56,6 +59,7 @@ in the first PDB file.
         parser.error("incorrect number of arguments")
     return args[0], args[1], args[2], opts
 
+
 def main():
     import modeller
     ff1, ff2, aln_file, opts = parse_args()
@@ -64,6 +68,7 @@ def main():
     env.io.hetatm = True
     aln = salign0(env, ff1, ff2)
     aln.write(file=aln_file)
+
 
 if __name__ == '__main__':
     main()

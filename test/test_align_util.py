@@ -9,7 +9,7 @@ import utils
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 utils.set_search_paths(TOPDIR)
 
-import allosmod.util.align
+import allosmod.util.align  # noqa: E402
 
 TEST_ALIGNMENT = """
 C; test alignment
@@ -22,6 +22,7 @@ N/T--TVFQGVAGQSLQ*
 structureX:TREMcopy.pdb:  20 :A:+112 :A:::-1.00:-1.00
 NT-TV/F-QGVAGQSLQ*
 """
+
 
 class Tests(unittest.TestCase):
     def test_insert(self):
@@ -44,6 +45,7 @@ class Tests(unittest.TestCase):
                 fh.write(TEST_ALIGNMENT)
             self.assertRaises(ValueError, allosmod.util.align.insert_gap,
                               ali, 1, 97, 99)
+
 
 if __name__ == '__main__':
     unittest.main()

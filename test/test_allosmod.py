@@ -1,11 +1,11 @@
 import unittest
-import subprocess
 import os
 import utils
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 utils.set_search_paths(TOPDIR)
 
-from allosmod.util import check_output
+from allosmod.util import check_output  # noqa: E402
+
 
 class Tests(unittest.TestCase):
     def test_no_args(self):
@@ -28,7 +28,8 @@ class Tests(unittest.TestCase):
     def test_unknown_command(self):
         """Check 'allosmod' with an unknown command"""
         for args in (['bad-command'], ['help', 'bad-command']):
-            out = check_output(['allosmod'] + args, retcode=1)
+            check_output(['allosmod'] + args, retcode=1)
+
 
 if __name__ == '__main__':
     unittest.main()

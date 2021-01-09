@@ -7,18 +7,19 @@ import utils
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 utils.set_search_paths(TOPDIR)
 
-import allosmod.util
-from allosmod.util import check_output
+import allosmod.util  # noqa: E402
+from allosmod.util import check_output  # noqa: E402
+
 
 class Tests(unittest.TestCase):
     def test_bad(self):
         """Test wrong arguments to make_mod_inputs"""
         for args in ([], ['x'] * 8):
-            out = check_output(['allosmod', 'make_mod_inputs'] + args,
-                               stderr=subprocess.STDOUT, retcode=2)
-            out = check_output([sys.executable, '-m',
-                                'allosmod.make_mod_inputs'] + args,
-                               stderr=subprocess.STDOUT, retcode=2)
+            check_output(['allosmod', 'make_mod_inputs'] + args,
+                         stderr=subprocess.STDOUT, retcode=2)
+            check_output([sys.executable, '-m',
+                          'allosmod.make_mod_inputs'] + args,
+                         stderr=subprocess.STDOUT, retcode=2)
 
     def setup_inputs(self, seq='AW', dir='.'):
         def d(fname):
@@ -69,13 +70,17 @@ ATOM      7  CA  TYR A   2      26.593  16.867   8.258  1.00120.51           C
         import modeller.automodel
         from allosmod.make_mod_inputs import make_mod_inputs
         self.setup_inputs()
+
         def mock_make(cls, exit_stage):
             self.assertEqual(exit_stage, 1)
             self.assertAlmostEqual(cls.max_sc_sc_distance, 14.0, places=1)
-        with utils.mock_method(modeller.automodel.automodel, 'make', mock_make):
-            make_mod_inputs('1fdx', ['5fd1'], -3333, [3,3,3], 4, True)
-        for f in ('templates', 'avgpdb.pdb', '5fd1', 'align.ali', 'random.ini'):
+        with utils.mock_method(modeller.automodel.automodel, 'make',
+                               mock_make):
+            make_mod_inputs('1fdx', ['5fd1'], -3333, [3, 3, 3], 4, True)
+        for f in ('templates', 'avgpdb.pdb', '5fd1', 'align.ali',
+                  'random.ini'):
             os.unlink(f)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -7,6 +7,7 @@ import shutil
 import os
 import re
 
+
 def check_output(args, stderr=None, retcode=0, input=None, *other, **keys):
     """Run a subprocess and return its output.
        If the return code from the subprocess does not match `retcode`, an
@@ -24,16 +25,18 @@ def check_output(args, stderr=None, retcode=0, input=None, *other, **keys):
                       % (" ".join(args), p.returncode, stdout))
     return stdout
 
+
 def subst_file(fh_in, fh_out, subs):
     """Make file fh_out by substituting variables in fh_in.
        Substitutions are of the form @FOO@, and will be replaced by
        the value of subs['FOO']. @@ is replaced by @.
     """
-    r = re.compile('@(?P<key>\w*?)@')
+    r = re.compile(r'@(?P<key>\w*?)@')
+
     def repl(match):
         key = match.group('key')
         if not key:
-            return "@" # Replace @@ with @
+            return "@"    # Replace @@ with @
         elif key in subs:
             return subs[key]
         else:
@@ -41,10 +44,12 @@ def subst_file(fh_in, fh_out, subs):
     for line in fh_in:
         fh_out.write(r.sub(repl, line))
 
+
 def get_data_file(fname):
     """Return the full path to a file in the data directory"""
     import allosmod.config
     return os.path.join(allosmod.config.datadir, fname)
+
 
 def fix_newlines(fname):
     """Remove any \r characters from the file, in place"""
@@ -54,6 +59,7 @@ def fix_newlines(fname):
         with open(fname, 'w') as fh:
             fh.write(contents.replace('\r', ''))
 
+
 def read_templates(template_file):
     """Read list of templates from the given file. The AllosMod list format
        is one template per file; each line lists the PDB file, chain,
@@ -61,12 +67,14 @@ def read_templates(template_file):
     with open(template_file) as fh:
         return [line.rstrip('\r\n').split()[0] for line in fh]
 
+
 @contextlib.contextmanager
 def temporary_directory():
     """Make a temporary directory"""
     tempd = tempfile.mkdtemp()
     yield tempd
     shutil.rmtree(tempd)
+
 
 class ModellerOptionParser(optparse.OptionParser):
     """Add options to control the amount of Modeller logging to optparse"""
@@ -84,6 +92,7 @@ class ModellerOptionParser(optparse.OptionParser):
         else:
             modeller.log.none()
         return opts, args
+
 
 class FileFormatError(Exception):
     pass
@@ -124,7 +133,7 @@ class PIRFile(object):
         """Read sequences from the given stream in PIR format. A list of
            the sequences is returned, as :class:`Sequence` objects."""
         seq = None
-        terminator = re.compile('\*\s*$')
+        terminator = re.compile(r'\*\s*$')
         for (num, line) in enumerate(fh):
             if line.startswith('C;') or line.startswith('R;'):
                 # Skip comment lines
@@ -179,8 +188,10 @@ class PDBParser(object):
             if self.filter(line):
                 yield line
 
+
 def atom_filter(line):
     return line.startswith('ATOM')
+
 
 def atom_hetatm_filter(line):
     return line.startswith('ATOM') or line.startswith('HETATM')

@@ -5,5 +5,5 @@ import os
 
 datadir = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                        '..', '..', '..', 'data')
-local_scratch='/tmp'
-global_scratch='/scrapp'
+local_scratch = '/tmp'
+global_scratch = '/scrapp'

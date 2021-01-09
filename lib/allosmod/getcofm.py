@@ -4,6 +4,7 @@ from __future__ import print_function
 import optparse
 import allosmod.util
 
+
 class CenterOfMassPDBParser(allosmod.util.PDBParser):
     def get_cofm(self, fh):
         x = y = z = 0.
@@ -14,6 +15,7 @@ class CenterOfMassPDBParser(allosmod.util.PDBParser):
             z += float(line[46:54])
             nr += 1
         return x / nr, y / nr, z / nr
+
 
 def parse_args():
     usage = """%prog <PDB file>
@@ -26,10 +28,12 @@ Get and print the center of mass of all ATOMs in the given PDB file.
         parser.error("incorrect number of arguments")
     return args[0]
 
+
 def main():
     pdb_file = parse_args()
     c = CenterOfMassPDBParser(allosmod.util.atom_filter)
     print("%8.3f %8.3f %8.3f" % c.get_cofm(open(pdb_file)))
+
 
 if __name__ == '__main__':
     main()

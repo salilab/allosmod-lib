@@ -6,7 +6,7 @@ import utils
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 utils.set_search_paths(TOPDIR)
 
-from allosmod.util import check_output
+from allosmod.util import check_output  # noqa: E402
 
 test_pdb = """EXPDTA    THEORETICAL MODEL, MODELLER SVN 2015/05/15 09:37:25
 ATOM      1  N   CYS A   1       1.453   0.000   0.000  0.00  0.00           C
@@ -30,12 +30,13 @@ HETATM  146  O   HOH B  12       4.370   4.293   4.222  1.00  0.00           O
 END
 """
 
+
 class Tests(unittest.TestCase):
     def test_bad(self):
         """Test wrong arguments to pdb2ali"""
         for args in ([], ['foo', 'bar']):
-            out = check_output(['allosmod', 'pdb2ali'] + args,
-                               stderr=subprocess.STDOUT, retcode=2)
+            check_output(['allosmod', 'pdb2ali'] + args,
+                         stderr=subprocess.STDOUT, retcode=2)
 
     def test_wrap(self):
         """Make sure that long sequences from pdb2ali are wrapped"""
@@ -47,8 +48,7 @@ class Tests(unittest.TestCase):
                 fh.write(test_pdb)
             out = check_output(['allosmod', 'pdb2ali', 'test.pdb'],
                                universal_newlines=True, cwd=tmpdir)
-            self.assertEqual(out,
-""">P1;test.pdb
+            self.assertEqual(out, """>P1;test.pdb
 structureX:test.pdb:   1 :A:+112:B:::-1.00:-1.00
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCMYh./CMY-frh.*
@@ -62,8 +62,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCMYh./CMY-frh.*
             for out in (check_output(['allosmod', 'pdb2ali', 'test.pdb'],
                                      universal_newlines=True, cwd=tmpdir),
                         check_output([sys.executable, '-m', 'allosmod.pdb2ali',
-                                      'test.pdb'], universal_newlines=True,
-                                      cwd=tmpdir)):
+                                     'test.pdb'], universal_newlines=True,
+                                     cwd=tmpdir)):
                 self.assertEqual(out, """>P1;test.pdb
 structureX:test.pdb:   1 :A:+12:B:::-1.00:-1.00
 CMYh./CMY-frh.*
@@ -85,6 +85,7 @@ CMYh./CMY-frh.*
                 lines = fh.readlines()
             # Empty chain should have been reassigned as '@'
             self.assertEqual(lines[1][21], '@')
+
 
 if __name__ == '__main__':
     unittest.main()

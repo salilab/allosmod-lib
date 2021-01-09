@@ -6,6 +6,7 @@ import os
 import allosmod.util
 from allosmod.pdb2ali import pdb2ali
 
+
 def get_auto_align(in_aln_file, target, templates, out_aln_file):
     import modeller
     modeller.log.none()
@@ -22,6 +23,7 @@ def get_auto_align(in_aln_file, target, templates, out_aln_file):
         aln.salign(overhang=30, gap_penalties_1d=(-450, -50),
                    alignment_type='tree', output='ALIGNMENT')
     aln.write(file=out_aln_file)
+
 
 def parse_args():
     usage = """%prog <input align file> <target> <templates file>
@@ -40,10 +42,12 @@ out as <output align file>.
         parser.error("incorrect number of arguments")
     return args
 
+
 def main():
     in_aln_file, target, templates_file, out_aln_file = parse_args()
     get_auto_align(in_aln_file, target,
                    allosmod.util.read_templates(templates_file), out_aln_file)
+
 
 if __name__ == '__main__':
     main()

@@ -2,35 +2,39 @@
 
 from __future__ import print_function, absolute_import
 import optparse
-import subprocess
 import allosmod.util
 import allosmod.util.align
 import allosmod.config
 import string
 import os
 
+
 class BondTypeError(Exception):
     """Error raised for an invalid bond type."""
     pass
+
 
 class InvalidResidueError(Exception):
     """Error raised for an invalid residue number."""
     pass
 
+
 class NoSugarsError(Exception):
     """Error raised for an empty glyc.dat."""
     pass
+
 
 def read_template_file(template_file):
     """Read the list of templates from a file and return it."""
     with open(template_file) as fh:
         return [x.rstrip('\r\n') for x in fh]
 
+
 def make_ini_model(rand, target, templates, align, fh):
     """Make a Modeller script to generate an initial model"""
-    svars = {'knowns':", ".join(repr(x) for x in templates),
-             'data':allosmod.config.datadir,
-             'target':target, 'align':align, 'rand':rand}
+    svars = {'knowns': ", ".join(repr(x) for x in templates),
+             'data': allosmod.config.datadir,
+             'target': target, 'align': align, 'rand': rand}
     fh.write("""
 from modeller import *
 from modeller.scripts import complete_pdb
@@ -65,21 +69,24 @@ a.ending_model = 1
 a.make()
 """ % svars)
 
+
 def make_ini_model_with_sugar(rand, target, templates):
     """Make a Modeller script to generate an initial model with sugar"""
     with open('model_ini.py', 'w') as fh:
         make_ini_model(rand, target, templates, 'align2.ali', fh)
+
 
 def make_ini_model_protein_only(rand, target, templates):
     """Make a Modeller script to generate an initial model with protein only"""
     with open('model_ini0.py', 'w') as fh:
         make_ini_model(rand, target, templates, 'align.ali', fh)
 
+
 def make_glyc_models(rand, target, templates, rep_opt):
     """Make a Modeller script to generate glycosylated models"""
-    svars = {'knowns':", ".join(repr(x) for x in templates),
-             'data':allosmod.config.datadir,
-             'target':target, 'rep_opt':rep_opt, 'rand':rand}
+    svars = {'knowns': ", ".join(repr(x) for x in templates),
+             'data': allosmod.config.datadir,
+             'target': target, 'rep_opt': rep_opt, 'rand': rand}
     with open('model_glyc.py', 'w') as fh:
         fh.write("""
 from modeller import *
@@ -116,26 +123,29 @@ a.ending_model = 1
 a.make()
 """ % svars)
 
+
 class Sugar(object):
-    _one_letter_map = {'NAG':'1', 'MAN':'2', 'BMA':'3', 'GLB':'4',
-                       'FUC':'5', 'NAN':'8', 'NGA':'9'}
-    _connect_atom_map = {'NGLA':'ND2', 'NGLB':'ND2',
-                         'SGPA':'OG', 'SGPB':'OG',
-                         'TGPA':'OG1', 'TGPB':'OG1',
-                         '16ab':'O6', '16fu':'O6', '14bb':'O4', '13ab':'O3',
-                         '13bb':'O3', '12aa':'O2', '12ba':'O2', 'sa23':'O3',
-                         'sa26':'O6'}
+    _one_letter_map = {'NAG': '1', 'MAN': '2', 'BMA': '3', 'GLB': '4',
+                       'FUC': '5', 'NAN': '8', 'NGA': '9'}
+    _connect_atom_map = {'NGLA': 'ND2', 'NGLB': 'ND2',
+                         'SGPA': 'OG', 'SGPB': 'OG',
+                         'TGPA': 'OG1', 'TGPB': 'OG1',
+                         '16ab': 'O6', '16fu': 'O6', '14bb': 'O4',
+                         '13ab': 'O3', '13bb': 'O3', '12aa': 'O2',
+                         '12ba': 'O2', 'sa23': 'O3', 'sa26': 'O6'}
 
     def __init__(self, monomer, bond_type, attach_res):
         if bond_type not in self._connect_atom_map.keys():
-            raise BondTypeError("Invalid O1 bond type %s. Valid types are: %s"
-                        % (bond_type,
-                           ", ".join(sorted(self._connect_atom_map.keys()))))
+            raise BondTypeError(
+                "Invalid O1 bond type %s. Valid types are: %s"
+                % (bond_type,
+                   ", ".join(sorted(self._connect_atom_map.keys()))))
         if not attach_res.isdigit():
-            raise InvalidResidueError("Invalid residue index for sugar "
-                    "attachment point: %s. Note that residues are numbered "
-                    "sequentially starting from 1, with no chain ID or "
-                    "insertion code." % attach_res)
+            raise InvalidResidueError(
+                "Invalid residue index for sugar "
+                "attachment point: %s. Note that residues are numbered "
+                "sequentially starting from 1, with no chain ID or "
+                "insertion code." % attach_res)
         self.monomer, self.bond_type = monomer, bond_type
         self.attach_res = int(attach_res)
         self.one_letter_code = self._one_letter_map[monomer]
@@ -144,10 +154,12 @@ class Sugar(object):
         """Return the type of the atom this sugar is bonded to"""
         return self._connect_atom_map[self.bond_type]
 
+
 class SugarChain(list):
     """Store a chain of Sugars"""
     # todo: assert that sugar-sugar bonds are sane
     pass
+
 
 def read_glyc_file(fname):
     """Parse the glyc.dat file and return it."""
@@ -169,6 +181,7 @@ def read_glyc_file(fname):
                             "no valid sugars.")
     return s
 
+
 def count_residues(alnfile, code):
     """Return the number of residues in the given sequence"""
     p = allosmod.util.PIRFile()
@@ -176,6 +189,7 @@ def count_residues(alnfile, code):
         for seq in p.read(fh):
             if seq.code == code:
                 return len(seq.get_residues())
+
 
 def get_residue_chains(pdbfile):
     """Get a mapping from residue number to chain ID"""
@@ -186,6 +200,7 @@ def get_residue_chains(pdbfile):
             res[line[22:27].strip()] = line[21]
     return res
 
+
 def get_first_unused_chain(chain_for_res):
     """Return a chain ID that's not already used"""
     all_chains = set(chain_for_res.values())
@@ -193,6 +208,7 @@ def get_first_unused_chain(chain_for_res):
         if chain_id not in all_chains:
             return chain_id
     raise ValueError("Cannot find an unused chain ID")
+
 
 class _Connection(object):
     """Represent a connection between residues"""
@@ -220,11 +236,12 @@ def _check_attachments(sugar_chains, chain_for_res):
     attachments = [str(sc[0].attach_res) for sc in sugar_chains]
     bad_attachments = [r for r in attachments if r not in chain_for_res]
     if bad_attachments:
-        sorted_res = sorted(chain_for_res)
-        raise InvalidResidueError("Sugar attachment point(s) not found in "
-                    "PDB file: %s. Note that residues are numbered "
-                    "sequentially starting from 1, with no chain ID or "
-                    "insertion code." % (", ".join(bad_attachments)))
+        raise InvalidResidueError(
+            "Sugar attachment point(s) not found in "
+            "PDB file: %s. Note that residues are numbered "
+            "sequentially starting from 1, with no chain ID or "
+            "insertion code." % (", ".join(bad_attachments)))
+
 
 def add_glycosidic_bonds(target, glycpm, sugar_chains):
     """Add bonds between protein and sugar chains"""
@@ -249,6 +266,7 @@ def add_glycosidic_bonds(target, glycpm, sugar_chains):
                               atom_type=s.get_connect_atom())
         start_res += len(sc)
 
+
 def make_alignment_with_sugar(target, templates, sugar_chains):
     """Make a Modeller alignment to include sugars in the model."""
     one_letters = []
@@ -265,6 +283,7 @@ def make_alignment_with_sugar(target, templates, sugar_chains):
                     seq.primary += '/' + '-' * len(one_letters)
                 p.write(fh_out, seq)
 
+
 def get_gaps(sugar_chains):
     """Get a list of places to insert alignment gaps"""
     gaps = []
@@ -272,6 +291,7 @@ def get_gaps(sugar_chains):
         r = chain[0].attach_res
         gaps.append((max(1, r - 2), r + 2))
     return sorted(gaps)
+
 
 def remove_overlaps(gaps):
     """Combine any overlapping gaps into a single gap"""
@@ -288,6 +308,7 @@ def remove_overlaps(gaps):
             result[-1] = (current_lb, current_ub)
     return result
 
+
 def add_alignment_gaps(sugar_chains):
     """Add gaps to the alignment near insertion sites"""
     gaps = remove_overlaps(get_gaps(sugar_chains))
@@ -296,6 +317,7 @@ def add_alignment_gaps(sugar_chains):
             allosmod.util.align.insert_gap("align2.ali", 0, gap[0]-1,
                                            gap[1]-1, fh)
         os.rename('align2.ali.tmp', 'align2.ali')
+
 
 def get_pm_glyc(target, template_file, rand, rep_opt, att_gap, glycpm):
     templates = read_template_file(template_file)
@@ -315,6 +337,7 @@ def get_pm_glyc(target, template_file, rand, rep_opt, att_gap, glycpm):
     make_alignment_with_sugar(target, templates, sugar_chains)
     if att_gap.upper() == 'TRUE':
         add_alignment_gaps(sugar_chains)
+
 
 def parse_args():
     usage = """%prog [opts] <target> <templates> <rand> <rep_opt>
@@ -337,9 +360,12 @@ Generate Modeller scripts and alignments to model with glycosylation.
         parser.error("incorrect number of arguments")
     return args
 
+
 def main():
     target, template_file, rand, rep_opt, att_gap, glycpm = parse_args()
-    get_pm_glyc(target, template_file, int(rand), int(rep_opt), att_gap, glycpm)
+    get_pm_glyc(target, template_file, int(rand), int(rep_opt),
+                att_gap, glycpm)
+
 
 if __name__ == '__main__':
     main()

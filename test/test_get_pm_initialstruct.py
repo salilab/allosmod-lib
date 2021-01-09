@@ -2,13 +2,13 @@ import unittest
 import subprocess
 import os
 import sys
-import shutil
 import modeller
 import utils
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 utils.set_search_paths(TOPDIR)
 
-from allosmod.util import check_output
+from allosmod.util import check_output  # noqa: E402
+
 
 def get_seq(code, pdb, seq):
     return """>P1;%s
@@ -16,15 +16,16 @@ structureX:%s:1::54::::2.00:-1.00
 %s*
 """ % (code, pdb, seq)
 
+
 class Tests(unittest.TestCase):
     def test_bad(self):
         """Test wrong arguments to get_pm_initialstruct"""
         for args in ([], ['1', '2', '3', '4', '5', '6']):
-            out = check_output(['allosmod', 'get_pm_initialstruct'] + args,
-                               stderr=subprocess.STDOUT, retcode=2)
-            out = check_output([sys.executable, '-m',
-                                'allosmod.get_pm_initialstruct'] + args,
-                               stderr=subprocess.STDOUT, retcode=2)
+            check_output(['allosmod', 'get_pm_initialstruct'] + args,
+                         stderr=subprocess.STDOUT, retcode=2)
+            check_output([sys.executable, '-m',
+                          'allosmod.get_pm_initialstruct'] + args,
+                         stderr=subprocess.STDOUT, retcode=2)
 
     def test_get_target(self):
         """Test get_target function"""
@@ -57,11 +58,11 @@ ATOM      7  CA  TYR     2      26.593  16.867   8.258  1.00120.51           C
 
     def test_simple(self):
         """Simple complete run of get_pm_initialstruct"""
-        from allosmod.get_pm_initialstruct import get_pm_initialstruct
         with utils.temporary_directory() as tmpdir:
             self.setup_inputs(tmpdir)
 
-            check_output(['allosmod', 'get_pm_initialstruct', '--target', 'foo',
+            check_output(['allosmod', 'get_pm_initialstruct',
+                          '--target', 'foo',
                           '--keep-alignment', 'test.aln', 'templates',
                           '.', '1', 'slow'], cwd=tmpdir)
             e = modeller.environ()
@@ -76,12 +77,12 @@ ATOM      7  CA  TYR     2      26.593  16.867   8.258  1.00120.51           C
 
     def test_opts(self):
         """Complete run of get_pm_initialstruct using different options"""
-        from allosmod.get_pm_initialstruct import get_pm_initialstruct
         with utils.temporary_directory() as tmpdir:
             self.setup_inputs(tmpdir, seq='A/W')
 
             os.mkdir(os.path.join(tmpdir, 'pred_1fdx'))
-            check_output(['allosmod', 'get_pm_initialstruct', '--target', 'foo',
+            check_output(['allosmod', 'get_pm_initialstruct',
+                          '--target', 'foo',
                           '--restraints-only', 'test.aln', 'templates',
                           '.', '1', 'fast'], cwd=tmpdir)
             for f in ('1fdx', 'family.mat', 'foo.ini', 'test.aln',
@@ -90,18 +91,19 @@ ATOM      7  CA  TYR     2      26.593  16.867   8.258  1.00120.51           C
 
     def test_nochdir(self):
         """Complete run of get_pm_initialstruct using --no-chdir"""
-        from allosmod.get_pm_initialstruct import get_pm_initialstruct
         with utils.temporary_directory() as tmpdir:
             os.mkdir(os.path.join(tmpdir, 'pred_1fdx'))
             self.setup_inputs(tmpdir, seq='A/W', subdir='pred_1fdx')
 
-            check_output(['allosmod', 'get_pm_initialstruct', '--target', 'foo',
+            check_output(['allosmod', 'get_pm_initialstruct',
+                          '--target', 'foo',
                           '--restraints-only', '--no-chdir', '--csrfile',
                           'test.rsr', 'test.aln', '../templates', '.', '1',
                           'fast'], cwd=os.path.join(tmpdir, 'pred_1fdx'))
             for f in ('1fdx', 'family.mat', 'foo.ini', 'test.aln',
                       'test.aln.ali'):
                 os.unlink(os.path.join(tmpdir, 'pred_1fdx', f))
+
 
 if __name__ == '__main__':
     unittest.main()

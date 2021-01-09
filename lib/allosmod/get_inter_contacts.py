@@ -1,11 +1,10 @@
 """Make a list of all contacts between two structures."""
 
 from __future__ import print_function, absolute_import
-import optparse
-import math
 import allosmod.util
 from allosmod.get_contacts import _get_average_aa, get_contact_type
 from allosmod.get_contacts import get_contact_dist
+
 
 def get_inter_contacts(env, mdl1, mdl2, rcut):
     av1 = [_get_average_aa(r) for r in mdl1.residues]
@@ -17,6 +16,7 @@ def get_inter_contacts(env, mdl1, mdl2, rcut):
             dist = get_contact_dist(i, j, rcut2)
             if dist is not None:
                 yield i.r, j.r, dist
+
 
 def parse_args():
     usage = """%prog <PDB file 1> <PDB file 2> <cutoff>
@@ -35,6 +35,7 @@ exist, the CA, O or N atom (in that order) is used as the center.
         parser.error("incorrect number of arguments")
     return args[0], args[1], float(args[2])
 
+
 def main():
     import modeller
     file1, file2, rcut = parse_args()
@@ -47,6 +48,7 @@ def main():
               % (ri.num, ri.chain.name, rj.num, rj.chain.name,
                  ri.pdb_name, rj.pdb_name, get_contact_type(ri, rj),
                  dist, 6, 6))
+
 
 if __name__ == '__main__':
     main()

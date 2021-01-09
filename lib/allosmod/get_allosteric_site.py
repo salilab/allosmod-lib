@@ -1,7 +1,6 @@
 """Get the allosteric site (all residues near the ligand)"""
 
 from __future__ import print_function, absolute_import
-import optparse
 import modeller
 import os
 import allosmod.util
@@ -9,14 +8,17 @@ from allosmod.salign0 import salign0
 from allosmod.get_inter_contacts import get_inter_contacts
 import sys
 
+
 class AllostericSiteError(Exception):
     pass
+
 
 def get_fit_filename(pdb):
     if pdb.endswith('.pdb'):
         return pdb[:-4] + '_fit.pdb'
     else:
         return pdb + '_fit.pdb'
+
 
 class AllostericSiteFinder(object):
     def __init__(self, env, pdb1, ligand, pdb2, rcut):
@@ -32,18 +34,20 @@ class AllostericSiteFinder(object):
             try:
                 salign0(self.env, self.pdb1, self.pdb2)
             except modeller.ModellerError as err:
-                raise AllostericSiteError("Could not align %s with %s: %s. "
-                               "This is usually due to a poor alignment."
-                               % (self.pdb2, self.pdb1, str(err)))
+                raise AllostericSiteError(
+                    "Could not align %s with %s: %s. "
+                    "This is usually due to a poor alignment."
+                    % (self.pdb2, self.pdb1, str(err)))
             pmfit = get_fit_filename(self.pdb2)
 
             # determine residues in PDB2 that contact LIG1
             self.__pmfit = modeller.model(self.env, file=pmfit)
             lig1 = modeller.model(self.env, file=self.ligand)
             self.__allosteric_site = \
-                 modeller.selection([ri for ri, rj, dist \
-                            in get_inter_contacts(self.env, self.__pmfit, lig1,
-                                                  self.rcut)])
+                modeller.selection(
+                    [ri for ri, rj, dist
+                     in get_inter_contacts(self.env, self.__pmfit, lig1,
+                                           self.rcut)])
             os.unlink(pmfit)
             os.unlink(get_fit_filename(self.pdb1))
             if len(self.__allosteric_site) == 0:
@@ -80,6 +84,7 @@ of <ligand> (after superposition of <PDB 2> onto <PDB 1>).
         parser.error("incorrect number of arguments")
     return args[0], args[1], args[2], float(args[3]), opts
 
+
 def main():
     pdb1, ligand, pdb2, rcut, opts = parse_args()
     e = modeller.environ()
@@ -93,6 +98,7 @@ def main():
     except AllostericSiteError as err:
         print(str(err), file=sys.stderr)
         sys.exit(1)
+
 
 if __name__ == '__main__':
     main()

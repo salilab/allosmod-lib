@@ -6,17 +6,19 @@ import utils
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 utils.set_search_paths(TOPDIR)
 
-from allosmod.util import check_output
+from allosmod.util import check_output  # noqa: E402
+
 
 class Tests(unittest.TestCase):
     def test_bad(self):
         """Test wrong arguments to get_glyc_restraint"""
         for args in ([], [''] * 3):
-            out = check_output(['allosmod', 'get_glyc_restraint'] + args,
-                               stderr=subprocess.STDOUT, retcode=2)
-            out = check_output([sys.executable, '-m',
-                                'allosmod.get_glyc_restraint'] + args,
-                               stderr=subprocess.STDOUT, retcode=2)
+            check_output(['allosmod', 'get_glyc_restraint'] + args,
+                         stderr=subprocess.STDOUT, retcode=2)
+            check_output([sys.executable, '-m',
+                          'allosmod.get_glyc_restraint'] + args,
+                         stderr=subprocess.STDOUT, retcode=2)
+
     def test_simple(self):
         """Simple complete run of get_glyc_restraint"""
         with utils.temporary_directory() as tmpdir:
@@ -64,9 +66,10 @@ ATOM      2  CA  ALA A   1      17.121  17.162   6.197  1.00 15.60           C
 ATOM      3  C   ALA A   1      18.085  17.018   7.343  1.00 14.54           C
 ATOM      4  O   ALA A   1      19.244  16.654   7.119  1.00 15.42           O
 """)
-            out = check_output(['allosmod', 'get_glyc_restraint', 'test.pdb',
-                                'test-allosmod.py'], stderr=subprocess.STDOUT,
-                               retcode=1, cwd=tmpdir)
+            check_output(['allosmod', 'get_glyc_restraint', 'test.pdb',
+                          'test-allosmod.py'], stderr=subprocess.STDOUT,
+                         retcode=1, cwd=tmpdir)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -5,6 +5,7 @@ import optparse
 import sys
 import collections
 
+
 rescodes = {'HEM': 'h', 'PPI': 'f', 'RIB': 'r', 'ALA': 'A', 'ARG': 'R',
             'ASN': 'N', 'ASP': 'D', 'CYS': 'C', 'GLU': 'E', 'GLN': 'Q',
             'GLY': 'G', 'HIS': 'H', 'HID': 'H', 'HIE': 'H', 'HIP': 'H',
@@ -15,7 +16,9 @@ rescodes = {'HEM': 'h', 'PPI': 'f', 'RIB': 'r', 'ALA': 'A', 'ARG': 'R',
             'A': 'a', 'C': 'c', 'G': 'g', 'T': 's', 'U': 'u',
             'DA': 'e', 'DC': 'j', 'DG': 'l', 'DT': 't', 'DU': 'v', 'PPP': '-'}
 
+
 Residue = collections.namedtuple('Residue', ['resnam', 'chain', 'resnum'])
+
 
 def get_residues(pdb_file):
     last = None
@@ -31,20 +34,24 @@ def get_residues(pdb_file):
                         yield Residue(rescodes.get(resnam.strip(), '.'),
                                       chain, resnum)
 
+
 class SequencePrinter(object):
     def __init__(self, fh):
         self.fh = fh
         self.num_printed = 0
+
     def __call__(self, c):
         print(c, end='', file=self.fh)
         self.num_printed += 1
         if self.num_printed % 75 == 0:
             print(file=self.fh)
 
+
 def any_empty_chain_ids(residues):
     for r in residues:
         if r.chain == ' ':
             return True
+
 
 def rewrite_chain_ids(pdb_file):
     """Replace any empty chain IDs with '@'"""
@@ -56,6 +63,7 @@ def rewrite_chain_ids(pdb_file):
                and line[21] == ' ':
                 line = line[:21] + '@' + line[22:]
             fh.write(line)
+
 
 def pdb2ali(pdb_file, fh=sys.stdout):
     residues = list(get_residues(pdb_file))
@@ -78,6 +86,7 @@ def pdb2ali(pdb_file, fh=sys.stdout):
     p('*')
     print(file=fh)
 
+
 def parse_args():
     usage = """%prog <PDB file>
 
@@ -96,9 +105,11 @@ with these chains given the '@' ID.
         parser.error("incorrect number of arguments")
     return args[0]
 
+
 def main():
     pdb_file = parse_args()
     pdb2ali(pdb_file)
+
 
 if __name__ == '__main__':
     main()

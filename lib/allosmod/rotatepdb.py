@@ -4,19 +4,21 @@ from __future__ import print_function
 import optparse
 import math
 
+
 def rotate_coordinate(x, y, z, dx, dy, dz):
-     xa = x
-     ya = math.cos(dx)*y - math.sin(dx)*z
-     za = math.sin(dx)*y + math.cos(dx)*z
+    xa = x
+    ya = math.cos(dx) * y - math.sin(dx) * z
+    za = math.sin(dx) * y + math.cos(dx) * z
 
-     xb = math.sin(dy)*za + math.cos(dy)*xa
-     yb = ya
-     zb = math.cos(dy)*za - math.sin(dy)*xa
+    xb = math.sin(dy) * za + math.cos(dy) * xa
+    yb = ya
+    zb = math.cos(dy) * za - math.sin(dy) * xa
 
-     xc = math.cos(dz)*xb - math.sin(dz)*yb
-     yc = math.sin(dz)*xb + math.cos(dz)*yb
-     zc = zb
-     return xc, yc, zc
+    xc = math.cos(dz) * xb - math.sin(dz) * yb
+    yc = math.sin(dz) * xb + math.cos(dz) * yb
+    zc = zb
+    return xc, yc, zc
+
 
 def rotatepdb(pdb_file, dx, dy, dz):
     with open(pdb_file) as fh:
@@ -25,9 +27,10 @@ def rotatepdb(pdb_file, dx, dy, dz):
                 x = float(line[30:38])
                 y = float(line[38:46])
                 z = float(line[46:54])
-                x,y,z = rotate_coordinate(x, y, z, dx, dy, dz)
-                print(line[:30] + "%8.3f%8.3f%8.3f" % (x,y,z) + line[54:],
+                x, y, z = rotate_coordinate(x, y, z, dx, dy, dz)
+                print(line[:30] + "%8.3f%8.3f%8.3f" % (x, y, z) + line[54:],
                       end='')
+
 
 def parse_args():
     usage = """%prog <PDB file> <dx> <dy> <dz>
@@ -44,9 +47,11 @@ x axis, then dy degrees about the y axis, then dz degrees about the z axis.
     return (args[0], float(args[1]) * deg2rad, float(args[2]) * deg2rad,
             float(args[3]) * deg2rad)
 
+
 def main():
     pdb_file, dx, dy, dz = parse_args()
     rotatepdb(pdb_file, dx, dy, dz)
+
 
 if __name__ == '__main__':
     main()

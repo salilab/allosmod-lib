@@ -1,13 +1,12 @@
 """Create AllosMod-specific restraints"""
 
 from __future__ import print_function, absolute_import, division
-import optparse
 import modeller
-import math
 import sys
 import allosmod.util
 import allosmod.get_contacts
 import allosmod.get_ss
+
 
 class Sigmas(object):
     def __init__(self, ntotal, sig_AS, sig_RS, sig_inter):
@@ -24,22 +23,23 @@ class Sigmas(object):
         isSC1, isSC2 = atoms[0].isSC, atoms[1].isSC
         isAS1, isAS2 = atoms[0].isAS, atoms[1].isAS
 
-        if not isSC1 and not isSC2: # BB-BB
+        if not isSC1 and not isSC2:  # BB-BB
             sig_scale = 1.0
-        elif isSC1 != isSC2: # SC-BB
-            sig_scale=1.5
-        else: # SC-SC
-            sig_scale=1.5*1.5
+        elif isSC1 != isSC2:  # SC-BB
+            sig_scale = 1.5
+        else:  # SC-SC
+            sig_scale = 1.5*1.5
 
         if isAS1 and isAS2:
-            if self.ntotal == 1: # if one template, avoid treating like AS
+            if self.ntotal == 1:  # if one template, avoid treating like AS
                 return self.sig_AS*sig_scale
-            else: # if allosteric site, do not scale side chain interactions
+            else:  # if allosteric site, do not scale side chain interactions
                 return self.sig_AS
         elif not isAS1 and not isAS2:
             return self.sig_RS*sig_scale
-        else: # interface
+        else:  # interface
             return self.sig_inter*sig_scale
+
 
 class TruncatedGaussianParameters(object):
     def __init__(self, delEmax, delEmaxNUC, slope, scl_delx, breaks):
@@ -60,6 +60,7 @@ class TruncatedGaussianParameters(object):
             return bscale * self.delEmax
         else:
             return self.delEmax * 10.0 if local else self.delEmax
+
 
 class Restraint(object):
     def __init__(self, line, atoms):
@@ -145,6 +146,7 @@ class GaussianRestraint(Restraint):
     def handle_parameters(self, params):
         self.mean = self.firstmean = float(params[0])
         self.stdev = float(params[1])
+
     def write_parameters(self, fh):
         fh.write(' '.join('%9.4f' % x for x in (self.mean, self.stdev)))
 
@@ -172,15 +174,17 @@ class GaussianRestraint(Restraint):
         fh.write(' '.join('%9.4f' % x for x in parameters))
         fh.write('\n')
 
+
 class MultiGaussianRestraint(Restraint):
     def handle_parameters(self, params):
         self.weights = [float(x) for x in params[:self.modal]]
         self.means = [float(x) for x in params[self.modal:self.modal*2]]
         self.firstmean = self.means[0]
         self.stdevs = [float(x) for x in params[self.modal*2:self.modal*3]]
+
     def write_parameters(self, fh):
-        fh.write(' '.join('%9.4f' % x for x in
-                                     self.weights + self.means + self.stdevs))
+        fh.write(' '.join('%9.4f' % x
+                          for x in self.weights + self.means + self.stdevs))
 
     def any_mean_below(self, threshold):
         for m in self.means:
@@ -210,28 +214,35 @@ class MultiGaussianRestraint(Restraint):
         fh.write(' '.join('%9.4f' % x for x in parameters))
         fh.write('\n')
 
+
 class CosineRestraint(Restraint):
     def handle_parameters(self, params):
         self.phase, self.force = [float(x) for x in params]
+
     def write_parameters(self, fh):
         fh.write(' '.join('%9.4f' % x for x in (self.phase, self.force)))
 
     def rescale(self, scale):
         self.force *= scale
 
+
 class BinormalRestraint(Restraint):
     def handle_parameters(self, params):
         # Keep as is
         self._params = params
+
     def write_parameters(self, fh):
         fh.write(' '.join('%9s' % x for x in self._params))
+
 
 class SplineRestraint(Restraint):
     def handle_parameters(self, params):
         # Keep as is
         self._params = params
+
     def write_parameters(self, fh):
         fh.write(' '.join('%9s' % x for x in self._params))
+
 
 def filter_rs_rs(atoms):
     """Allow only RS-RS contacts"""
@@ -240,21 +251,25 @@ def filter_rs_rs(atoms):
             return False
     return True
 
+
 def filter_not_rs_rs(atoms):
     """Allow AS-AS and AS-RS contacts"""
     natomRS = sum(0 if atom.isAS else 1 for atom in atoms)
     return natomRS != len(atoms)
 
+
 def add_ca_boundary_restraints(atoms, fh=sys.stdout):
-    """Add restraints to CA's enforce boundary conditions: cube soft boundary"""
+    """Add restraints to CA's enforce boundary conditions:
+       cube soft boundary"""
     for a in atoms:
         if a.isCA:
-            for feat in range(9,12):
+            for feat in range(9, 12):
                 for (form, mean) in ((2, 100.0), (1, -100.0)):
                     fh.write('R %4d%4d%4d%4d%4d%4d%4d%6d    '
                              '%9.4f %9.4f\n'
                              % (form, 0, feat, 27, 1, 2, 1, a.a.index, mean,
                                 10.0))
+
 
 def parse_restraints_file(fh, atoms, filter=None):
     restraint_from_form = {3: GaussianRestraint,
@@ -269,10 +284,13 @@ def parse_restraints_file(fh, atoms, filter=None):
             if filter is None or filter(r.atoms):
                 yield r
 
+
 class Atom(object):
     isAS = isNUC = isSC = isCA = isCB = torestr = False
+
     def __init__(self, a):
         self.a = a
+
 
 class ContactMap(object):
     def __init__(self):
@@ -282,17 +300,19 @@ class ContactMap(object):
         return self.__d.keys()
 
     def __getitem__(self, key):
-        i,j = key
+        i, j = key
         if isinstance(i, Atom):
             i = i.a.residue.index
         if isinstance(j, Atom):
             j = j.a.residue.index
-        i, j = min(i,j), max(i,j)
-        return (i,j) in self.__d
+        i, j = min(i, j), max(i, j)
+        return (i, j) in self.__d
+
     def __setitem__(self, key, val):
-        i,j = key
-        i, j = min(i,j), max(i,j)
+        i, j = key
+        i, j = min(i, j), max(i, j)
         return self.__d.__setitem__((i, j), True)
+
 
 def parse_atomlist_asrs(atomlist_asrs):
     retval = {'AS': True, 'RS': False}
@@ -300,12 +320,15 @@ def parse_atomlist_asrs(atomlist_asrs):
         num, allos_type = line.rstrip('\n\r').split()
         yield retval[allos_type]
 
+
 def get_contacts(contacts_pdbs, rcut):
     contacts = ContactMap()
     for f in contacts_pdbs:
-        for ri, rj, dist in allosmod.get_contacts.get_contacts('pm_' + f, rcut):
+        for ri, rj, dist in allosmod.get_contacts.get_contacts('pm_' + f,
+                                                               rcut):
             contacts[(ri.index, rj.index)] = True
     return contacts
+
 
 def get_breaks(fh):
     breaks = {}
@@ -314,6 +337,7 @@ def get_breaks(fh):
         breaks[int(resind)] = float(scale)
     return breaks
 
+
 def get_beta(pdb_file):
     beta = {}
     dssp = list(allosmod.get_ss.get_ss(pdb_file))
@@ -321,11 +345,12 @@ def get_beta(pdb_file):
     helix_fraction = dssp.count('H') / len(dssp) if len(dssp) > 0 else 0
     beta_structure = beta_fraction > 0.20 and helix_fraction < 0.05
     if beta_structure:
-        for n,x in enumerate(dssp):
+        for n, x in enumerate(dssp):
             if x == 'E':
                 # Residue indices start at 1
                 beta[n+1] = True
     return beta
+
 
 def get_nuc_restrained(atm_name, res_name):
     if atm_name in ("O3'",):
@@ -345,19 +370,20 @@ def get_nuc_restrained(atm_name, res_name):
     else:
         return atm_name in ('N1', 'C2', 'O2', 'N3', 'C4', 'N4', 'C5', 'C6')
 
+
 class RestraintEditor(object):
     # if empty_AS, then only use: cov bonds, angles, dihedrals for AS
     # (ignore nonbonded contacts within AS site, RS and interface OK)
-    empty_AS=False
+    empty_AS = False
     # if tgauss_AS, then AS nonbonded contacts are converted to truncated
     # Gaussian, instead of being constrained
-    tgauss_AS=True
-    #scale intraHET contacts to prevent exploding 
-    HETscale=1.0
-    #set nucleotide energy params
-    delEmaxNUC=0.12
-    rcutNUC=8.0
-    distco_scsc=5.0
+    tgauss_AS = True
+    # scale intraHET contacts to prevent exploding
+    HETscale = 1.0
+    # set nucleotide energy params
+    delEmaxNUC = 0.12
+    rcutNUC = 8.0
+    distco_scsc = 5.0
 
     def __init__(self, listoth_rsr, listas_rsr, pdb_file, contacts_pdbs,
                  atomlist_asrs, sigmas, rcut, delEmax, break_file,
@@ -397,7 +423,7 @@ class RestraintEditor(object):
                 a.isNUC = True
                 a.torestr = get_nuc_restrained(a.a.name, r.pdb_name)
                 for rj in range(1, len(self.m.residues) + 1):
-                    self.contacts[(r.index,rj)] = True
+                    self.contacts[(r.index, rj)] = True
             if a.a.name in BACKBONE_ATOMS or r.pdb_name in NUCLEIC_ACIDS:
                 a.isSC = False
                 a.isCA = a.a.name == 'CA'
@@ -453,43 +479,44 @@ class RestraintEditor(object):
         # multigaussian; angle or torsion
         # cosine; some dihedrals
         # keep as is for prot, scale for HET
-        if (isinstance(r, GaussianRestraint) and \
-            ((len(r.atoms) == 2 and r.group == 1) \
-             or len(r.atoms) == 3 or len(r.atoms) == 4)) \
-           or (isinstance(r, MultiGaussianRestraint) and len(r.atoms) >= 3) \
-           or isinstance(r, CosineRestraint):
+        if ((isinstance(r, GaussianRestraint) and
+             ((len(r.atoms) == 2 and r.group == 1)
+              or len(r.atoms) == 3 or len(r.atoms) == 4))
+                or (isinstance(r, MultiGaussianRestraint)
+                    and len(r.atoms) >= 3)
+                or isinstance(r, CosineRestraint)):
             if r.is_intrahet():
                 r.rescale(self.HETscale)
             r.write(fh)
         # add intra heme contacts to maintain geometry; keep all as is
-        elif r.is_intrahet() and len(r.atoms) == 2 and \
-            ((isinstance(r, GaussianRestraint) and r.group != 1) \
-             or isinstance(r, MultiGaussianRestraint)):
-                r.rescale(self.HETscale)
-                r.write(fh)
+        elif (r.is_intrahet() and len(r.atoms) == 2 and
+              ((isinstance(r, GaussianRestraint) and r.group != 1)
+                or isinstance(r, MultiGaussianRestraint))):
+            r.rescale(self.HETscale)
+            r.write(fh)
         # Keep as is
         elif isinstance(r, SplineRestraint):
             r.write(fh)
         # Gaussian or MultiGaussian distance restraint
-        elif len(r.atoms) == 2 \
-             and ((isinstance(r, GaussianRestraint) and r.group != 1) \
-                  or (isinstance(r, MultiGaussianRestraint))):
+        elif (len(r.atoms) == 2
+              and ((isinstance(r, GaussianRestraint) and r.group != 1)
+                   or (isinstance(r, MultiGaussianRestraint)))):
             if self.coarse and not r.is_ca_cb_interaction():
                 return
             # omit side chain interactions > 5 Ang
-            if r.is_sidechain_sidechain_interaction() \
-               and not r.any_mean_below(self.distco_scsc):
+            if (r.is_sidechain_sidechain_interaction()
+                    and not r.any_mean_below(self.distco_scsc)):
                 return
             seqdst = abs(r.atoms[0].a.residue.index
                          - r.atoms[1].a.residue.index)
             if self.locrigid and 2 <= seqdst <= 5 and r.is_ca_cb_interaction():
                 r.transform(tgparams, local=True, modal=2, stdev=2.0, fh=fh)
-            elif self.locrigid and 6 <= seqdst <= 12 \
-               and r.is_ca_cb_interaction() and r.any_mean_below(6.0):
+            elif (self.locrigid and 6 <= seqdst <= 12
+                  and r.is_ca_cb_interaction() and r.any_mean_below(6.0)):
                 r.transform(tgparams, local=True, modal=2, stdev=2.0, fh=fh)
-            elif 2 <= seqdst and r.any_mean_below(6.0) \
-               and r.is_ca_cb_interaction() \
-               and r.is_beta_beta_interaction(self.beta_structure):
+            elif (2 <= seqdst and r.any_mean_below(6.0)
+                  and r.is_ca_cb_interaction()
+                  and r.is_beta_beta_interaction(self.beta_structure)):
                 r.transform(tgparams, local=True, modal=2, stdev=2.0, fh=fh)
             elif self.contacts[(r.atoms[0], r.atoms[1])]:
                 if isinstance(r, MultiGaussianRestraint):
@@ -507,21 +534,22 @@ class RestraintEditor(object):
                             else:
                                 r.stdev = sig
                                 r.write(fh)
-                    else: # RS or interface
+                    else:  # RS or interface
                         if tgparams.delEmax == 0.:
                             r.transform(tgparams, modal=1,
                                         stdev=sig, truncated=False, fh=fh)
                         else:
                             r.transform(tgparams, modal=2,
                                         stdev=sig, fh=fh)
-                elif r.is_protein_dna_interaction() \
-                     and r.any_mean_below(self.rcutNUC):
+                elif (r.is_protein_dna_interaction()
+                      and r.any_mean_below(self.rcutNUC)):
                     sig = self.sigmas.get(r.atoms)
                     r.transform(tgparams, nuc=True, modal=2, stdev=sig, fh=fh)
-                elif r.is_intra_dna_interaction() \
-                     and r.any_mean_below(self.rcutNUC):
+                elif (r.is_intra_dna_interaction()
+                      and r.any_mean_below(self.rcutNUC)):
                     r.stdev = 1.0
                     r.write(fh)
+
 
 def parse_args():
     usage = """%prog [opts] <RS-RS restraints> <AS-RS restraints>
@@ -582,6 +610,7 @@ with AllosMod.
         parser.error("incorrect number of arguments")
     return args + [opts]
 
+
 def main():
     import modeller
 
@@ -598,6 +627,7 @@ def main():
                         atomlist_asrs, sigmas, opts.cutoff, opts.delEmax,
                         opts.break_file, opts.coarse, opts.locrigid)
     e.edit(env)
+
 
 if __name__ == '__main__':
     main()

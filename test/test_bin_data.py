@@ -6,17 +6,18 @@ import utils
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 test_dir = utils.set_search_paths(TOPDIR)
 
-from allosmod.util import check_output
+from allosmod.util import check_output  # noqa: E402
+
 
 class Tests(unittest.TestCase):
     def test_bad(self):
         """Test wrong arguments to bin_data"""
         for args in ([], ['x'] * 6):
-            out = check_output(['allosmod', 'bin_data'] + args,
-                               stderr=subprocess.STDOUT, retcode=2)
-            out = check_output([sys.executable, '-m',
-                                'allosmod.bin_data'] + args,
-                               stderr=subprocess.STDOUT, retcode=2)
+            check_output(['allosmod', 'bin_data'] + args,
+                         stderr=subprocess.STDOUT, retcode=2)
+            check_output([sys.executable, '-m',
+                          'allosmod.bin_data'] + args,
+                         stderr=subprocess.STDOUT, retcode=2)
 
     def test_simple(self):
         """Simple complete run of bin_data"""
@@ -47,6 +48,7 @@ class Tests(unittest.TestCase):
                                 '10', '20'],
                                universal_newlines=True, cwd=tmpdir)
             self.assertEqual(out, "9.72500 1.00000 4.00000\n")
+
 
 if __name__ == '__main__':
     unittest.main()

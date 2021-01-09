@@ -1,5 +1,4 @@
 import unittest
-import modeller
 import os
 import sys
 import subprocess
@@ -8,10 +7,11 @@ import utils
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 test_dir = utils.set_search_paths(TOPDIR)
 
-from allosmod.util import check_output
+from allosmod.util import check_output  # noqa: E402
 
 MockResidue = collections.namedtuple('MockResidue', ['pdb_name', 'atoms'])
 MockAtom = collections.namedtuple('MockAtom', ['name', 'x', 'y', 'z'])
+
 
 class AtomList(object):
     def __init__(self, *atoms):
@@ -19,27 +19,31 @@ class AtomList(object):
         self.atom_map = {}
         for a in atoms:
             self.atom_map[a.name] = a
+
     def __len__(self):
         return len(self.atoms)
+
     def __getitem__(self, key):
         if isinstance(key, int):
             return self.atoms[key]
         else:
             return self.atom_map[key]
 
+
 class Tests(unittest.TestCase):
     def test_bad(self):
         """Test wrong arguments to get_contacts"""
         for args in ([], ['x'] * 3):
-            out = check_output(['allosmod', 'get_contacts'] + args,
-                               stderr=subprocess.STDOUT, retcode=2)
-            out = check_output([sys.executable, '-m',
-                                'allosmod.get_contacts'] + args,
-                               stderr=subprocess.STDOUT, retcode=2)
+            check_output(['allosmod', 'get_contacts'] + args,
+                         stderr=subprocess.STDOUT, retcode=2)
+            check_output([sys.executable, '-m',
+                          'allosmod.get_contacts'] + args,
+                         stderr=subprocess.STDOUT, retcode=2)
 
     def test_get_contact_type(self):
         """Test get_contact_type()"""
         from allosmod.get_contacts import get_contact_type
+
         class Residue(object):
             def __init__(self, r):
                 self.pdb_name = r
@@ -55,28 +59,30 @@ class Tests(unittest.TestCase):
         from allosmod.get_contacts import _get_average_aa
         # Should take CA in preference to O, in preference to N
         CA = MockAtom(name='CA', x=10, y=0, z=0)
-        O = MockAtom(name='O', x=20, y=0, z=0)
+        Ox = MockAtom(name='O', x=20, y=0, z=0)
         N = MockAtom(name='N', x=30, y=0, z=0)
-        a = _get_average_aa(MockResidue(pdb_name='HIS', atoms=AtomList(CA,O,N)))
-        self.assertEqual(a.average, ((10,0,0),))
-        a = _get_average_aa(MockResidue(pdb_name='HIS', atoms=AtomList(O,N)))
-        self.assertEqual(a.average, ((20,0,0),))
+        a = _get_average_aa(MockResidue(pdb_name='HIS',
+                                        atoms=AtomList(CA, Ox, N)))
+        self.assertEqual(a.average, ((10, 0, 0),))
+        a = _get_average_aa(MockResidue(pdb_name='HIS', atoms=AtomList(Ox, N)))
+        self.assertEqual(a.average, ((20, 0, 0),))
         a = _get_average_aa(MockResidue(pdb_name='HIS', atoms=AtomList(N)))
-        self.assertEqual(a.average, ((30,0,0),))
+        self.assertEqual(a.average, ((30, 0, 0),))
         self.assertRaises(ValueError, _get_average_aa,
                           MockResidue(pdb_name='HIS', atoms=AtomList()))
 
     def test_get_contact_dist(self):
         """Test get_contact_dist()"""
         from allosmod.get_contacts import get_contact_dist
+
         class Residue(object):
             def __init__(self, av):
                 self.average = av
-        self.assertEqual(get_contact_dist(Residue(((0,0,0),)),
-                                          Residue(((0,5,0),)), 16.0),
+        self.assertEqual(get_contact_dist(Residue(((0, 0, 0),)),
+                                          Residue(((0, 5, 0),)), 16.0),
                          None)
-        self.assertAlmostEqual(get_contact_dist(Residue(((0,0,0),)),
-                                                Residue(((0,5,0),)), 100.),
+        self.assertAlmostEqual(get_contact_dist(Residue(((0, 0, 0),)),
+                                                Residue(((0, 5, 0),)), 100.),
                                5.0, places=1)
 
     def test_simple(self):
@@ -89,6 +95,7 @@ class Tests(unittest.TestCase):
         self.assertEqual(len(lines), 12)
         self.assertEqual(lines[0][43:48], "9.955")
         self.assertEqual(lines[1][43:48], "9.194")
+
 
 if __name__ == '__main__':
     unittest.main()

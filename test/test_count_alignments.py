@@ -1,5 +1,4 @@
 import unittest
-import modeller
 import os
 import sys
 import subprocess
@@ -7,17 +6,18 @@ import utils
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 utils.set_search_paths(TOPDIR)
 
-from allosmod.util import check_output
+from allosmod.util import check_output  # noqa: E402
+
 
 class Tests(unittest.TestCase):
     def test_bad(self):
         """Test wrong arguments to count_alignments"""
         for args in ([], ['x'] * 4):
-            out = check_output(['allosmod', 'count_alignments'] + args,
-                               stderr=subprocess.STDOUT, retcode=2)
-            out = check_output([sys.executable, '-m',
-                                'allosmod.count_alignments'] + args,
-                               stderr=subprocess.STDOUT, retcode=2)
+            check_output(['allosmod', 'count_alignments'] + args,
+                         stderr=subprocess.STDOUT, retcode=2)
+            check_output([sys.executable, '-m',
+                          'allosmod.count_alignments'] + args,
+                         stderr=subprocess.STDOUT, retcode=2)
 
     def setup_inputs(self, tmpdir, seq='AW'):
         with open(os.path.join(tmpdir, 'align.ali'), 'w') as fh:
@@ -59,6 +59,7 @@ AY...VINDSC--IACGACKPECPVNIIQGS--IYAIDADSCIDCGSCASVCPVGAPNPED-----------------
                                       "pm.pdb", ["5fd1", "1bqx"])
             self.assertEqual(num_align, 113)
             self.assertEqual(num_res, 57)
+
 
 if __name__ == '__main__':
     unittest.main()

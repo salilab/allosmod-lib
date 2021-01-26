@@ -401,7 +401,7 @@ class RestraintEditor(object):
         self.locrigid = locrigid
 
     def setup_atoms(self, env):
-        self.m = modeller.model(env, file=self.pdb_file)
+        self.m = modeller.Model(env, file=self.pdb_file)
         self.atoms = [Atom(a) for a in self.m.atoms]
         self.contacts = get_contacts(self.contacts_pdbs, self.rcut)
         if self.break_file:
@@ -619,7 +619,7 @@ def main():
     sigmas = Sigmas(opts.ntotal, opts.sig_AS, opts.sig_RS, opts.sig_inter)
 
     modeller.log.none()
-    env = modeller.environ()
+    env = modeller.Environ()
     env.io.hetatm = True
 
     e = RestraintEditor(listoth_rsr, listas_rs, pdb_file,

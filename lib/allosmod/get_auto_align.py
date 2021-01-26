@@ -10,9 +10,9 @@ from allosmod.pdb2ali import pdb2ali
 def get_auto_align(in_aln_file, target, templates, out_aln_file):
     import modeller
     modeller.log.none()
-    env = modeller.environ()
+    env = modeller.Environ()
     env.io.atom_files_directory = ['.']
-    aln = modeller.alignment(env, file=in_aln_file, align_codes=target)
+    aln = modeller.Alignment(env, file=in_aln_file, align_codes=target)
 
     with allosmod.util.temporary_directory() as tempd:
         temp_aln = os.path.join(tempd, "templates.ali")

@@ -3,24 +3,12 @@
 
 from __future__ import absolute_import
 
-try:
-    # Modeller 10
-    from modeller.energy_data import EnergyData
-    from modeller.automodel import AutoModel
-    from modeller.schedule import Schedule, Step
-    from modeller.optimizers import MolecularDynamics as MD
-    from modeller.optimizers import ConjugateGradients as CG
-    from modeller.physical import Values
-except ImportError:
-    # Modeller 9
-    from modeller.energy_data import energy_data as EnergyData
-    from modeller.automodel import automodel as AutoModel
-    from modeller.schedule import schedule as Schedule
-    from modeller.schedule import step as Step
-    from modeller.optimizers import molecular_dynamics as MD
-    from modeller.optimizers import conjugate_gradients as CG
-    from modeller.physical import values as Values
-
+from modeller.energy_data import EnergyData
+from modeller.automodel import AutoModel
+from modeller.schedule import Schedule, Step
+from modeller.optimizers import MolecularDynamics as MD
+from modeller.optimizers import ConjugateGradients as CG
+from modeller.physical import Values
 from modeller.automodel import randomize
 from modeller.automodel.autosched import mk_scale
 

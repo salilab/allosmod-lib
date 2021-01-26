@@ -86,10 +86,10 @@ def get_contacts(pdb_file, rcut):
     import modeller
 
     modeller.log.none()
-    e = modeller.environ()
+    e = modeller.Environ()
     e.io.hetatm = True
 
-    m = modeller.model(e, file=pdb_file)
+    m = modeller.Model(e, file=pdb_file)
 
     rcut2 = rcut * rcut
     av = [get_average_coordinate(r) for r in m.residues]

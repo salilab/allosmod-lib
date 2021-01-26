@@ -4,7 +4,7 @@ import modeller
 from allosmod.modeller import _truncated_gaussian
 
 
-class TruncatedGaussian(modeller.forms.restraint_form):
+class TruncatedGaussian(modeller.forms.RestraintForm):
     """AllosMod truncated Gaussian restraint.
        This is implemented as a C extension (_truncated_gaussian.so)
        to Modeller."""
@@ -20,7 +20,7 @@ class TruncatedGaussian(modeller.forms.restraint_form):
                 raise TypeError("weights, means and stdevs should all be "
                                 "sequences of the same length")
             lv = len(var)
-        modeller.forms.restraint_form.__init__(
+        modeller.forms.RestraintForm.__init__(
             self, group, feature, len(weights),
             (dele_max, slope, scl_delx) + tuple(weights) + tuple(means)
             + tuple(stdevs))

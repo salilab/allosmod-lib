@@ -39,10 +39,10 @@ exist, the CA, O or N atom (in that order) is used as the center.
 def main():
     import modeller
     file1, file2, rcut = parse_args()
-    e = modeller.environ()
+    e = modeller.Environ()
     e.io.hetatm = True
-    mdl1 = modeller.model(e, file=file1)
-    mdl2 = modeller.model(e, file=file2)
+    mdl1 = modeller.Model(e, file=file1)
+    mdl2 = modeller.Model(e, file=file2)
     for ri, rj, dist in get_inter_contacts(e, mdl1, mdl2, rcut):
         print("  %6s  %2s  %6s  %2s  %3s  %3s%3d%11.3f  %1d  %1d"
               % (ri.num, ri.chain.name, rj.num, rj.chain.name,

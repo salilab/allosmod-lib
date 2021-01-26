@@ -19,13 +19,13 @@ def determine_fit_atoms(mdl):
 
 def salign0(env, ff1, ff2):
     import modeller
-    aln = modeller.alignment(env)
+    aln = modeller.Alignment(env)
     code = ff1
-    mdl = modeller.model(env, file=code, model_segment=('FIRST:@', 'END:'))
+    mdl = modeller.Model(env, file=code, model_segment=('FIRST:@', 'END:'))
     fit_atoms = determine_fit_atoms(mdl)
     aln.append_model(mdl, atom_files=code, align_codes=code)
     code = ff2
-    mdl = modeller.model(env, file=code, model_segment=('FIRST:@', 'END:'))
+    mdl = modeller.Model(env, file=code, model_segment=('FIRST:@', 'END:'))
     aln.append_model(mdl, atom_files=code, align_codes=code)
 
     for (weights, write_fit, whole) in (
@@ -63,7 +63,7 @@ in the first PDB file.
 def main():
     import modeller
     ff1, ff2, aln_file, opts = parse_args()
-    env = modeller.environ()
+    env = modeller.Environ()
     # Read in HETATM records from template PDBs
     env.io.hetatm = True
     aln = salign0(env, ff1, ff2)

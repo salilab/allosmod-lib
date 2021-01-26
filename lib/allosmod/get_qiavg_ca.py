@@ -68,10 +68,10 @@ def get_qiavg_ca(target, templates, rcut):
     import modeller
 
     modeller.log.none()
-    e = modeller.environ()
+    e = modeller.Environ()
     e.io.hetatm = False
 
-    m = modeller.model(e)
+    m = modeller.Model(e)
     coord = get_coordinates(m, target)
     dist = get_distances(coord, rcut)
     avg_qi_cut = [0.] * len(coord)

@@ -8,8 +8,8 @@ import allosmod.util
 def count_alignments(aln_file, target, templates):
     import modeller
     modeller.log.none()
-    env = modeller.environ()
-    aln = modeller.alignment(env, file=aln_file)
+    env = modeller.Environ()
+    aln = modeller.Alignment(env, file=aln_file)
     target = aln[target]
     templates = [aln[t] for t in templates]
     num_align = 0

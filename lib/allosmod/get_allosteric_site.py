@@ -41,10 +41,10 @@ class AllostericSiteFinder(object):
             pmfit = get_fit_filename(self.pdb2)
 
             # determine residues in PDB2 that contact LIG1
-            self.__pmfit = modeller.model(self.env, file=pmfit)
-            lig1 = modeller.model(self.env, file=self.ligand)
+            self.__pmfit = modeller.Model(self.env, file=pmfit)
+            lig1 = modeller.Model(self.env, file=self.ligand)
             self.__allosteric_site = \
-                modeller.selection(
+                modeller.Selection(
                     [ri for ri, rj, dist
                      in get_inter_contacts(self.env, self.__pmfit, lig1,
                                            self.rcut)])
@@ -87,7 +87,7 @@ of <ligand> (after superposition of <PDB 2> onto <PDB 1>).
 
 def main():
     pdb1, ligand, pdb2, rcut, opts = parse_args()
-    e = modeller.environ()
+    e = modeller.Environ()
     e.io.hetatm = True
     a = AllostericSiteFinder(e, pdb1, ligand, pdb2, rcut)
     try:

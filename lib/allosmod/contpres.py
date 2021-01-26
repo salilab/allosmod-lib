@@ -28,7 +28,7 @@ class ChargedContactFinder(object):
         self.env, self.rsr_file, self.pdb_file = env, rsr_file, pdb_file
 
     def find(self):
-        m = self._m = modeller.model(self.env, file=self.pdb_file)
+        m = self._m = modeller.Model(self.env, file=self.pdb_file)
         charge = [0] * len(m.residues)
         total = [0] * len(m.residues)
         for a1, a2 in get_restrained_atoms(m, open(self.rsr_file)):
@@ -93,7 +93,7 @@ Note that residue indices (starting from 1) are used, not PDB residue numbers.
 
 def main():
     rsr_file, pdb_file, sclbreak, opts = parse_args()
-    e = modeller.environ()
+    e = modeller.Environ()
     e.io.hetatm = True
     a = ChargedContactFinder(e, rsr_file, pdb_file)
     a.find()

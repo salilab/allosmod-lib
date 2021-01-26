@@ -62,10 +62,10 @@ def get_qmatrix(target, templates, rcut):
 
     rcut2 = rcut * rcut
     modeller.log.none()
-    e = modeller.environ()
+    e = modeller.Environ()
     e.io.hetatm = False
 
-    m = modeller.model(e, file=target)
+    m = modeller.Model(e, file=target)
     numres = len(m.residues)
     dists = []
     for template in templates:

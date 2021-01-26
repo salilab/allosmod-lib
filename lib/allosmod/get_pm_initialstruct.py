@@ -16,7 +16,7 @@ def get_target(e, target, aln_file):
     if target:
         return target
     else:
-        aln = modeller.alignment(e, file=aln_file)
+        aln = modeller.Alignment(e, file=aln_file)
         return aln[0].code
 
 
@@ -24,7 +24,7 @@ def get_pm_initialstruct(aln_file, templates, pdb_dir, nmodel,
                          refine_level, opts):
     # Note the assumption is made in this code that the align code and the
     # PDB file are the same. This is not necessarily the case in Modeller.
-    env = modeller.environ(rand_seed=random.randint(-40000, -2))
+    env = modeller.Environ(rand_seed=random.randint(-40000, -2))
     target = get_target(env, opts.target, aln_file)
     dirname = 'pred_%s' % templates[0]
     if opts.chdir:
@@ -43,7 +43,7 @@ def get_pm_initialstruct(aln_file, templates, pdb_dir, nmodel,
     # Read in HETATM records from template PDBs
     env.io.hetatm = True
 
-    class MyModel(modeller.automodel.automodel):
+    class MyModel(modeller.automodel.AutoModel):
         def special_patches(self, aln):
             # If only one chain, set a suitable chain ID (Modeller default
             # is to leave it blank)

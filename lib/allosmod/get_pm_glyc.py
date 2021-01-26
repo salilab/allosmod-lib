@@ -40,7 +40,7 @@ from modeller import *
 from modeller.scripts import complete_pdb
 import allosmod
 
-env =environ(rand_seed=%(rand)d, restyp_lib_file='%(data)s/restyp.dat',
+env =Environ(rand_seed=%(rand)d, restyp_lib_file='%(data)s/restyp.dat',
              copy=None)
 
 # Read in HETATM records from template PDBs
@@ -93,7 +93,7 @@ from modeller import *
 from modeller.scripts import complete_pdb
 import allosmod
 
-env =environ(rand_seed=%(rand)d, restyp_lib_file='%(data)s/restyp.dat',
+env =Environ(rand_seed=%(rand)d, restyp_lib_file='%(data)s/restyp.dat',
              copy=None)
 
 # Read in HETATM records from template PDBs

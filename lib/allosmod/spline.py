@@ -22,8 +22,8 @@ def spline(pdb_file, in_restraints, out_restraints):
     # Needed to keep our custom form alive for restraints.read()
     from allosmod.modeller.forms import TruncatedGaussian  # noqa: F401
 
-    e = modeller.environ()
-    m = modeller.model(e, file=pdb_file)
+    e = modeller.Environ()
+    m = modeller.Model(e, file=pdb_file)
     m.restraints.read(file=in_restraints)
     convert_restraints(m.restraints)
     m.restraints.write(file=out_restraints)

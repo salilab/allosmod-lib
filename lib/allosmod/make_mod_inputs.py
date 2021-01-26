@@ -8,7 +8,7 @@ def make_mod_inputs(target, templates, rand_seed, rand_ang, deviation,
                     nucleic_acids):
     import modeller.automodel
     import modeller.scripts
-    env = modeller.environ(rand_seed=rand_seed)
+    env = modeller.Environ(rand_seed=rand_seed)
     env.io.atom_files_directory = ['../atom_files']
     env.libs.topology.read(file='$(LIB)/top_heav.lib')
     env.libs.parameters.read(file='$(LIB)/par.lib')
@@ -19,7 +19,7 @@ def make_mod_inputs(target, templates, rand_seed, rand_ang, deviation,
     mdl = modeller.scripts.complete_pdb(env, 'avgpdb.pdb')
 
     # Act on all atoms in the model
-    sel = modeller.selection(mdl)
+    sel = modeller.Selection(mdl)
 
     # Change all existing X,Y,Z for +- dev:
     sel.rotate_mass_center([0, 0, 1], rand_ang[0])
@@ -27,7 +27,7 @@ def make_mod_inputs(target, templates, rand_seed, rand_ang, deviation,
     sel.rotate_mass_center([1, 0, 0], rand_ang[2])
     sel.randomize_xyz(deviation=deviation)
     mdl.write(file='random.ini')
-    a = modeller.automodel.automodel(env, deviation=None, alnfile='align.ali',
+    a = modeller.automodel.AutoModel(env, deviation=None, alnfile='align.ali',
                                      knowns=templates, sequence=target)
     if nucleic_acids:
         # use longer restraints for nucleic acids

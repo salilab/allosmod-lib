@@ -25,12 +25,9 @@ jobs:
         sudo apt-get -qq update && sudo apt-get install -y swig
         pip install coverage nose flake8
         export PYTHON=`pip show coverage |grep Location|cut -b11-`
-        wget https://salilab.org/modeller/9.25/modeller_9.25-1_amd64.deb
-        sudo --preserve-env=KEY_MODELLER dpkg -i modeller_9.25-1_amd64.deb
+        wget https://salilab.org/modeller/10.0/modeller_10.0-1_amd64.deb
+        sudo --preserve-env=KEY_MODELLER dpkg -i modeller_10.0-1_amd64.deb
         modpyver=${{ matrix.python-version }}
-        # Modeller 9.25 doesn't support Python 3.9 but the 3.8 extension
-        # should work
-        if [ "${modpyver}" = "3.9" ]; then modpyver=3.8; fi
         ln -sf /usr/lib/python${modpyver}/dist-packages/_modeller.so ${PYTHON}
         ln -sf /usr/lib/python${modpyver}/dist-packages/modeller ${PYTHON}
         wget https://salilab.org/dssp/dssp-2.0.4-linux-amd64

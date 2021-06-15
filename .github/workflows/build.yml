@@ -41,6 +41,4 @@ jobs:
         make PYTHON=python
         nosetests --with-coverage --cover-branches
         flake8 . --exclude doc
-    - name: Upload coverage to codecov
-      run: |
-        bash <(curl -s https://codecov.io/bash)
+    - uses: codecov/codecov-action@v1

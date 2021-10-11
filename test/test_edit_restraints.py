@@ -25,7 +25,7 @@ class TruncatedGaussianRestraint(allosmod.edit_restraints.Restraint):
         self.stdevs = [float(x) for x in params[self.modal*2:self.modal*3]]
 
 
-class TestRestraintEditor(allosmod.edit_restraints.RestraintEditor):
+class MockRestraintEditor(allosmod.edit_restraints.RestraintEditor):
     def __init__(self):
         sigmas = allosmod.edit_restraints.Sigmas(2, 2.0, 3.0, 4.0)
         allosmod.edit_restraints.RestraintEditor.__init__(
@@ -685,14 +685,14 @@ class Tests(unittest.TestCase):
 
             def is_intrahet(self):
                 return False
-        e = TestRestraintEditor()
+        e = MockRestraintEditor()
         r2 = list(e.check_parse_restraint(MockRestraint()))
         # Unknown restraints are ignored
         self.assertEqual(len(r2), 0)
 
     def test_parse_coarse_ca_ca_intra_protein(self):
         """Test parse of coarse AS-AS CA-CA intra-protein restraint"""
-        e = TestRestraintEditor()
+        e = MockRestraintEditor()
         e.coarse = True
         e.contacts[(1, 2)] = True  # non-local interaction
 
@@ -727,7 +727,7 @@ class Tests(unittest.TestCase):
 
     def test_parse_ca_ca_multi_intra_protein(self):
         """Test parse of CA-CA multigauss intra-protein restraint"""
-        e = TestRestraintEditor()
+        e = MockRestraintEditor()
         e.contacts[(1, 2)] = True  # non-local interaction
 
         def modify_atoms(atoms, arg):
@@ -753,7 +753,7 @@ class Tests(unittest.TestCase):
 
     def test_parse_rs_ca_ca_intra_protein(self):
         """Test parse of RS-RS CA-CA intra-protein restraint"""
-        e = TestRestraintEditor()
+        e = MockRestraintEditor()
         e.coarse = True
         e.contacts[(1, 2)] = True  # non-local interaction
 
@@ -781,7 +781,7 @@ class Tests(unittest.TestCase):
 
     def test_parse_bond_restraint(self):
         """Test parse of bond restraint"""
-        e = TestRestraintEditor()
+        e = MockRestraintEditor()
 
         def modify_atoms(atoms, arg):
             for a, h in zip(atoms, arg):
@@ -798,7 +798,7 @@ class Tests(unittest.TestCase):
 
     def test_parse_angle_restraint(self):
         """Test parse of angle/dihedral restraint"""
-        e = TestRestraintEditor()
+        e = MockRestraintEditor()
 
         def modify_atoms(atoms, arg):
             for a, h in zip(atoms, arg):
@@ -817,7 +817,7 @@ class Tests(unittest.TestCase):
 
     def test_parse_multi_angle_restraint(self):
         """Test parse of multigauss angle/dihedral restraint"""
-        e = TestRestraintEditor()
+        e = MockRestraintEditor()
 
         def modify_atoms(atoms, arg):
             for a, h in zip(atoms, arg):
@@ -841,7 +841,7 @@ class Tests(unittest.TestCase):
 
     def test_parse_cosine_restraint(self):
         """Test parse of cosine restraint"""
-        e = TestRestraintEditor()
+        e = MockRestraintEditor()
 
         def modify_atoms(atoms, arg):
             for a, h in zip(atoms, arg):
@@ -858,7 +858,7 @@ class Tests(unittest.TestCase):
     def test_parse_spline_restraint(self):
         """Test parse of spline restraint"""
         # should pass through as-is
-        e = TestRestraintEditor()
+        e = MockRestraintEditor()
         r = self.make_spline_restraint()
         r2 = list(e.check_parse_restraint(r))
         self.assertEqual(len(r2), 1)
@@ -868,7 +868,7 @@ class Tests(unittest.TestCase):
 
     def test_parse_coarse_not_ca_cb(self):
         """Test parse of coarse restraint, not CA-CB"""
-        e = TestRestraintEditor()
+        e = MockRestraintEditor()
         e.coarse = True
 
         def modify_atoms(atoms, arg):
@@ -881,7 +881,7 @@ class Tests(unittest.TestCase):
 
     def test_parse_sidechain_too_long(self):
         """Test parse of sidechain-sidechain restraint, mean too big"""
-        e = TestRestraintEditor()
+        e = MockRestraintEditor()
 
         def modify_atoms(atoms, arg):
             atoms[0].isSC = atoms[1].isSC = True
@@ -895,7 +895,7 @@ class Tests(unittest.TestCase):
 
     def test_local_2to5_ca_cb(self):
         """Test locrigid CA-CB restraint with res range 2-5"""
-        e = TestRestraintEditor()
+        e = MockRestraintEditor()
         e.locrigid = True
 
         def modify_atoms(atoms, seqdst):
@@ -914,7 +914,7 @@ class Tests(unittest.TestCase):
 
     def test_local_6to12_ca_cb(self):
         """Test locrigid CA-CB restraint with res range 6-12"""
-        e = TestRestraintEditor()
+        e = MockRestraintEditor()
         e.locrigid = True
 
         def modify_atoms(atoms, seqdst):
@@ -939,7 +939,7 @@ class Tests(unittest.TestCase):
 
     def test_under3_ca_cb(self):
         """Test CA-CB restraint with res range <= 2"""
-        e = TestRestraintEditor()
+        e = MockRestraintEditor()
 
         def modify_atoms(atoms, arg):
             atoms[0].isCA = atoms[1].isCA = True  # CA-CA
@@ -969,7 +969,7 @@ class Tests(unittest.TestCase):
 
     def test_parse_het_het(self):
         """Test parse of het-het restraint"""
-        e = TestRestraintEditor()
+        e = MockRestraintEditor()
 
         def modify_atoms(atoms, arg):
             atoms[0].a.residue.hetatm = True
@@ -985,7 +985,7 @@ class Tests(unittest.TestCase):
 
     def test_protein_dna_restraint(self):
         """Test parse of protein-dna restraint"""
-        e = TestRestraintEditor()
+        e = MockRestraintEditor()
         e.contacts[(1, 2)] = True  # non-local interaction
 
         def modify_atoms(atoms, arg):
@@ -1008,7 +1008,7 @@ class Tests(unittest.TestCase):
 
     def test_intra_dna_restraint(self):
         """Test parse of intra-dna restraint"""
-        e = TestRestraintEditor()
+        e = MockRestraintEditor()
         e.contacts[(1, 2)] = True  # non-local interaction
 
         def modify_atoms(atoms, arg):
@@ -1032,7 +1032,7 @@ class Tests(unittest.TestCase):
 
     def test_setup_delEmax_no_coarse(self):
         """Test setup_delEmax(), coarse=False"""
-        e = TestRestraintEditor()
+        e = MockRestraintEditor()
         # coarse=False; delE* should be unchanged
         e.setup_delEmax()
         self.assertAlmostEqual(e.delEmax, 0.2, places=1)
@@ -1040,7 +1040,7 @@ class Tests(unittest.TestCase):
 
     def test_setup_delEmax_no_rsr(self):
         """Test setup_delEmax(), no restraints"""
-        e = TestRestraintEditor()
+        e = MockRestraintEditor()
         # empty file; delE* should be unchanged
         e.coarse = True
         e.atoms = []
@@ -1057,7 +1057,7 @@ class Tests(unittest.TestCase):
 
     def test_setup_delEmax_rsr(self):
         """Test setup_delEmax(), with some restraints"""
-        e = TestRestraintEditor()
+        e = MockRestraintEditor()
         e.contacts[(1, 2)] = True
         e.coarse = True
         e.atoms = []

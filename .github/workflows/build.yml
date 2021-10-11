@@ -23,7 +23,7 @@ jobs:
         KEY_MODELLER: ${{ secrets.KEY_MODELLER }}
       run: |
         sudo apt-get -qq update && sudo apt-get install -y swig
-        pip install coverage nose flake8
+        pip install coverage pytest-cov flake8
         export PYTHON=`pip show coverage |grep Location|cut -b11-`
         wget https://salilab.org/modeller/10.1/modeller_10.1-1_amd64.deb
         sudo --preserve-env=KEY_MODELLER dpkg -i modeller_10.1-1_amd64.deb
@@ -42,6 +42,6 @@ jobs:
     - name: Test
       run: |
         make PYTHON=python
-        nosetests --with-coverage --cover-branches
+        pytest --cov=. --cov-branch --cov-report=xml -v .
         flake8 . --exclude doc
     - uses: codecov/codecov-action@v1

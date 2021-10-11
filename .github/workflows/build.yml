@@ -9,7 +9,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-20.04]
-        python-version: [2.7, 3.7, 3.8, 3.9]
+        python-version: ['2.7', '3.7', '3.8', '3.9', '3.10']
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -25,9 +25,12 @@ jobs:
         sudo apt-get -qq update && sudo apt-get install -y swig
         pip install coverage nose flake8
         export PYTHON=`pip show coverage |grep Location|cut -b11-`
-        wget https://salilab.org/modeller/10.0/modeller_10.0-1_amd64.deb
-        sudo --preserve-env=KEY_MODELLER dpkg -i modeller_10.0-1_amd64.deb
+        wget https://salilab.org/modeller/10.1/modeller_10.1-1_amd64.deb
+        sudo --preserve-env=KEY_MODELLER dpkg -i modeller_10.1-1_amd64.deb
         modpyver=${{ matrix.python-version }}
+        # Modeller 10.1 doesn't support Python 3.10 but the 3.9 extension
+        # should work
+        if [ "${modpyver}" = "3.10" ]; then modpyver=3.9; fi
         ln -sf /usr/lib/python${modpyver}/dist-packages/_modeller.so ${PYTHON}
         ln -sf /usr/lib/python${modpyver}/dist-packages/modeller ${PYTHON}
         wget https://salilab.org/dssp/dssp-2.0.4-linux-amd64

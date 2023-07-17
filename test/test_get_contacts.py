@@ -4,9 +4,10 @@ import sys
 import subprocess
 import collections
 import utils
-from subprocess import check_output
+from utils import check_output
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 test_dir = utils.set_search_paths(TOPDIR)
+
 
 MockResidue = collections.namedtuple('MockResidue', ['pdb_name', 'atoms'])
 MockAtom = collections.namedtuple('MockAtom', ['name', 'x', 'y', 'z'])

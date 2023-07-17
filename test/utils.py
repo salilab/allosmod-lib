@@ -2,6 +2,7 @@ import tempfile
 import os
 import sys
 import shutil
+import subprocess
 import contextlib
 
 
@@ -34,6 +35,24 @@ def mock_method(cls, method_name, replacement=None):
     setattr(cls, method_name, replacement)
     yield mock
     setattr(cls, method_name, old_method)
+
+
+def check_output(args, stderr=None, retcode=0, input=None, *other, **keys):
+    """Run a subprocess and return its output.
+       If the return code from the subprocess does not match `retcode`, an
+       `OSError` exception is raised.
+
+       Note: this is similar to `subprocess.check_output` but allows for the
+       checked-for return code to be non-zero.
+    """
+    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=stderr,
+                         stdin=subprocess.PIPE if input else None,
+                         *other, **keys)
+    stdout, stderr = p.communicate(input)
+    if p.returncode != retcode:
+        raise OSError("Process %s exited with code %d, output %s"
+                      % (" ".join(args), p.returncode, stdout))
+    return stdout
 
 
 if 'coverage' in sys.modules:

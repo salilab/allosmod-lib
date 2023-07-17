@@ -2,12 +2,12 @@ import unittest
 import subprocess
 import os
 import sys
-from subprocess import check_output
 if sys.version_info[0] >= 3:
     from io import StringIO
 else:
     from io import BytesIO as StringIO
 import utils
+from utils import check_output
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 test_dir = utils.set_search_paths(TOPDIR)
 

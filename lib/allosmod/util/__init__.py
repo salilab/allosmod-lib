@@ -2,28 +2,9 @@ from __future__ import print_function
 import contextlib
 import optparse
 import tempfile
-import subprocess
 import shutil
 import os
 import re
-
-
-def check_output(args, stderr=None, retcode=0, input=None, *other, **keys):
-    """Run a subprocess and return its output.
-       If the return code from the subprocess does not match `retcode`, an
-       `OSError` exception is raised.
-
-       Note: this is similar to `subprocess.check_output` but that requires
-       Python 2.7.
-    """
-    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=stderr,
-                         stdin=subprocess.PIPE if input else None,
-                         *other, **keys)
-    stdout, stderr = p.communicate(input)
-    if p.returncode != retcode:
-        raise OSError("Process %s exited with code %d, output %s"
-                      % (" ".join(args), p.returncode, stdout))
-    return stdout
 
 
 def subst_file(fh_in, fh_out, subs):

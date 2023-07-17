@@ -4,6 +4,7 @@ from __future__ import print_function, absolute_import
 import optparse
 import os
 import re
+import subprocess
 import allosmod.util
 
 
@@ -26,9 +27,9 @@ def min_rmsd(file1, file2):
         with open(prolist_in, 'w') as fh:
             print(file1, file=fh)
             print(file2, file=fh)
-        out = allosmod.util.check_output(["profit"],
-                                         input=make_profit_file(prolist_in),
-                                         universal_newlines=True)
+        out = subprocess.check_output(["profit"],
+                                      input=make_profit_file(prolist_in),
+                                      universal_newlines=True)
     return re.findall('RMS: ([\\d.-]+)', out)[-1]
 
 

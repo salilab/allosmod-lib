@@ -11,7 +11,7 @@ AllosMod - it is already set up for you as a module. Just run
 Dependencies
 ============
 
-* `Python <https://www.python.org>`_ 2.6 or later (Python 3 should also be OK).
+* `Python <https://www.python.org>`_ 3.6 or later.
 
 * `MODELLER <https://salilab.org/modeller/>`_. This library expects to be able
   to directly import the Modeller Python package (via ``import modeller``)

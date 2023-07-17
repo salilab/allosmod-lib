@@ -41,4 +41,4 @@ jobs:
         make PYTHON=python
         pytest --cov=. --cov-branch --cov-report=xml -v .
         flake8 . --exclude doc
-    - uses: codecov/codecov-action@v1
+    - uses: codecov/codecov-action@v3

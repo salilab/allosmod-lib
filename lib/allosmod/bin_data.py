@@ -56,8 +56,8 @@ In both <min> and <max> the 'm' character is treated as '-'.
     opts, args = parser.parse_args()
     if len(args) != 5:
         parser.error("incorrect number of arguments")
-    return(args[0], int(args[1]), float(args[2].replace('m', '-')),
-           float(args[3].replace('m', '-')), int(args[4]))
+    return (args[0], int(args[1]), float(args[2].replace('m', '-')),
+            float(args[3].replace('m', '-')), int(args[4]))
 
 
 def main():

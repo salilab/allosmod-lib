@@ -9,8 +9,8 @@ utils.set_search_paths(TOPDIR)
 
 
 def get_pdb_line(attyp, resnum, typ='ATOM'):
-    return("%-6s    1  %-3s TYR A%4d      24.417  18.891   8.203"
-           "  1.00  0.00           C\n" % (typ, attyp, resnum))
+    return ("%-6s    1  %-3s TYR A%4d      24.417  18.891   8.203"
+            "  1.00  0.00           C\n" % (typ, attyp, resnum))
 
 
 class Tests(unittest.TestCase):

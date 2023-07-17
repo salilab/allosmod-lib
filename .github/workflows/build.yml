@@ -25,12 +25,9 @@ jobs:
         sudo apt-get -qq update && sudo apt-get install -y swig
         pip install coverage pytest-cov flake8
         export PYTHON=`pip show coverage |grep Location|cut -b11-`
-        wget https://salilab.org/modeller/10.1/modeller_10.1-1_amd64.deb
-        sudo --preserve-env=KEY_MODELLER dpkg -i modeller_10.1-1_amd64.deb
+        wget https://salilab.org/modeller/10.4/modeller_10.4-1_amd64.deb
+        sudo --preserve-env=KEY_MODELLER dpkg -i modeller_10.4-1_amd64.deb
         modpyver=${{ matrix.python-version }}
-        # Modeller 10.1 doesn't support Python 3.10 but the 3.9 extension
-        # should work
-        if [ "${modpyver}" = "3.10" ]; then modpyver=3.9; fi
         ln -sf /usr/lib/python${modpyver}/dist-packages/_modeller.so ${PYTHON}
         ln -sf /usr/lib/python${modpyver}/dist-packages/modeller ${PYTHON}
         wget https://salilab.org/dssp/dssp-2.0.4-linux-amd64

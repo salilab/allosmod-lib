@@ -14,17 +14,6 @@ import allosmod.util  # noqa:E402
 
 
 class Tests(unittest.TestCase):
-    def test_check_output(self):
-        """Test check_output()"""
-        out = allosmod.util.check_output(['/bin/echo', 'foo'],
-                                         universal_newlines=True)
-        self.assertEqual(out, 'foo\n')
-        self.assertRaises(OSError, allosmod.util.check_output,
-                          ['/bin/echo', 'foo'], retcode=1)
-        out = allosmod.util.check_output(['/bin/cat'], input="foobar",
-                                         universal_newlines=True)
-        self.assertEqual(out, 'foobar')
-
     def test_subst_file(self):
         """Test subst_file"""
         s_in = StringIO("@VAR1@ @@ @VAR2@\nfoo@VAR1@bar")

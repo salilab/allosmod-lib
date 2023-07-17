@@ -2,6 +2,7 @@ import unittest
 import subprocess
 import os
 import sys
+from subprocess import check_output
 if sys.version_info[0] >= 3:
     from io import StringIO
 else:
@@ -10,7 +11,6 @@ import utils
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 test_dir = utils.set_search_paths(TOPDIR)
 
-from allosmod.util import check_output  # noqa: E402
 import allosmod.get_contacts  # noqa: E402
 import allosmod.get_ss  # noqa: E402
 import allosmod.edit_restraints  # noqa: E402

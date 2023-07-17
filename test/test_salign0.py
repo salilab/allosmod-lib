@@ -3,10 +3,9 @@ import subprocess
 import os
 import sys
 import utils
+from subprocess import check_output
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 utils.set_search_paths(TOPDIR)
-
-from allosmod.util import check_output  # noqa: E402
 
 test_pdb = """EXPDTA    THEORETICAL MODEL, MODELLER SVN 2015/05/15 09:37:25
 ATOM      1  CA  CYS A   1       1.453   2.100   3.200  0.00  0.00           C

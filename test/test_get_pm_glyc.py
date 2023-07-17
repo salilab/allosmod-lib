@@ -5,12 +5,12 @@ import shutil
 import unittest
 import subprocess
 import utils
+from subprocess import check_output
 TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 test_dir = utils.set_search_paths(TOPDIR)
 
 import allosmod.util  # noqa: E402
 import allosmod.get_pm_glyc  # noqa: E402
-from allosmod.util import check_output  # noqa: E402
 
 
 class Tests(unittest.TestCase):

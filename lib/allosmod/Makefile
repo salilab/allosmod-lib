@@ -29,9 +29,9 @@ ${PY}/config/__init__.py::
 	echo "datadir = r'${DATADIR}'" > $@
 	echo "local_scratch = r'${LOCAL_SCRATCH}'" >> $@
 	echo "global_scratch = r'${GLOBAL_SCRATCH}'" >> $@
-	python -m py_compile $@
+	${PYTHON} -m py_compile $@
 
 ${PY}/%: %
 	@if [ ! -d ${PY} ]; then mkdir -p ${PY}; fi
 	install -m 0644 $< $@
-	python -m py_compile $@
+	${PYTHON} -m py_compile $@

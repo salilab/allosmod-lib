@@ -4,7 +4,7 @@ import os
 for dir in ('.', 'util', 'modeller'):
     i = env.Install(os.path.join(env['pythondir'], 'allosmod', dir),
                     Glob('%s/*.py' % dir))
-    env.AddPostAction(i, 'python -m py_compile ${TARGET}')
+    env.AddPostAction(i, 'python3 -m py_compile ${TARGET}')
     env.Alias('install', i)
 
 # Auto-generate allosmod.config Python module with config info
@@ -22,5 +22,5 @@ i = env.Command(os.path.join(env['pythondir'], 'allosmod', 'config',
                               env.subst(env['local_scratch']),
                               env.subst(env['global_scratch'])))],
                 make_py_config)
-env.AddPostAction(i, 'python -m py_compile ${TARGET}')
+env.AddPostAction(i, 'python3 -m py_compile ${TARGET}')
 env.Alias('install', i)

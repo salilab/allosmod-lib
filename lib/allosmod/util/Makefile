@@ -10,4 +10,4 @@ install: ${FILES}
 ${PY}/%: %
 	@if [ ! -d ${PY} ]; then mkdir -p ${PY}; fi
 	install -m 0644 $< $@
-	python -m py_compile $@
+	${PYTHON} -m py_compile $@

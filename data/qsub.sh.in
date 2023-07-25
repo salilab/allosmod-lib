@@ -442,7 +442,7 @@ run_actual_job() {
   
   #get AllosModel subclasses from allosmod-lib
   if (test ! -e allosmod.py); then
-      ALLOSMOD_PY=`python -c 'import allosmod.modeller, os; print(os.path.splitext(allosmod.modeller.__file__)[0])'`
+      ALLOSMOD_PY=`python3 -c 'import allosmod.modeller, os; print(os.path.splitext(allosmod.modeller.__file__)[0])'`
       cp ${ALLOSMOD_PY}.py allosmod.py
   fi
   MDTEMP=`echo @MDTEMP@ | tr [A-Z] [a-z] | awk '{if($1=="scan"){print ('${jobname}'%5)*50+300.0}else{print $1}}'`
@@ -454,7 +454,7 @@ run_actual_job() {
   	allosmod make_pm_script -- pm.pdb list $RAND_NUM @DEVIATION@ script $MDTEMP
   	cp @DATADIR@/README_user $RUNDIR/README
   	if test "@SCRAPP@" == "true"; then
-  	    python model_run.py > model_run.log
+  	    python3 model_run.py > model_run.log
   	    JOBID=`echo $RUNDIR | awk 'BEGIN{FS="/"}{print $(NF-1)}'`
   	    OUTDIR=@GLOBAL_SCRATCH@/${JOBID}/pred_dE@DELEMAX@rAS@RAS@/@ASPDB@_${jobname}
   	    mkdir -p $OUTDIR
@@ -463,7 +463,7 @@ run_actual_job() {
       elif test "@SAMPLING@" == "moderate_cm" -o "@SAMPLING@" == "moderate_am" -o "@SAMPLING@" == "fast_cm"; then
   	allosmod make_pm_script -- pm.pdb list $RAND_NUM @DEVIATION@ @SAMPLING@ $MDTEMP
   	echo running modeller
-  	python model_run.py >& model_run.log
+  	python3 model_run.py >& model_run.log
   	echo done with modeller
       else
   	echo "sampling type not properly defined" >>${OUTDIR}/error.log
@@ -477,7 +477,7 @@ run_actual_job() {
         return 1
       fi
       #generate protein model with correct chains
-      python model_ini0.py > model_ini0.log 2>> ${OUTDIR}/error.log
+      python3 model_ini0.py > model_ini0.log 2>> ${OUTDIR}/error.log
       if test ! -s pm.pdb.B99990001.pdb; then
         echo "MODELLER has failed to create an initial model" >> ${OUTDIR}/error.log
         echo "Perhaps there is an issue with the alignment file; check for MODELLER errors in model_ini0.log" >>${OUTDIR}/error.log
@@ -496,7 +496,7 @@ run_actual_job() {
       if test -s ${OUTDIR}/error.log; then
         return 1
       fi
-      python model_ini.py > model_ini.log 2>> ${OUTDIR}/error.log
+      python3 model_ini.py > model_ini.log 2>> ${OUTDIR}/error.log
       if test -s ${OUTDIR}/error.log; then
         return 1
       fi
@@ -506,7 +506,7 @@ run_actual_job() {
       fi
       mv pm.pdb.rsr converted.rsr
       #sample glycosylated structures
-      python model_glyc.py > model_glyc.log
+      python3 model_glyc.py > model_glyc.log
       rm [A-Z][A-Z][A-Z].rsr get_rest.in
   fi
 }

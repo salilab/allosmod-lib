@@ -10,7 +10,7 @@ file containing interactions that will define the energy landscape
 
 To run, navigate to a run directory. Each run directory contains a unique
 starting structure (random.ini) and a unique run script (model_run.py).
-Type: "python model_run.py > model_run.log" to run it. The script will output
+Type: "python3 model_run.py > model_run.log" to run it. The script will output
 2000 snapshots by default (numbered 1001 to 3000) as well other data files.
 AllosMod implements the automodel class used in MODELLER for comparative
 modeling, although the optimization and refinement steps have been modified

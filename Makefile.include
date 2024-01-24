@@ -8,7 +8,7 @@ PYTHON=python3
 
 CC=gcc
 SWIG=swig
-PYTHON_CFLAGS=-I`echo "import distutils.sysconfig; print(distutils.sysconfig.get_python_inc())" | ${PYTHON}`
+PYTHON_CFLAGS=-I`echo "import sysconfig; print(sysconfig.get_path('include'))" | ${PYTHON}`
 GLIB2_CFLAGS=`pkg-config --cflags glib-2.0`
 MODELLER_CFLAGS=`pkg-config --cflags modeller`
 MODELLER_LIBS=`pkg-config --libs modeller`

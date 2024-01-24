@@ -113,7 +113,7 @@ class ConfigFile(object):
            Yields any parsing errors."""
         cp = ConfigParser()
         with open(fname) as fh:
-            cp.readfp(_FakeSectionHead(fh))
+            cp.read_file(_FakeSectionHead(fh))
         for name, value in cp.items('main'):
             self._d[name.upper()] = value
 

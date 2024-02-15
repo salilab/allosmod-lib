@@ -98,7 +98,7 @@ def none(atmsel, actions):
 
 #: Refine glycosylation
 def moderate(atmsel, actions):
-    """contant temperature annealing"""
+    """Constant temperature annealing"""
     _refine(atmsel, actions, cap=0.03, timestep=1.0,
             equil_its=300, equil_equil=20,
             equil_temps=(50.0, 150.0, 250.0, 300.0),
@@ -113,7 +113,7 @@ class ModerateAM(object):
         self.tmstep = tmstep
 
     def __call__(self, atmsel, actions):
-        """contant temperature annealing"""
+        """Constant temperature annealing"""
         # cap_atom_shift is 3 std dev above average avg max atomic move step;
         # this will change as a function of MDtemp and tmstep
         cap_atom_shift = \

@@ -188,7 +188,7 @@ Alter residue contact energies
 
 If desired, a file ``break.dat`` can be provided, which contains
 a list of residues whose pairwise contact energies (delEmax) will be
-scaled by a specifed value. Each line contains one residue index
+scaled by a specified value. Each line contains one residue index
 (corresponding to simulated sequence) in the first column and one
 scaling factor in the second column. For example, to reduce all
 contact energies for residue 30 by 90 %, ``break.dat`` would have one

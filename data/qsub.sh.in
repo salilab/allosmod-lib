@@ -93,7 +93,7 @@ run_actual_job() {
   if test @SAMPLING@ == "simulation" -o @SAMPLING@ == "moderate_am"; then
   
   ##########
-  #make initial structure: 1) randomized, interpolation of pdbs if NTOT>1 or ligand binding site is modeled 2) single model wtih rotations/translations if NTOT=1
+  #make initial structure: 1) randomized, interpolation of pdbs if NTOT>1 or ligand binding site is modeled 2) single model with rotations/translations if NTOT=1
   ##########
   NTOT=`allosmod count_alignments align.ali list pm.pdb`
   isLIGMOD=`awk 'BEGIN{a=1}($3=="XX"&&NR==1){a=0}END{print a}' lig.pdb`

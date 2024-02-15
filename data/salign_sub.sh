@@ -60,7 +60,7 @@ for (weights, write_fit, whole) in (((1., 0., 0., 0., 1., 0.), False, True),
                gap_penalties_3d=(0, 3), gap_gap_score=0, gap_residue_score=0,
                dendrogram_file='temp5773.tree', fit_atoms='${OPT}',
                alignment_type='tree', # If 'progresive', the tree is not
-                                      # computed and all structues will be
+                                      # computed and all structures will be
                                       # aligned sequentially to the first
                #ext_tree_file='1is3A_exmat.mtx', # Tree building can be avoided
                                                  # if the tree is input

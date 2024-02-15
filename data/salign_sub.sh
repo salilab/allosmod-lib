@@ -38,17 +38,17 @@ if test -e list.bak; then mv list.bak list; fi
 
 cat <<EOF >modeller.in
 
-from modeller import *
+import modeller
 
-log.verbose()
-env = environ()
+modeller.log.verbose()
+env = modeller.Environ()
 env.io.atom_files_directory = ['.', '../atom_files']
 
-aln = alignment(env)
+aln = modeller.Alignment(env)
 #for (code, chain) in (('$FF1', '$CC1'), ('$FF2', '$CC2')):
-#    mdl = model(env, file=code, model_segment=('FIRST:'+chain, 'LAST:'+chain)) 
+#    mdl = modeller.Model(env, file=code, model_segment=('FIRST:'+chain, 'LAST:'+chain))
 for (code) in (('$FF1'), ('$FF2')):
-    mdl = model(env, file=code)
+    mdl = modeller.Model(env, file=code)
     aln.append_model(mdl, atom_files=code, align_codes=code)
 
 for (weights, write_fit, whole) in (((1., 0., 0., 0., 1., 0.), False, True),
@@ -94,20 +94,20 @@ echo "quality percentage: " $SCOR >>run.log
 #echo "QS, %SI: " $FF1 $FF2 $SCOR $SI   
 
 cat <<EOF >modeller2.in
-from modeller import *
+import modeller
 
-log.verbose()
-env = environ()    
+modeller.log.verbose()
+env = modeller.Environ()
 env.io.atom_files_directory = ['.', '../atom_files']
 # Read in HETATM records from template PDBs
 env.io.hetatm = True
 
-aln = alignment(env)
-mdl  = model(env, file='2temp88_fit.pdb')
-mdl2 = model(env, file='$FF3')
-aln = alignment(env, file='1dsio.ali', align_codes=('$FF2', '$FF3'))
+aln = modeller.Alignment(env)
+mdl  = modeller.Model(env, file='2temp88_fit.pdb')
+mdl2 = modeller.Model(env, file='$FF3')
+aln = modeller.Alignment(env, file='1dsio.ali', align_codes=('$FF2', '$FF3'))
 
-atmsel = selection(mdl).only_atom_types('${OPT}')
+atmsel = modeller.Selection(mdl).only_atom_types('${OPT}')
 r = atmsel.superpose(mdl2, aln,superpose_refine=True,rms_cutoff=6.0)
 
 mdl2.write(file='${SFILE2}_fit.pdb')

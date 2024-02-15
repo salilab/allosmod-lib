@@ -9,12 +9,12 @@ utils.set_search_paths(TOPDIR)
 class Tests(unittest.TestCase):
     def make_model(self):
         import modeller
-        env = modeller.environ()
+        env = modeller.Environ()
         env.edat.dynamic_sphere = False
         with open('test.pdb', 'w') as fh:
             fh.write("ATOM      2  CA  ALA     1      27.449  14.935"
                      "   5.140  1.00 29.87           C\n")
-        m = modeller.model(env, file='test.pdb')
+        m = modeller.Model(env, file='test.pdb')
         os.unlink('test.pdb')
         return m
 
@@ -23,7 +23,7 @@ class Tests(unittest.TestCase):
         import modeller
         from allosmod.modeller.forms import TruncatedGaussian
         m = self.make_model()
-        feat = modeller.features.x_coordinate(m.atoms[0])
+        feat = modeller.features.XCoordinate(m.atoms[0])
         self.assertRaises(TypeError, TruncatedGaussian,
                           group=modeller.physical.xy_distance, feature=feat,
                           dele_max=10, slope=4.0, scl_delx=0.7,
@@ -38,13 +38,13 @@ class Tests(unittest.TestCase):
         import modeller
         from allosmod.modeller.forms import TruncatedGaussian
         m = self.make_model()
-        feat = modeller.features.x_coordinate(m.atoms[0])
+        feat = modeller.features.XCoordinate(m.atoms[0])
         f = TruncatedGaussian(group=modeller.physical.xy_distance,
                               feature=feat, dele_max=10, slope=4.0,
                               scl_delx=0.7, weights=(1, 1), means=(14, 28),
                               stdevs=(1, 2))
         m.restraints.add(f)
-        sel = modeller.selection(m)
+        sel = modeller.Selection(m)
         e = []
         for i in range(30):
             m.atoms[0].x = 2.0 * i

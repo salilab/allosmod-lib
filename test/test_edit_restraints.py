@@ -76,7 +76,7 @@ class Tests(unittest.TestCase):
                 fh.write("%d %s\n" % (i+1, "AS" if i < 10 else "RS"))
         with open('break.dat', 'w') as fh:
             fh.write('1 20')
-        env = modeller.environ()
+        env = modeller.Environ()
         env.io.hetatm = True
 
         e = RestraintEditor(

@@ -39,8 +39,8 @@ ATOM      7  CA  VAL A   2      26.593  16.867   8.258  1.00120.51           C
         self.setup_inputs()
         check_output(['allosmod', 'get_auto_align', 'align.ali', '1fdx',
                       'templates', 'align_suggested.ali'])
-        e = modeller.environ()
-        a = modeller.alignment(e, file='align_suggested.ali')
+        e = modeller.Environ()
+        a = modeller.Alignment(e, file='align_suggested.ali')
         self.assertEqual(len(a), 2)
         self.assertEqual(a[0].code, '1fdx')
         self.assertEqual(a[1].code, '5fd1')

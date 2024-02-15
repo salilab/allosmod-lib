@@ -53,9 +53,9 @@ ATOM      7  CA  TYR A   2      26.593  16.867   8.258  1.00120.51           C
             check_output(['allosmod', 'make_mod_inputs', '--', '1fdx',
                           'templates', '-3333', '3', '3', '3', '4'],
                          cwd=tempdir)
-            e = modeller.environ()
+            e = modeller.Environ()
             for fname in ('random.ini', '1fdx.ini'):
-                m = modeller.model(e, file=os.path.join(tempdir, fname))
+                m = modeller.Model(e, file=os.path.join(tempdir, fname))
                 self.assertEqual([x.code for x in m.residues], ['A', 'Y'])
                 # Should have converted CA-only in all-atom model
                 self.assertEqual(len(m.atoms), 18)
@@ -74,7 +74,7 @@ ATOM      7  CA  TYR A   2      26.593  16.867   8.258  1.00120.51           C
         def mock_make(cls, exit_stage):
             self.assertEqual(exit_stage, 1)
             self.assertAlmostEqual(cls.max_sc_sc_distance, 14.0, places=1)
-        with utils.mock_method(modeller.automodel.automodel, 'make',
+        with utils.mock_method(modeller.automodel.AutoModel, 'make',
                                mock_make):
             make_mod_inputs('1fdx', ['5fd1'], -3333, [3, 3, 3], 4, True)
         for f in ('templates', 'avgpdb.pdb', '5fd1', 'align.ali',

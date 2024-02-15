@@ -1,8 +1,8 @@
-from modeller import *
+import modeller
 from modeller.scripts import complete_pdb
 import allosmod
 
-env = environ(rand_seed=@RAND@)
+env = modeller.Environ(rand_seed=@RAND@)
 env.io.atom_files_directory = ['../atom_files']
 env.libs.topology.read(file='$(LIB)/top_heav.lib')
 env.libs.parameters.read(file='$(LIB)/par.lib')

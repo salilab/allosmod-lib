@@ -11,8 +11,8 @@ def convert_restraints(rsr):
     for group in (physical.ca_distance, physical.n_o_distance,
                   physical.sd_mn_distance, physical.sd_sd_distance,
                   physical.xy_distance, physical.disulfide_distance):
-        for form in (TruncatedGaussian, forms.multi_gaussian):
-            rsr.spline(form, features.distance, group,
+        for form in (TruncatedGaussian, forms.MultiGaussian):
+            rsr.spline(form, features.Distance, group,
                        spline_dx=0.05, spline_range=4.0,
                        spline_min_points=5, edat=None)
 

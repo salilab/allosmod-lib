@@ -38,7 +38,7 @@ AFVV*
 structureX:5fd1.pdb:1    :A:106  :A::: 1.90: 0.19
 AFVV*
 """)
-        e = modeller.environ()
+        e = modeller.Environ()
         self.assertEqual(get_target(e, 'foo', 'test.aln'), 'foo')
         self.assertEqual(get_target(e, None, 'test.aln'), '1fdx')
         os.unlink('test.aln')
@@ -64,8 +64,8 @@ ATOM      7  CA  TYR     2      26.593  16.867   8.258  1.00120.51           C
                           '--target', 'foo',
                           '--keep-alignment', 'test.aln', 'templates',
                           '.', '1', 'slow'], cwd=tmpdir)
-            e = modeller.environ()
-            m = modeller.model(e, file=os.path.join(tmpdir, 'pred_1fdx',
+            e = modeller.Environ()
+            m = modeller.Model(e, file=os.path.join(tmpdir, 'pred_1fdx',
                                'foo.B99990001.pdb'))
             self.assertEqual([x.code for x in m.residues], ['A', 'W'])
             self.assertEqual(m.chains[0].name, 'A')

@@ -13,9 +13,10 @@ Dependencies
 
 * `Python <https://www.python.org>`_ 3.6 or later.
 
-* `MODELLER <https://salilab.org/modeller/>`_. This library expects to be able
-  to directly import the Modeller Python package (via ``import modeller``)
-  and to run the Modeller binary (e.g. :command:`mod9.15`). If you installed
+* `MODELLER <https://salilab.org/modeller/>`_ 10.0 or later. This library
+  expects to be able to directly import the Modeller Python package
+  (via ``import modeller``) and to run the Modeller binary
+  (e.g. :command:`mod10.5`). If you installed
   Modeller from the ``.tar.gz`` package, you will need to set the
   ``PYTHONPATH``, ``PATH`` and ``LD_LIBRARY_PATH`` environment variables
   to facilitate this.

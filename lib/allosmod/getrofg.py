@@ -1,6 +1,5 @@
 """Get the radius of gyration of a PDB file"""
 
-from __future__ import print_function
 import optparse
 import allosmod.util
 from allosmod.getcofm import CenterOfMassPDBParser

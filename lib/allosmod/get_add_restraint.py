@@ -1,6 +1,5 @@
 """Generate Modeller distance restraints."""
 
-from __future__ import print_function, absolute_import, division
 import optparse
 import re
 import collections

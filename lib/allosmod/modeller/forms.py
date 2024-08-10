@@ -1,5 +1,3 @@
-from __future__ import print_function, absolute_import
-
 import modeller
 from allosmod.modeller import _truncated_gaussian
 

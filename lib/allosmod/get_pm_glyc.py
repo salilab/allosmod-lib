@@ -1,6 +1,5 @@
 """Generate Modeller inputs to model with glycosylation"""
 
-from __future__ import print_function, absolute_import
 import optparse
 import allosmod.util
 import allosmod.util.align

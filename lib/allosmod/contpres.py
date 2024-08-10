@@ -1,6 +1,5 @@
 """Get all residues involved in charge contacts."""
 
-from __future__ import print_function, absolute_import, division
 import modeller
 import math
 import allosmod.util

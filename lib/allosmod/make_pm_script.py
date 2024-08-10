@@ -1,6 +1,5 @@
 """Make a script to generate perturbation models (PM)."""
 
-from __future__ import print_function, absolute_import
 import optparse
 import allosmod.util
 

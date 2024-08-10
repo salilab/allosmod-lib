@@ -1,8 +1,6 @@
 """Modified optimization protocols to sample AllosMod landscapes
    using MODELLER."""
 
-from __future__ import absolute_import
-
 from modeller.energy_data import EnergyData
 from modeller.automodel import AutoModel
 from modeller.schedule import Schedule, Step

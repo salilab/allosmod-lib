@@ -1,6 +1,5 @@
 """Suggest an alignment of target with templates."""
 
-from __future__ import print_function, absolute_import
 import optparse
 import os
 import allosmod.util

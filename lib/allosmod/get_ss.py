@@ -1,6 +1,5 @@
 """Get secondary structure with DSSP."""
 
-from __future__ import print_function, absolute_import
 import optparse
 import subprocess
 

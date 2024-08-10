@@ -1,6 +1,5 @@
 """Make a PDB file by averaging two others"""
 
-from __future__ import print_function, absolute_import
 import optparse
 import subprocess
 import allosmod.util

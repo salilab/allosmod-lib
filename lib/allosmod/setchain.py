@@ -1,6 +1,5 @@
 """Set the chain ID on a PDB file."""
 
-from __future__ import print_function
 import optparse
 import fileinput
 

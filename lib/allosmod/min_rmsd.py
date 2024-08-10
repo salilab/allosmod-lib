@@ -1,6 +1,5 @@
 """Get RMSD between two structures."""
 
-from __future__ import print_function, absolute_import
 import optparse
 import os
 import re

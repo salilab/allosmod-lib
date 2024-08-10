@@ -1,6 +1,5 @@
 """Get the center of mass of a PDB file"""
 
-from __future__ import print_function
 import optparse
 import allosmod.util
 

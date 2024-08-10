@@ -1,6 +1,5 @@
 """Check inputs and do initial setup."""
 
-from __future__ import print_function
 import optparse
 try:
     from configparser import ConfigParser

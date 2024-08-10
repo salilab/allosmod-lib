@@ -1,6 +1,5 @@
 """Modify PDB residues that Modeller cannot recognize."""
 
-from __future__ import print_function
 import optparse
 import fileinput
 

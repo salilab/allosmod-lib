@@ -1,6 +1,5 @@
 """Make a list of all contacts between two structures."""
 
-from __future__ import print_function, absolute_import
 import allosmod.util
 from allosmod.get_contacts import _get_average_aa, get_contact_type
 from allosmod.get_contacts import get_contact_dist

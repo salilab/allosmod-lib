@@ -1,6 +1,5 @@
 """Get the allosteric site (all residues near the ligand)"""
 
-from __future__ import print_function, absolute_import
 import modeller
 import os
 import allosmod.util

@@ -1,6 +1,5 @@
 """Calculate q matrix for given proteins."""
 
-from __future__ import print_function, absolute_import
 import optparse
 import math
 import random

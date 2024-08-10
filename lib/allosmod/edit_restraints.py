@@ -1,6 +1,5 @@
 """Create AllosMod-specific restraints"""
 
-from __future__ import print_function, absolute_import, division
 import modeller
 import sys
 import allosmod.util

@@ -1,6 +1,5 @@
 """Count the number of alignments per residue."""
 
-from __future__ import print_function, absolute_import, division
 import optparse
 import allosmod.util
 

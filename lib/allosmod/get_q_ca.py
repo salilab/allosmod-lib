@@ -1,6 +1,5 @@
 """Calculate q for CA atoms."""
 
-from __future__ import print_function, absolute_import
 import optparse
 import math
 from allosmod.get_qiavg_ca import get_distance, get_coordinates

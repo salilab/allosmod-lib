@@ -1,6 +1,5 @@
 """Make initial perturbation model (PM) from sequence."""
 
-from __future__ import print_function, absolute_import
 import shutil
 import os
 import modeller

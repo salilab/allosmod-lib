@@ -1,6 +1,5 @@
 """Rotate a PDB file"""
 
-from __future__ import print_function
 import optparse
 import math
 

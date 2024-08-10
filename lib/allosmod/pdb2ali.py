@@ -1,6 +1,5 @@
 """Convert a PDB file to a Modeller alignment file."""
 
-from __future__ import print_function
 import optparse
 import sys
 import collections

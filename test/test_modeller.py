@@ -1,7 +1,6 @@
 import unittest
 import modeller.automodel.randomize
 from modeller.optimizers import MolecularDynamics
-import sys
 from io import StringIO
 import os
 import utils

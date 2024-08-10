@@ -1,10 +1,7 @@
 """Check inputs and do initial setup."""
 
 import optparse
-try:
-    from configparser import ConfigParser
-except ImportError:
-    from ConfigParser import SafeConfigParser as ConfigParser
+from configparser import ConfigParser
 import allosmod.util
 import allosmod.getcofm
 import allosmod.config
@@ -30,8 +27,6 @@ class _FakeSectionHead(object):
             raise StopIteration
         else:
             return line
-    if sys.version_info[0] == 2:
-        next = __next__
 
     def readline(self):
         if self.sechead:

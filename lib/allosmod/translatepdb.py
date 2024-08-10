@@ -1,6 +1,6 @@
 """Translate a PDB file"""
 
-import optparse
+import argparse
 
 
 def translatepdb(pdb_file, dx, dy, dz):
@@ -15,21 +15,19 @@ def translatepdb(pdb_file, dx, dy, dz):
 
 
 def parse_args():
-    usage = """%prog <PDB file> <dx> <dy> <dz>
-
-Translate all ATOM and HETATM records in a PDB file, and write them
-to standard output.
-"""
-    parser = optparse.OptionParser(usage)
-    options, args = parser.parse_args()
-    if len(args) != 4:
-        parser.error("incorrect number of arguments")
-    return args[0], float(args[1]), float(args[2]), float(args[3])
+    parser = argparse.ArgumentParser(
+        description="Translate all ATOM and HETATM records in a PDB file, "
+                    "and write them to standard output.")
+    parser.add_argument("pdb", help="PDB file")
+    parser.add_argument("dx", type=float, help="x offset")
+    parser.add_argument("dy", type=float, help="y offset")
+    parser.add_argument("dz", type=float, help="z offset")
+    return parser.parse_args()
 
 
 def main():
-    pdb_file, dx, dy, dz = parse_args()
-    translatepdb(pdb_file, dx, dy, dz)
+    args = parse_args()
+    translatepdb(args.pdb, args.dx, args.dy, args.dz)
 
 
 if __name__ == '__main__':

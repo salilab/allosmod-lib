@@ -1,6 +1,6 @@
 """Suggest an alignment of target with templates."""
 
-import optparse
+import argparse
 import os
 import allosmod.util
 from allosmod.pdb2ali import pdb2ali
@@ -25,27 +25,27 @@ def get_auto_align(in_aln_file, target, templates, out_aln_file):
 
 
 def parse_args():
-    usage = """%prog <input align file> <target> <templates file>
-                  <output align file>
-
+    parser = argparse.ArgumentParser(description="""
 Suggest an alignment of target with templates.
 
 The sequence for <target> is read from <input align file>, is
 combined with the sequences for each template in <templates file>,
 and the combination is automatically aligned with SALIGN and written
 out as <output align file>.
-"""
-    parser = optparse.OptionParser(usage)
-    options, args = parser.parse_args()
-    if len(args) != 4:
-        parser.error("incorrect number of arguments")
-    return args
+""")
+    parser.add_argument("in_align", help="Input alignment file")
+    parser.add_argument("target", help="Target alignment code")
+    parser.add_argument("templates",
+                        help="File containing a list of templates")
+    parser.add_argument("out_align", help="Output alignment file")
+    return parser.parse_args()
 
 
 def main():
-    in_aln_file, target, templates_file, out_aln_file = parse_args()
-    get_auto_align(in_aln_file, target,
-                   allosmod.util.read_templates(templates_file), out_aln_file)
+    args = parse_args()
+    get_auto_align(args.in_align, args.target,
+                   allosmod.util.read_templates(args.templates),
+                   args.out_align)
 
 
 if __name__ == '__main__':

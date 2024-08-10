@@ -1,6 +1,6 @@
 """Check inputs and do initial setup."""
 
-import optparse
+import argparse
 from configparser import ConfigParser
 import allosmod.util
 import allosmod.getcofm
@@ -341,19 +341,14 @@ class Setup(object):
 
 
 def parse_args():
-    usage = """%prog
-
+    parser = argparse.ArgumentParser(description="""
 Check inputs and do initial setup.
 If all the inputs are OK, a script file qsub.sh is generated. This is designed
 to be run on an SGE cluster, and will generate MODELLER input files for the
 AllosMod protocol. If the SCRAPP option is turned on in input.dat, the files
 will automatically be run and the outputs deposited on the global scratch disk.
-"""
-    parser = optparse.OptionParser(usage)
-    options, args = parser.parse_args()
-    if len(args) != 0:
-        parser.error("incorrect number of arguments")
-    return
+""")
+    _ = parser.parse_args()
 
 
 def main():

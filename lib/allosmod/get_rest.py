@@ -1,6 +1,6 @@
 """Generate Modeller restraints for glycosylation."""
 
-import optparse
+import argparse
 import subprocess
 import allosmod.util
 import sys
@@ -13,16 +13,12 @@ def get_rest(pdb):
 
 
 def parse_args():
-    usage = """%%prog [opts] <pdb>
+    parser = argparse.ArgumentParser(
+        description="Generate Modeller restraints for glycosylation.")
+    parser.add_argument("pdb", help="PDB file")
 
-Generate Modeller restraints for glycosylation.
-"""
-    parser = optparse.OptionParser(usage)
-
-    opts, args = parser.parse_args()
-    if len(args) != 1:
-        parser.error("incorrect number of arguments")
-    return args[0]
+    args = parser.parse_args()
+    return args.pdb
 
 
 def main():

@@ -1,6 +1,6 @@
 """Get the center of mass of a PDB file"""
 
-import optparse
+import argparse
 import allosmod.util
 
 
@@ -17,15 +17,13 @@ class CenterOfMassPDBParser(allosmod.util.PDBParser):
 
 
 def parse_args():
-    usage = """%prog <PDB file>
+    parser = argparse.ArgumentParser(
+        description="Get and print the center of mass of all ATOMs in the "
+                    "given PDB file.")
+    parser.add_argument("pdb", help="PDB file")
 
-Get and print the center of mass of all ATOMs in the given PDB file.
-"""
-    parser = optparse.OptionParser(usage)
-    options, args = parser.parse_args()
-    if len(args) != 1:
-        parser.error("incorrect number of arguments")
-    return args[0]
+    args = parser.parse_args()
+    return args.pdb
 
 
 def main():

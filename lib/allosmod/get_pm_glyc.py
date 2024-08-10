@@ -1,6 +1,6 @@
 """Generate Modeller inputs to model with glycosylation"""
 
-import optparse
+import argparse
 import allosmod.util
 import allosmod.util.align
 import allosmod.config
@@ -339,31 +339,29 @@ def get_pm_glyc(target, template_file, rand, rep_opt, att_gap, glycpm):
 
 
 def parse_args():
-    usage = """%prog [opts] <target> <templates> <rand> <rep_opt>
-                 <att_gap> <glycpm>
+    parser = argparse.ArgumentParser(
+        description="Generate Modeller scripts and alignments to model "
+                    "with glycosylation.")
+    parser.add_argument("target",
+                        help="alignment code of the target (usually pm.pdb)")
+    parser.add_argument("template",
+                        help="file containing a list of all templates")
+    parser.add_argument("rand", type=int, help="random seed")
+    parser.add_argument("rep_opt", type=int,
+                        help="option to allow repeat optimization")
+    parser.add_argument("att_gap",
+                        help='if set to "TRUE", inserts gaps to allow '
+                             'flexibility at glycosylation sites')
+    parser.add_argument("glycpm",
+                        help='either "script" or the name of a PDB file')
 
-Generate Modeller scripts and alignments to model with glycosylation.
-
-<target> alignment code of the target (usually pm.pdb)
-<template_file> file containing a list of all templates
-<rand> random seed
-<rep_opt> option to allow repeat optimization
-<att_gap> if set to "TRUE", inserts gaps to allow flexibility at
-          glycosylation sites
-<glycpm> either "script" or the name of a PDB file
-"""
-    parser = optparse.OptionParser(usage)
-
-    opts, args = parser.parse_args()
-    if len(args) != 6:
-        parser.error("incorrect number of arguments")
-    return args
+    return parser.parse_args()
 
 
 def main():
-    target, template_file, rand, rep_opt, att_gap, glycpm = parse_args()
-    get_pm_glyc(target, template_file, int(rand), int(rep_opt),
-                att_gap, glycpm)
+    args = parse_args()
+    get_pm_glyc(args.target, args.template_file, args.rand, args.rep_opt,
+                args.att_gap, args.glycpm)
 
 
 if __name__ == '__main__':

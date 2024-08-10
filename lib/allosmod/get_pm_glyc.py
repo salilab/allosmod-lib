@@ -344,7 +344,7 @@ def parse_args():
                     "with glycosylation.")
     parser.add_argument("target",
                         help="alignment code of the target (usually pm.pdb)")
-    parser.add_argument("template",
+    parser.add_argument("template_file",
                         help="file containing a list of all templates")
     parser.add_argument("rand", type=int, help="random seed")
     parser.add_argument("rep_opt", type=int,

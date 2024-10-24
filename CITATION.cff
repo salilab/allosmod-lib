@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Weinkam"
+  given-names: "Patrick"
+- family-names: "Pons"
+  given-names: "Jaume"
+- family-names: "Sali"
+  given-names: "Andrej"
+title: "AllosMod"
+url: "https://github.com/salilab/allosmod-lib"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Weinkam"
+    given-names: "Patrick"
+  - family-names: "Pons"
+    given-names: "Jaume"
+  - family-names: "Sali"
+    given-names: "Andrej"
+  doi: "10.1073/pnas.1116274109"
+  journal: "Proc Natl Acad Sci USA"
+  month: 3
+  start: 4875
+  end: 4880
+  title: "Structure-based model of allostery predicts coupling between distant sites"
+  volume: 109
+  issue: 13
+  year: 2012

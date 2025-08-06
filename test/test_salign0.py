@@ -29,11 +29,11 @@ class Tests(unittest.TestCase):
         """Test determine_fit_atoms() function"""
         import allosmod.salign0
 
-        class MockAtom(object):
+        class MockAtom:
             def __init__(self, name):
                 self.name = name
 
-        class MockModel(object):
+        class MockModel:
             def __init__(self, names):
                 self.atoms = [MockAtom(n) for n in names]
         m = MockModel(['N', 'CA', 'CA', 'CA', 'P', 'P', 'P'])

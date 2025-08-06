@@ -35,7 +35,7 @@ MDopt = Schedule(
 
 
 #: MD equilibration and simulation
-class ConstTemp(object):
+class ConstTemp:
     def __init__(self, md_temp=300.0, tmstep=3.0, nmov=2000, incequil=200,
                  incmov=1000):
         self.MDtemp = md_temp    # temperature for the MD run
@@ -105,7 +105,7 @@ def moderate(atmsel, actions):
 
 
 #: Refine quickly using AllosMod energy landscape
-class ModerateAM(object):
+class ModerateAM:
     def __init__(self, md_temp=300.0, tmstep=2.0):
         self.MDtemp = md_temp  # temperature for the MD run
         self.tmstep = tmstep

@@ -123,7 +123,7 @@ a.make()
 """ % svars)
 
 
-class Sugar(object):
+class Sugar:
     _one_letter_map = {'NAG': '1', 'MAN': '2', 'BMA': '3', 'GLB': '4',
                        'FUC': '5', 'NAN': '8', 'NGA': '9'}
     _connect_atom_map = {'NGLA': 'ND2', 'NGLB': 'ND2',
@@ -209,7 +209,7 @@ def get_first_unused_chain(chain_for_res):
     raise ValueError("Cannot find an unused chain ID")
 
 
-class _Connection(object):
+class _Connection:
     """Represent a connection between residues"""
     def __init__(self, patch_type, residues, chains, atom_type):
         self.patch_type, self.residues = patch_type, residues

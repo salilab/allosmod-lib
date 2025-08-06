@@ -3,7 +3,7 @@
 import os
 import sys
 
-class CommandDispatcher(object):
+class CommandDispatcher:
     """Pass execution to another Python module.
     """
 

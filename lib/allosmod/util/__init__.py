@@ -78,7 +78,7 @@ class FileFormatError(Exception):
     pass
 
 
-class Sequence(object):
+class Sequence:
     """Representation of a single amino acid sequence"""
 
     def __init__(self):
@@ -93,7 +93,7 @@ class Sequence(object):
         return self.primary.replace('-', '').replace('/', '')
 
 
-class PIRFile(object):
+class PIRFile:
     """Representation of a PIR-format file"""
 
     def _parse_pir_header(self, num, line, seq):
@@ -159,7 +159,7 @@ class PIRFile(object):
         print('*', file=fh)
 
 
-class PDBParser(object):
+class PDBParser:
     def __init__(self, filter):
         self.filter = filter
 

@@ -22,7 +22,7 @@ def charged_ca_pair(a1, a2):
            and a2.residue.pdb_name in charged_residues
 
 
-class ChargedContactFinder(object):
+class ChargedContactFinder:
     def __init__(self, env, rsr_file, pdb_file):
         self.env, self.rsr_file, self.pdb_file = env, rsr_file, pdb_file
 

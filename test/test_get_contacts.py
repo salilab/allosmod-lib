@@ -13,7 +13,7 @@ MockResidue = collections.namedtuple('MockResidue', ['pdb_name', 'atoms'])
 MockAtom = collections.namedtuple('MockAtom', ['name', 'x', 'y', 'z'])
 
 
-class AtomList(object):
+class AtomList:
     def __init__(self, *atoms):
         self.atoms = atoms
         self.atom_map = {}
@@ -44,7 +44,7 @@ class Tests(unittest.TestCase):
         """Test get_contact_type()"""
         from allosmod.get_contacts import get_contact_type
 
-        class Residue(object):
+        class Residue:
             def __init__(self, r):
                 self.pdb_name = r
         self.assertEqual(get_contact_type(Residue('ALA'), Residue('GLY')), 2)
@@ -75,7 +75,7 @@ class Tests(unittest.TestCase):
         """Test get_contact_dist()"""
         from allosmod.get_contacts import get_contact_dist
 
-        class Residue(object):
+        class Residue:
             def __init__(self, av):
                 self.average = av
         self.assertEqual(get_contact_dist(Residue(((0, 0, 0),)),

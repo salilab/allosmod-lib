@@ -9,16 +9,9 @@ TOPDIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 utils.set_search_paths(TOPDIR)
 import allosmod.setup  # noqa: E402
 
-# Python's error for float("foo") changes wording between releases
-if sys.version_info[:2] == (2, 6):
-    def float_fail(val):
-        return "invalid literal for float(): %s" % val
-elif sys.version_info[0] >= 3:
-    def float_fail(val):
-        return "could not convert string to float: '%s'" % val
-else:
-    def float_fail(val):
-        return "could not convert string to float: %s" % val
+
+def float_fail(val):
+    return "could not convert string to float: '%s'" % val
 
 
 class Tests(unittest.TestCase):

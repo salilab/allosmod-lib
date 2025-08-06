@@ -5,7 +5,7 @@ import math
 from allosmod.get_qiavg_ca import get_distance, get_coordinates
 
 
-class QScore(object):
+class QScore:
     def __init__(self):
         self.q = 0.
         self.count = 0
@@ -21,7 +21,7 @@ class QScore(object):
             return self.q / self.count
 
 
-class QScores(object):
+class QScores:
     def __init__(self):
         self.q = QScore()
         self.qs = QScore()

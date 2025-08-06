@@ -82,7 +82,7 @@ class Tests(unittest.TestCase):
             ['test.pdb'], 'atomlistASRS', sigmas, 10.0, 0.1,
             'break.dat', False, False)
 
-        class Residue(object):
+        class Residue:
             pass
 
         def mock_get_cont(fname, rcut):
@@ -121,7 +121,7 @@ class Tests(unittest.TestCase):
 
     def test_sigmas(self):
         """Test Sigmas class"""
-        class Atom(object):
+        class Atom:
             def __init__(self, isAS, isSC):
                 self.isAS, self.isSC = isAS, isSC
         # Test one template, allosteric site, BB-BB
@@ -168,10 +168,10 @@ class Tests(unittest.TestCase):
         """Test TruncatedGaussianParameters class"""
         from allosmod.edit_restraints import TruncatedGaussianParameters
 
-        class Residue(object):
+        class Residue:
             pass
 
-        class Atom(object):
+        class Atom:
             def __init__(self, ri):
                 self.a = self
                 self.a.residue = Residue()
@@ -202,7 +202,7 @@ class Tests(unittest.TestCase):
         """Test Restraint base class"""
         from allosmod.edit_restraints import Restraint
 
-        class Atom(object):
+        class Atom:
             def __init__(self, ind):
                 self.index = ind
                 self.a = self
@@ -213,10 +213,10 @@ class Tests(unittest.TestCase):
     def make_restraint(self, modify_atom_func, args, natom, cls, fmt):
         from allosmod.edit_restraints import Atom
 
-        class ModellerResidue(object):
+        class ModellerResidue:
             hetatm = False
 
-        class ModellerAtom(object):
+        class ModellerAtom:
             def __init__(self, ind):
                 self.index = ind
                 self.residue = ModellerResidue()
@@ -390,7 +390,7 @@ class Tests(unittest.TestCase):
         from allosmod.edit_restraints import GaussianRestraint
         from allosmod.edit_restraints import TruncatedGaussianParameters
 
-        class Atom(object):
+        class Atom:
             def __init__(self, ind):
                 self.index = ind
                 self.a = self
@@ -436,7 +436,7 @@ class Tests(unittest.TestCase):
         from allosmod.edit_restraints import MultiGaussianRestraint
         from allosmod.edit_restraints import TruncatedGaussianParameters
 
-        class Atom(object):
+        class Atom:
             def __init__(self, ind):
                 self.index = ind
                 self.a = self
@@ -489,7 +489,7 @@ class Tests(unittest.TestCase):
         """Test CosineRestraint class"""
         from allosmod.edit_restraints import CosineRestraint
 
-        class Atom(object):
+        class Atom:
             def __init__(self, ind):
                 self.index = ind
                 self.a = self
@@ -514,7 +514,7 @@ class Tests(unittest.TestCase):
         """Test BinormalRestraint class"""
         from allosmod.edit_restraints import BinormalRestraint
 
-        class Atom(object):
+        class Atom:
             def __init__(self, ind):
                 self.index = ind
                 self.a = self
@@ -531,7 +531,7 @@ class Tests(unittest.TestCase):
         """Test SplineRestraint class"""
         from allosmod.edit_restraints import SplineRestraint
 
-        class Atom(object):
+        class Atom:
             def __init__(self, ind):
                 self.index = ind
                 self.a = self
@@ -548,7 +548,7 @@ class Tests(unittest.TestCase):
         """Test restraint filters"""
         from allosmod.edit_restraints import filter_rs_rs, filter_not_rs_rs
 
-        class Atom(object):
+        class Atom:
             def __init__(self, isAS):
                 self.isAS = isAS
         as_as = (Atom(True), Atom(True))
@@ -570,7 +570,7 @@ class Tests(unittest.TestCase):
         """Test add_ca_boundary_restraints()"""
         from allosmod.edit_restraints import add_ca_boundary_restraints
 
-        class Atom(object):
+        class Atom:
             def __init__(self, ind, isCA):
                 self.isCA = isCA
                 self.index = ind
@@ -589,7 +589,7 @@ class Tests(unittest.TestCase):
         from allosmod.edit_restraints import parse_restraints_file
         from allosmod.edit_restraints import filter_rs_rs
 
-        class Atom(object):
+        class Atom:
             def __init__(self, ind, isAS):
                 self.index = ind
                 self.a = self
@@ -622,10 +622,10 @@ class Tests(unittest.TestCase):
         """Test ContactMap class"""
         from allosmod.edit_restraints import ContactMap, Atom
 
-        class ModellerResidue(object):
+        class ModellerResidue:
             pass
 
-        class ModellerAtom(object):
+        class ModellerAtom:
             def __init__(self, ind):
                 self.residue = ModellerResidue()
                 self.residue.index = ind
@@ -677,7 +677,7 @@ class Tests(unittest.TestCase):
 
     def test_parse_other(self):
         """Test parse of restraints unknown to AllosMod"""
-        class MockRestraint(object):
+        class MockRestraint:
             atoms = []
 
             def is_intrahet(self):

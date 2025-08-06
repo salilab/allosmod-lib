@@ -19,7 +19,7 @@ def get_fit_filename(pdb):
         return pdb + '_fit.pdb'
 
 
-class AllostericSiteFinder(object):
+class AllostericSiteFinder:
     def __init__(self, env, pdb1, ligand, pdb2, rcut):
         self.__allosteric_site = None
         self.env, self.pdb1, self.ligand, self.pdb2, self.rcut \

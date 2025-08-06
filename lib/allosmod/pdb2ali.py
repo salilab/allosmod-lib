@@ -34,7 +34,7 @@ def get_residues(pdb_file):
                                       chain, resnum)
 
 
-class SequencePrinter(object):
+class SequencePrinter:
     def __init__(self, fh):
         self.fh = fh
         self.num_printed = 0

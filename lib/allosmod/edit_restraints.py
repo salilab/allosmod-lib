@@ -7,7 +7,7 @@ import allosmod.get_contacts
 import allosmod.get_ss
 
 
-class Sigmas(object):
+class Sigmas:
     def __init__(self, ntotal, sig_AS, sig_RS, sig_inter):
         self.ntotal = ntotal
         self.sig_AS = sig_AS
@@ -40,7 +40,7 @@ class Sigmas(object):
             return self.sig_inter*sig_scale
 
 
-class TruncatedGaussianParameters(object):
+class TruncatedGaussianParameters:
     def __init__(self, delEmax, delEmaxNUC, slope, scl_delx, breaks):
         self.delEmax, self.delEmaxNUC, self.slope = delEmax, delEmaxNUC, slope
         self.scl_delx, self.breaks = scl_delx, breaks
@@ -61,7 +61,7 @@ class TruncatedGaussianParameters(object):
             return self.delEmax * 10.0 if local else self.delEmax
 
 
-class Restraint(object):
+class Restraint:
     def __init__(self, line, atoms):
         self.line = line
         spl = line.split()
@@ -284,14 +284,14 @@ def parse_restraints_file(fh, atoms, filter=None):
                 yield r
 
 
-class Atom(object):
+class Atom:
     isAS = isNUC = isSC = isCA = isCB = torestr = False
 
     def __init__(self, a):
         self.a = a
 
 
-class ContactMap(object):
+class ContactMap:
     def __init__(self):
         self.__d = {}
 
@@ -370,7 +370,7 @@ def get_nuc_restrained(atm_name, res_name):
         return atm_name in ('N1', 'C2', 'O2', 'N3', 'C4', 'N4', 'C5', 'C6')
 
 
-class RestraintEditor(object):
+class RestraintEditor:
     # if empty_AS, then only use: cov bonds, angles, dihedrals for AS
     # (ignore nonbonded contacts within AS site, RS and interface OK)
     empty_AS = False

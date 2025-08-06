@@ -13,7 +13,7 @@ import sys
 AlignInfo = collections.namedtuple('AlignInfo', ['codes', 'maxres'])
 
 
-class _FakeSectionHead(object):
+class _FakeSectionHead:
     def __init__(self, fp):
         self.fp = fp
         self.sechead = '[main]\n'
@@ -43,7 +43,7 @@ class _FakeSectionHead(object):
                 return line
 
 
-class ConfigFile(object):
+class ConfigFile:
     """AllosMod config file (input.dat).
        After calling parse(), config can be looked up like a dict, e.g.
 
@@ -127,7 +127,7 @@ class ConfigFile(object):
             else:
                 return float(val)
 
-        class ParseChoice(object):
+        class ParseChoice:
             def __init__(self, choices):
                 self.choices = choices
 
@@ -194,7 +194,7 @@ class ConfigFile(object):
             self['COARSE'] = True
 
 
-class ErrorAccumulator(object):
+class ErrorAccumulator:
     error = False
 
     def report(self, msg):
@@ -202,7 +202,7 @@ class ErrorAccumulator(object):
         self.error = True
 
 
-class Setup(object):
+class Setup:
     align_file = 'align.ali'
     list_file = 'list'
     dat_file = 'input.dat'

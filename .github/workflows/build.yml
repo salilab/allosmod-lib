@@ -22,7 +22,7 @@ jobs:
       env:
         KEY_MODELLER: ${{ secrets.KEY_MODELLER }}
       run: |
-        sudo apt-get -qq update && sudo apt-get install -y swig
+        sudo apt-get -qq update && sudo apt-get install -y swig libglib2.0-dev
         pip install coverage pytest-cov flake8
         export PYTHON=`pip show coverage |grep Location|cut -b11-`
         wget https://salilab.org/modeller/10.7/modeller_10.6-1_amd64.deb
